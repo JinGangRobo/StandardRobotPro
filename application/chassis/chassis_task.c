@@ -64,8 +64,6 @@ void chassis_task(void const * pvParameters)
         ChassisObserver();
         // 处理异常
         ChassisHandleException();
-        // 设置底盘模式
-        ChassisSetMode();
         // 更新目标量
         ChassisReference();
         // 计算控制量
@@ -99,12 +97,7 @@ __weak void ChassisHandleException(void)
      NOTE : 在其他文件中定义具体内容
     */
 }
-__weak void ChassisSetMode(void)
-{
-    /* 
-     NOTE : 在其他文件中定义具体内容
-    */
-}
+
 __weak void ChassisObserver(void)
 {
     /* 

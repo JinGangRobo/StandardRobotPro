@@ -7,13 +7,18 @@
 #define INCLUDED_ROBOT_PARAM_H
 #include "robot_typedef.h"
 
-#define CHASSIS_TYPE CHASSIS_NONE                     // 选择底盘类型
+#define CHASSIS_TYPE CHASSIS_OMNI_WHEEL                     // 选择底盘类型
 #define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT           // 选择云台类型
 #define SHOOT_TYPE SHOOT_NONE                         // 选择发射机构类型
 #define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
 #define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
 
 /*-------------------- Chassis --------------------*/
+
+#define CONTROL_TYPE SINGLE_CONTROL
+#define SINGLE_CONTROL 0
+#define DOUBLE_CONTROL 1
+
 // physical parameters ---------------------
 #define WHEEL_RADIUS (0.08f)           //(m)轮子直径
 #define WHEEL_CENTER_DISTANCE (0.295f) //(m)轮子到车的距离（0.22 + 0.21）
@@ -95,7 +100,7 @@
 #define REMOTE_CONTROLLER_MIN_DEADLINE (-10.0f)
 // motor parameters ---------------------
 // 电机id
-#define GIMBAL_DIRECT_YAW_ID ((uint8_t)1)
+#define GIMBAL_DIRECT_YAW_ID ((uint8_t)5)
 #define GIMBAL_DIRECT_PITCH_ID ((uint8_t)2)
 
 // 电机can口

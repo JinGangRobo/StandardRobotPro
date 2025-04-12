@@ -48,9 +48,10 @@ static LkMeasure_s CAN1_LK_MEASURE[LK_NUM];
 static LkMeasure_s CAN2_LK_MEASURE[LK_NUM];
 
 static SupCapMeasure_s SUP_CAP_MEASURE;
+Reference_t BOARD_COMMUNICATION_MEASURE;
 
-static uint8_t OTHER_BOARD_DATA_ANY[DATA_NUM][8];
-static uint16_t OTHER_BOARD_DATA_UINT16[DATA_NUM][4];
+// static uint8_t OTHER_BOARD_DATA_ANY[DATA_NUM][8];
+// static uint16_t OTHER_BOARD_DATA_UINT16[DATA_NUM][4];
 
 /*-------------------- Decode --------------------*/
 
@@ -124,6 +125,19 @@ void SupCapFdbData(SupCapMeasure_s * sup_cap_measure, uint8_t * rx_data)
     memcpy(&sup_cap_measure->state, &rx_data[7], sizeof(uint8_t));
 
     sup_cap_measure->last_fdb_time = HAL_GetTick();
+}
+
+
+/**
+ * @brief       对板间通信数据进行解码
+ * @param[out]   board_communication_measure 底盘目标量结构体
+ * @param[in]    rx_data 指向包含反馈数据的数组指针        
+ */
+void BoardCommunicationFdbData(Reference_t * board_communication_measure, uint8_t * rx_data)
+{
+    board_communication_measure->vx = rx_data[0]<<24|rx_data[1]<<16|rx_data[2]<<8;
+    board_communication_measure->vy = rx_data[3]<<24||rx_data[4]<<16|rx_data[5]<<8;
+    board_communication_measure->chassis_mode = rx_data[6];
 }
 
 /**
@@ -202,19 +216,11 @@ static void DecodeStdIdData(hcan_t * CAN, CAN_RxHeaderTypeDef * rx_header, uint8
     }
 
     //板间通信数据解码
-    uint16_t data_type =  rx_header->StdId & 0xF00;
-    uint16_t data_id   = (rx_header->StdId & 0x0F0) >> 4;
-    uint16_t target_id =  rx_header->StdId & 0x00F;
-    if (target_id != __SELF_BOARD_ID) return;
-
-    if (data_type == BOARD_DATA_UINT16) {
-        OTHER_BOARD_DATA_UINT16[data_id][0] = (rx_data[0] << 8) | rx_data[1];
-        OTHER_BOARD_DATA_UINT16[data_id][1] = (rx_data[2] << 8) | rx_data[3];
-        OTHER_BOARD_DATA_UINT16[data_id][2] = (rx_data[4] << 8) | rx_data[5];
-        OTHER_BOARD_DATA_UINT16[data_id][3] = (rx_data[6] << 8) | rx_data[7];
-    } else if (data_type == BOARD_DATA_ANY) {
-        memcpy(OTHER_BOARD_DATA_ANY[data_id], rx_data, 8);
+    if (rx_header->StdId == 0x20d) {
+        BoardCommunicationFdbData(&BOARD_COMMUNICATION_MEASURE, rx_data);
+        return;
     }
+
 }
 
 /**
@@ -439,16 +445,7 @@ void GetMotorMeasure(Motor_s * p_motor)
     }
 }
 
-/**
- * @brief 获取板间通信数据
- * @param data_id 数据ID
- * @param data_offset 数据位置偏移
- * @return none
- */
-uint16_t GetOtherBoardDataUint16(uint8_t data_id, uint8_t data_offset)
-{
-    return OTHER_BOARD_DATA_UINT16[data_id][data_offset];
-}
+
 
 /**
  * @brief          获取超级电容反馈数据
