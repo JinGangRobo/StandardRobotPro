@@ -11,8 +11,9 @@
 
 #define CHASSIS_TYPE CHASSIS_MECANUM_WHEEL       // 选择底盘类型
 #define GIMBAL_TYPE GIMBAL_NONE                  // 选择云台类型
-#define SHOOT_TYPE SHOOT_FRIC_TRIGGER            // 选择发射机构类型
+#define SHOOT_TYPE SHOOT_NONE            // 选择发射机构类型
 #define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE  //选择机械臂类型
+#define CONTROL_TYPE DOUBLE_CONTROL                 //选择板子控制类型
 
 // 机器人物理参数
 typedef enum {

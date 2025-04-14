@@ -35,6 +35,17 @@ typedef struct  // 底盘速度向量结构体
     float wz;  // (rad/s) 旋转速度
 } ChassisSpeedVector_t;
 
+/**
+ * @brief  底盘期望
+ */
+typedef struct 
+{
+    float vx;
+    float vy;
+    float wz;
+    uint8_t chassis_mode;
+} Reference_t;
+
 typedef struct
 {
     ChassisSpeedVector_t speed_vector;

@@ -28,7 +28,7 @@
 #include "SupCap.h"
 #include "motor.h"
 #include "stm32f4xx_hal.h"
-#include "chassis_omni.h"
+#include "custom_typedef.h"
 
 #ifndef CAN_N
 #define CAN_N

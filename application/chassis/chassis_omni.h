@@ -48,17 +48,6 @@ typedef enum {
 } PID_t;   
 
 /**
- * @brief  底盘期望
- */
-typedef struct 
-{
-    float vx;
-    float vy;
-    float wz;
-    uint8_t chassis_mode;
-} Reference_t;
-
-/**
  * @brief  底盘数据结构体
  * @note   底盘坐标使用右手系，前进方向为x轴，左方向为y轴，上方向为z轴
  */
