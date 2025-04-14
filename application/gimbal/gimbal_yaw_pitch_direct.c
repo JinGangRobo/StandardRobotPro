@@ -21,11 +21,12 @@
   @endverbatim
   ****************************(C) COPYRIGHT 2024 Polarbear****************************
 **/
-
+#include "CAN_receive.h"
 #include "gimbal_yaw_pitch_direct.h"
+
 #if (GIMBAL_TYPE == GIMBAL_YAW_PITCH_DIRECT)
 Gimbal_s gimbal_direct;
-PID_t gimbal_direct_pid;
+Gimbal_PID_t gimbal_direct_pid;
 
 /*--------------------------------Internal functions---------------------------------------*/
 /**以下函数均不会被外部调用，请注意！**/

@@ -33,7 +33,7 @@
 #include "detect_task.h"
 #include "usb_debug.h"
 #include "cmsis_os.h"
-#include "CAN_receive.h"
+// #include "CAN_receive.h"
 #include "math.h"
 #include "macro_typedef.h"
 #include "supervisory_computer_cmd.h"
@@ -69,7 +69,7 @@ typedef struct
     pid_type_def pitch_angle;
     pid_type_def pitch_velocity;
     
-} PID_t;
+} Gimbal_PID_t;
 
 typedef struct
 {
@@ -84,7 +84,7 @@ typedef struct
     Values_t upper_limit;  // 上限值
     Values_t lower_limit;  // 下限值
 
-    PID_t pid;  // PID控制器
+    Gimbal_PID_t pid;  // PID控制器
 
     float angle_zero_for_imu; //pitch电机处于中值时imupitch的角度
 

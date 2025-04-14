@@ -27,6 +27,7 @@
 #include "math.h"
 #include "usb_debug.h"
 
+
 Chassis_s chassis;
 PID_t chassis_pid;
 
@@ -39,7 +40,7 @@ PID_t chassis_pid;
  */
 void ChassisInit(void)
 {
-    //step1 获取所有所需变量指针
+    //获取遥控器指针
     chassis.rc = get_remote_control_point();
 
     //step2 PID数据清零，设置PID参数
@@ -57,34 +58,11 @@ void ChassisInit(void)
     MotorInit(&chassis.wheel[1],WHEEL_2_ID,WHEEL_2_CAN,WHEEL_2_MOTOR_TYPE,WHEEL_2_DIRECTION,WHEEL_2_RATIO,WHEEL_2_MODE);
     MotorInit(&chassis.wheel[2],WHEEL_3_ID,WHEEL_3_CAN,WHEEL_3_MOTOR_TYPE,WHEEL_3_DIRECTION,WHEEL_3_RATIO,WHEEL_3_MODE);
     MotorInit(&chassis.wheel[3],WHEEL_4_ID,WHEEL_4_CAN,WHEEL_4_MOTOR_TYPE,WHEEL_4_DIRECTION,WHEEL_4_RATIO,WHEEL_4_MODE);
-
+   
     //step4 初始模式设置
     chassis.mode = CHASSIS_LOCK;
 }
 
-
-/*-------------------- Set mode --------------------*/
-
-/**
- * @brief          设置模式
- * @param[in]      none
- * @retval         none
- */
-void ChassisSetMode(void)
-{
-    if ((toe_is_error(DBUS_TOE)) || switch_is_down(chassis.rc->rc.s[0]) || GetGimbalInitJudgeReturn() == false)
-    {
-        chassis.mode = CHASSIS_LOCK;
-    }
-    else if (switch_is_mid(chassis.rc->rc.s[0]))
-    {
-        chassis.mode = CHASSIS_FOLLOW;
-    }
-    else if (switch_is_up(chassis.rc->rc.s[0]))
-    {
-        chassis.mode = CHASSIS_FOLLOW;
-    }
-}
 
 
 /*-------------------- Observe --------------------*/
@@ -96,6 +74,8 @@ void ChassisSetMode(void)
  */
 void ChassisObserver(void) 
 {
+
+
     for (int i=0;i<4;++i)
     {
         GetMotorMeasure(&chassis.wheel[i]);
@@ -109,59 +89,65 @@ void ChassisObserver(void)
     chassis.yaw_delta = GetGimbalDeltaYawMid();
 }
 
+
+/**
+ * @brief          将遥控器数据转换为目标量
+ * @param rc 遥控器指针
+ * @return none
+ */
+#if(CONTROL_TYPE==SINGLE_CONTROL)
+static void rc_turn_into_reference(const RC_ctrl_t *rc)
+{
+chassis.reference.vx = rc->rc.ch[0]*RC_TO_VECTOR_SCALE;
+chassis.reference.vy = rc->rc.ch[1]*RC_TO_VECTOR_SCALE;
+chassis.reference.chassis_mode=rc->rc.s[0];
+}
+
+
+#elif(CONTROL_TYPE==DOUBLE_CONTROL)
+/**
+ * @brief 获取板间通信数据
+ * @param board_communication 
+ * @return none
+ */
+static void Get_board_communication_information(Reference_t *board_communication)
+{
+ memcpy(board_communication, &BOARD_COMMUNICATION_MEASURE, sizeof(Reference_t));
+}
+#endif
 /*-------------------- Reference --------------------*/
 
 /**
- * @brief          更新目标量
+ * @brief         . 更新目标量
  * @param[in]      none
  * @retval         none
  */
 void ChassisReference(void)
 {
-    if (chassis.mode == CHASSIS_LOCK)
+    #if(CONTROL_TYPE==SINGLE_CONTROL)
+    rc_turn_into_reference(chassis.rc);
+    #elif(CONTROL_TYPE==DOUBLE_CONTROL)
+    Get_board_communication_information(&chassis.reference);
+    #endif
+    
+//在不同行为模式下，将云台坐标系下的值映射到底盘坐标系，供底盘解算，并设置绕z轴方向的速度值
+    float sin_yaw = sin(chassis.yaw_delta);
+    float cos_yaw = cos(chassis.yaw_delta);
+    chassis.reference.vx = chassis.reference.vx * cos_yaw - chassis.reference.vy * sin_yaw;
+    chassis.reference.vy = chassis.reference.vx * sin_yaw + chassis.reference.vy * cos_yaw;
+
+    if(chassis.reference.chassis_mode==CHASSIS_FOLLOW)
     {
-        chassis.reference.vx=0;
-        chassis.reference.vy=0;
-        chassis.reference.wz=0;
+    chassis.reference.wz= PID_calc(&chassis_pid.follow, chassis.yaw_delta,0);
     }
-    else if (chassis.mode == CHASSIS_SINGLE)
+
+    else if(chassis.reference.chassis_mode==CHASSIS_ROTATION)
     {
-        chassis.reference.vx=fp32_deadline(chassis.rc->rc.ch[3],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_SPEED;
-        chassis.reference.vy=fp32_deadline(-chassis.rc->rc.ch[2],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_SPEED;
-        chassis.reference.wz=fp32_deadline(-chassis.rc->rc.ch[0],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_VELOCITY;
-    }
-    else if (chassis.mode == CHASSIS_FOLLOW)
-    {
-        chassis.reference_rc.vx=fp32_deadline(chassis.rc->rc.ch[3],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_SPEED;
-        chassis.reference_rc.vy=fp32_deadline(-chassis.rc->rc.ch[2],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_SPEED;
-
-        if (chassis.rc->key.v & KEY_PRESSED_OFFSET_W) 
-        {
-            chassis.reference_rc.vx += CHASSIS_RC_MAX_SPEED;
-        }
-
-        else if (chassis.rc->key.v & KEY_PRESSED_OFFSET_S) 
-        {
-            chassis.reference_rc.vx -= CHASSIS_RC_MAX_SPEED;
-        }
-
-        if (chassis.rc->key.v & KEY_PRESSED_OFFSET_A) 
-        {
-            chassis.reference_rc.vy += CHASSIS_RC_MAX_SPEED;
-        }
-
-        else if (chassis.rc->key.v & KEY_PRESSED_OFFSET_D) 
-        {
-            chassis.reference_rc.vy -= CHASSIS_RC_MAX_SPEED;
-        }
-
-
-        chassis.reference.vx =  chassis.reference_rc.vx * cosf(chassis.yaw_delta) - chassis.reference_rc.vy * sinf(chassis.yaw_delta);
-        chassis.reference.vy =  chassis.reference_rc.vx * sinf(chassis.yaw_delta) + chassis.reference_rc.vy * cos(chassis.yaw_delta);
-
-        chassis.reference.wz=PID_calc(&chassis_pid.follow,0,chassis.yaw_delta);
+        chassis.reference.wz=1;
     }
 }
+
+
 
 /*-------------------- Console --------------------*/
 

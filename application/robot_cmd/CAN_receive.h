@@ -28,6 +28,7 @@
 #include "SupCap.h"
 #include "motor.h"
 #include "stm32f4xx_hal.h"
+#include "chassis_omni.h"
 
 #ifndef CAN_N
 #define CAN_N
@@ -68,13 +69,13 @@ typedef enum __LkMotorType{
 } LkMotorType_e;
 // clang-format on
 
+extern Reference_t BOARD_COMMUNICATION_MEASURE;
 extern const DjiMotorMeasure_t * GetDjiMotorMeasurePoint(uint8_t can, uint8_t i);
 
 extern CybergearModeState_e GetCybergearModeState(Motor_s * p_motor);
 
 extern void GetMotorMeasure(Motor_s * p_motor);
 
-extern uint16_t GetOtherBoardDataUint16(uint8_t data_id, uint8_t data_offset);
 
 extern void GetSupCapFdbData(SupCapMeasure_s * p_sup_cap);
 
