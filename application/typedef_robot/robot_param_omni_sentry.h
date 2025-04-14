@@ -7,8 +7,8 @@
 #define INCLUDED_ROBOT_PARAM_H
 #include "robot_typedef.h"
 
-#define CHASSIS_TYPE CHASSIS_NONE                     // 选择底盘类型
-#define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT           // 选择云台类型
+#define CHASSIS_TYPE CHASSIS_OMNI_WHEEL                     // 选择底盘类型
+#define GIMBAL_TYPE GIMBAL_NONE           // 选择云台类型
 #define SHOOT_TYPE SHOOT_NONE                         // 选择发射机构类型
 #define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
 #define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
@@ -90,7 +90,7 @@
 #define GIMBAL_INIT_TIME (uint32_t)201
 
 // remote controller sensitivity ---------------------
-#define REMOTE_CONTROLLER_SENSITIVITY (100000.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY (-150000.0f)
 #define REMOTE_CONTROLLER_MAX_DEADLINE (10.0f)
 #define REMOTE_CONTROLLER_MIN_DEADLINE (-10.0f)
 // motor parameters ---------------------
@@ -123,8 +123,8 @@
 #define GIMBAL_LOWER_LIMIT_PITCH (-0.3f)
 
 // 电机角度中值设置
-#define GIMBAL_DIRECT_PITCH_MID (2.3731f) // 云台初始化正对齐的时候使用的pitch轴正中心量
-#define GIMBAL_DIRECT_YAW_MID (2.1246f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
+#define GIMBAL_DIRECT_PITCH_MID (-0.6741f) // 云台初始化正对齐的时候使用的pitch轴正中心量
+#define GIMBAL_DIRECT_YAW_MID (-2.0754f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
 
 // PID parameters ---------------------
 // YAW ANGLE

@@ -76,9 +76,10 @@ static void MusicInit(void)
 
     music_step = STEP_INIT;
 
-    MusicStartInit();
-    MusicRefereeInit();
-    MusicErrorInit();
+    // MusicStartInit();
+    // MusicRefereeInit();
+    // MusicErrorInit();
+
     // MusicYouInit();
     // MusicUnityInit();
     // MusicCanonInit();

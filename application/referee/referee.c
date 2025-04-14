@@ -94,7 +94,7 @@ void referee_data_solve(uint8_t * frame)
 
     memcpy(&cmd_id, frame + index, sizeof(uint16_t));
     index += sizeof(uint16_t);
-    buzzer_on(100, 300);
+    // buzzer_on(100, 300);
 
     switch (cmd_id) {
         case GAME_STATE_CMD_ID: {

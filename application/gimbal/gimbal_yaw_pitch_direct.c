@@ -39,16 +39,21 @@ PID_t gimbal_direct_pid;
  */
 void Angle_solution(void)
 {
-    float motor_feedback = gimbal_direct.pitch.fdb.pos, imu_feedback = gimbal_direct.feedback_pos.pitch, motor_mid = GIMBAL_DIRECT_PITCH_MID, imu_mid = 0.0;
-    float motor_delta = GIMBAL_DIRECT_PITCH_DIRECTION * (motor_feedback - motor_mid), imu_delta = imu_feedback - imu_mid;
+    float motor_feedback = gimbal_direct.pitch.fdb.pos;
+    float imu_feedback = gimbal_direct.feedback_pos.pitch;
+    float motor_mid = GIMBAL_DIRECT_PITCH_MID;
+    float imu_mid = 0.0;
+
+    float motor_delta = GIMBAL_DIRECT_PITCH_DIRECTION * (motor_feedback - motor_mid);
+    float imu_delta = imu_feedback - imu_mid;
     gimbal_direct.angle_zero_for_imu = imu_delta - motor_delta;
 }
 
 /*----------------Gimbal_direct_init_judge--------------------*/
 /**
- * @brief          判断是否需要继续初始化云台校准
+ * @brief          判断是否需要继续初始化云台校准,false为继续初始化，true为结束初始化
  * @param[in]      none
- * @retval         bool 解释是否需要继续初始化
+ * @retval         bool 是否需要继续初始化
  */
 
 bool Gimbal_direct_init_judge(void)
@@ -316,15 +321,24 @@ void GimbalReference(void)
         else
         {
             // 读取摇杆的数据
-            gimbal_direct.reference.pitch = fp32_constrain(gimbal_direct.reference.pitch - fp32_deadline(gimbal_direct.rc->rc.ch[1], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY, GIMBAL_LOWER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu, GIMBAL_UPPER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu);
-            gimbal_direct.reference.yaw = loop_fp32_constrain(gimbal_direct.reference.yaw - fp32_deadline(gimbal_direct.rc->rc.ch[0], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY, -M_PI, M_PI);
+            gimbal_direct.reference.pitch = fp32_constrain(
+                        gimbal_direct.reference.pitch - fp32_deadline(gimbal_direct.rc->rc.ch[1], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY, 
+                        GIMBAL_LOWER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu, 
+                        GIMBAL_UPPER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu);
+            // gimbal_direct.reference.pitch = fp32_constrain(
+            //             gimbal_direct.reference.pitch - fp32_deadline(gimbal_direct.rc->rc.ch[1], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY, 
+            //             GIMBAL_LOWER_LIMIT_PITCH, 
+            //             GIMBAL_UPPER_LIMIT_PITCH);
+            gimbal_direct.reference.yaw = loop_fp32_constrain(
+                        gimbal_direct.reference.yaw - fp32_deadline(gimbal_direct.rc->rc.ch[0], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY,
+                        -M_PI, M_PI);
         }
     }
 
     else if (gimbal_direct.mode == GIMBAL_AUTO_AIM)
     {
-        gimbal_direct.reference.pitch = fp32_constrain(Gimbal_direct_ecd_to_imu(AX_PITCH, GetScCmdGimbalAngle(AX_PITCH)), GIMBAL_LOWER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu, GIMBAL_UPPER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu);
-        gimbal_direct.reference.yaw = loop_fp32_constrain(Gimbal_direct_ecd_to_imu(AX_YAW, GetScCmdGimbalAngle(AX_YAW)), -M_PI, M_PI);
+        // gimbal_direct.reference.pitch = fp32_constrain(Gimbal_direct_ecd_to_imu(AX_PITCH, GetScCmdGimbalAngle(AX_PITCH)), GIMBAL_LOWER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu, GIMBAL_UPPER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu);
+        // gimbal_direct.reference.yaw = loop_fp32_constrain(Gimbal_direct_ecd_to_imu(AX_YAW, GetScCmdGimbalAngle(AX_YAW)), -M_PI, M_PI);
     }
 }
 

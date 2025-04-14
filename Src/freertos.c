@@ -86,10 +86,6 @@ osThreadId referee_usart_task_handle;
 
 osThreadId usb_task_handle;
 
-// osThreadId usb_send_task_handle;
-
-// osThreadId usb_receive_task_handle;
-
 osThreadId battery_voltage_handle;
 
 
