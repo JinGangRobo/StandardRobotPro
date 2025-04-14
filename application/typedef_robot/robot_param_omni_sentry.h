@@ -12,16 +12,16 @@
 #define SHOOT_TYPE SHOOT_NONE                         // 选择发射机构类型
 #define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
 #define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
+#define CONTROL_TYPE DOUBLE_CONTROL                 //选择板子控制类型
 
 /*-------------------- Chassis --------------------*/
 
-#define CONTROL_TYPE SINGLE_CONTROL
-#define SINGLE_CONTROL 0
-#define DOUBLE_CONTROL 1
+// remote controller sensitivity ---------------------
+#define RC_TO_VECTOR_SCALE (0.006f)
 
 // physical parameters ---------------------
-#define WHEEL_RADIUS (0.08f)           //(m)轮子直径
-#define WHEEL_CENTER_DISTANCE (0.295f) //(m)轮子到车的距离（0.22 + 0.21）
+#define WHEEL_RADIUS (0.15f)           //(m)轮子直径
+#define WHEEL_CENTER_DISTANCE (0.245f) //(m)轮子到车的距离（0.22 + 0.21）
 
 // motor parameters ---------------------
 // 底盘电流发送参数
@@ -95,6 +95,7 @@
 #define GIMBAL_INIT_TIME (uint32_t)201
 
 // remote controller sensitivity ---------------------
+#define RC_TO_VECTOR_SCALE (0.006f)
 #define REMOTE_CONTROLLER_SENSITIVITY (-150000.0f)
 #define REMOTE_CONTROLLER_MAX_DEADLINE (10.0f)
 #define REMOTE_CONTROLLER_MIN_DEADLINE (-10.0f)

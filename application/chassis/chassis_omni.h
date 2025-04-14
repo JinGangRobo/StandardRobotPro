@@ -28,18 +28,13 @@
 #include "struct_typedef.h"
 #include  "user_lib.h"
 #include "CAN_cmd_dji.h"
-// #include "board_communication.h"
-
-
-#define RC_TO_VECTOR_SCALE 0.006f
-// #define Reference_t board_communication_t
 
 /*-------------------- Structural definition --------------------*/
 typedef enum {
-    CHASSIS_LOCK,      //底盘锁定，所有轮子速度设定为0
-    CHASSIS_SINGLE,    //只有底盘的模式
-    CHASSIS_FOLLOW,    //云台跟随模式
-    CHASSIS_ROTATION
+    CHASSIS_LOCK,       //底盘锁定，所有轮子速度设定为0
+    CHASSIS_SINGLE,     //只有底盘的模式
+    CHASSIS_FOLLOW,     //云台跟随模式
+    CHASSIS_ROTATION    //底盘旋转模式
 } ChassisMode_e;
 
 /**

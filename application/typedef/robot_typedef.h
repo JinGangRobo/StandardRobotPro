@@ -23,6 +23,10 @@
 #define CUSTOM_CONTROLLER_NONE         0  // 无自定义控制器
 #define CUSTOM_CONTROLLER_ENGINEER     1  // 工程用的自定义控制器
 
+// 定义控制模式
+#define SINGLE_CONTROL 0    //单板控制
+#define DOUBLE_CONTROL 1    //双板控制
+
 // 可用调参模式
 #define TUNING_NONE     0
 #define TUNING_CHASSIS  1

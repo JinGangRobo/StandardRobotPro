@@ -29,4 +29,6 @@ void SupCapInit(SupCap_s * p_sup_cap, uint8_t can)
 {
     memset(&p_sup_cap, 0, sizeof(p_sup_cap));
 }
+
+
 /************************ END OF FILE ************************/

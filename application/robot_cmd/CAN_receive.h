@@ -69,16 +69,14 @@ typedef enum __LkMotorType{
 } LkMotorType_e;
 // clang-format on
 
-extern Reference_t BOARD_COMMUNICATION_MEASURE;
 extern const DjiMotorMeasure_t * GetDjiMotorMeasurePoint(uint8_t can, uint8_t i);
 
 extern CybergearModeState_e GetCybergearModeState(Motor_s * p_motor);
 
 extern void GetMotorMeasure(Motor_s * p_motor);
 
-
-extern void GetSupCapFdbData(SupCapMeasure_s * p_sup_cap);
-
 extern void GetSupCapMeasure(SupCap_s * p_sup_cap);
+
+extern void Get_board_communication_information(Reference_t *board_communication);
 
 #endif
