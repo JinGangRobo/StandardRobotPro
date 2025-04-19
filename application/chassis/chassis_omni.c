@@ -113,7 +113,7 @@ void ChassisReference(void)
 
     if (chassis.reference.chassis_mode == CHASSIS_FOLLOW)
     {
-        chassis.reference.wz = PID_calc(&chassis_pid.follow, chassis.yaw_delta, 0);
+        chassis.reference.wz = 0;//PID_calc(&chassis_pid.follow, chassis.yaw_delta, 0);
     }
 
     else if (chassis.reference.chassis_mode == CHASSIS_ROTATION)

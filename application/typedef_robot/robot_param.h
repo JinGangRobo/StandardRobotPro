@@ -22,7 +22,7 @@
 #include "robot_typedef.h"
 #include "struct_typedef.h"
 
-//导入具体的机器人参数配置文件
+// 导入具体的机器人参数配置文件
 // #include "robot_param_omni_sentry.h"
 #include "robot_param_mecannum_hero.h"
 

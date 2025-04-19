@@ -18,6 +18,7 @@
 #include "string.h"
 #include "detect_task.h"
 #include "robot_param.h"
+#include "CAN_communication.h"
 
 //遥控器出错数据上限
 #define RC_CHANNAL_ERROR_VALUE 700
@@ -155,6 +156,7 @@ void USART3_IRQHandler(void)
                 //记录数据接收时间
                 detect_hook(DBUS_TOE);
                 sbus_to_usart1(sbus_rx_buf[0]);
+                SendRC();
             } 
             else if (this_time_rx_len == SBUS_RC_FRAME_LENGTH)
             {
@@ -186,6 +188,7 @@ void USART3_IRQHandler(void)
                 //记录数据接收时间
                 detect_hook(DBUS_TOE);
                 sbus_to_usart1(sbus_rx_buf[1]);
+                SendRC();
             }
             else if (this_time_rx_len == SBUS_RC_FRAME_LENGTH)
             {
@@ -273,6 +276,22 @@ void sbus_to_usart1(uint8_t *sbus)
         usart_tx_buf[19] += usart_tx_buf[i];
     }
     usart1_tx_dma_enable(usart_tx_buf, 20);
+}
+
+void SendRC(void){
+
+    uint8_t data_8[8];
+    data_8[0] = rc_ctrl.rc.ch[0] >> 8;//vx
+    data_8[1] = rc_ctrl.rc.ch[0];
+    data_8[2] = rc_ctrl.rc.ch[1] >> 8;//vy
+    data_8[3] = rc_ctrl.rc.ch[1];
+    data_8[4] = rc_ctrl.rc.s[0]; //chassis_mode
+    data_8[5] = 1;
+    data_8[6] = 1;      
+    data_8[7] = 1; 
+
+    // 通过CAN总线发送遥控器的四个通道数据到指定板子
+    CanSendDataToBoard(1, 0, BOARD_OTHER, data_8);
 }
 
 /******************************************************************/

@@ -8,11 +8,22 @@
 #include "robot_typedef.h"
 
 #define CHASSIS_TYPE CHASSIS_OMNI_WHEEL                     // 选择底盘类型
+// #define CHASSIS_TYPE CHASSIS_NONE                     // 选择底盘类型
+
 #define GIMBAL_TYPE GIMBAL_NONE           // 选择云台类型
+// #define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT           // 选择云台类型
+
 #define SHOOT_TYPE SHOOT_NONE                         // 选择发射机构类型
 #define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
 #define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
+
 #define CONTROL_TYPE DOUBLE_CONTROL                 //选择板子控制类型
+
+// #define BOARD_CURRENT C_BOARD_OMNI_SENTINEIL_GIMBAL
+// #define BOARD_OTHER C_BOARD_OMNI_SENTINEIL_CHASSIS
+
+#define BOARD_CURRENT C_BOARD_OMNI_SENTINEIL_CHASSIS
+#define BOARD_OTHER C_BOARD_OMNI_SENTINEIL_GIMBAL
 
 /*-------------------- Chassis --------------------*/
 

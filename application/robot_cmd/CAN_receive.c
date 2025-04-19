@@ -134,9 +134,15 @@ void SupCapFdbData(SupCap_s *sup_cap_measure, uint8_t *rx_data)
  */
 void BoardCommunicationFdbData(Reference_t *board_communication_measure, uint8_t *rx_data)
 {
-    board_communication_measure->vx = rx_data[0] << 24 | rx_data[1] << 16 | rx_data[2] << 8;
-    board_communication_measure->vy = rx_data[3] << 24 || rx_data[4] << 16 | rx_data[5] << 8;
-    board_communication_measure->chassis_mode = rx_data[6];
+
+    int16_t ch0,ch1;
+    ch0 = (rx_data[0] << 8) | (rx_data[1]);//vx
+    ch1 = (rx_data[2] << 8) | (rx_data[3]);//vy
+
+    board_communication_measure->vx = ch0 * RC_TO_VECTOR_SCALE;
+    board_communication_measure->vy = ch1 * RC_TO_VECTOR_SCALE;
+    board_communication_measure->chassis_mode = rx_data[4];
+
 }
 
 /**
@@ -223,9 +229,12 @@ static void DecodeStdIdData(hcan_t *CAN, CAN_RxHeaderTypeDef *rx_header, uint8_t
         return;
     }
 
-    // 板间通信数据解码
-    if (rx_header->StdId == 0x20d)
-    {
+    //板间通信数据解码
+    uint16_t data_type =  rx_header->StdId & 0xF00;
+    uint16_t target_id =  rx_header->StdId & 0x00F;
+
+    if (target_id != BOARD_CURRENT) return;
+    if (data_type == BOARD_DATA_ANY) {
         BoardCommunicationFdbData(&BOARD_COMMUNICATION_MEASURE, rx_data);
         return;
     }

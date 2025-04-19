@@ -33,11 +33,11 @@
   */
 fp32 chassis_power_control()                                                                                                                                                                                                                                                                                                                                                                                                 
  {
-   fp32 chassis_power = 0.0f;
-   fp32 chassis_power_buffer = 0.0f;
+  //  fp32 chassis_power = 0.0f;
+  //  fp32 chassis_power_buffer = 0.0f;
    fp32 ratio = 0.0f;
  
-   get_chassis_power_and_buffer(chassis_power,chassis_power_buffer); //从裁判系统中读取底盘功率 和 能量缓冲
-   ratio = chassis_power_buffer * ( 1.0f / WARNING_POWER_BUFF); //计算能量缓冲比例
+  //  get_chassis_power_and_buffer(chassis_power,chassis_power_buffer); //从裁判系统中读取底盘功率 和 能量缓冲
+  //  ratio = chassis_power_buffer * ( 1.0f / WARNING_POWER_BUFF); //计算能量缓冲比例
    return ratio;
  }

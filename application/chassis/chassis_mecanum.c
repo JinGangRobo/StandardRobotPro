@@ -72,16 +72,16 @@ void ChassisInit(void)
  * @param[in]      none
  * @retval         none
  */
-void ChassisSetMode(void)
-{
-    if (switch_is_up(CHASSIS.rc->rc.s[CHASSIS_MODE_CHANNEL])) {
-        CHASSIS.mode = CHASSIS_SPIN;
-    } else if (switch_is_mid(CHASSIS.rc->rc.s[CHASSIS_MODE_CHANNEL]) && (GetGimbalInitJudgeReturn())) {
-        CHASSIS.mode = CHASSIS_FOLLOW_GIMBAL_YAW;
-    } else if (switch_is_down(CHASSIS.rc->rc.s[CHASSIS_MODE_CHANNEL]) || !(GetGimbalInitJudgeReturn())) {
-        CHASSIS.mode = CHASSIS_ZERO_FORCE;
-    }
-}
+// void ChassisSetMode(void)
+// {
+//     if (switch_is_up(CHASSIS.rc->rc.s[CHASSIS_MODE_CHANNEL])) {
+//         CHASSIS.mode = CHASSIS_SPIN;
+//     } else if (switch_is_mid(CHASSIS.rc->rc.s[CHASSIS_MODE_CHANNEL]) && (GetGimbalInitJudgeReturn())) {
+//         CHASSIS.mode = CHASSIS_FOLLOW_GIMBAL_YAW;
+//     } else if (switch_is_down(CHASSIS.rc->rc.s[CHASSIS_MODE_CHANNEL]) || !(GetGimbalInitJudgeReturn())) {
+//         CHASSIS.mode = CHASSIS_ZERO_FORCE;
+//     }
+// }
 
 
 /*-------------------- Observe --------------------*/
@@ -105,6 +105,15 @@ void ChassisObserver(void) {
  * @retval         none
  */
 void ChassisReference(void) {
+
+#if (CONTROL_TYPE == SINGLE_CONTROL)
+    chassis.reference.vx = GetDt7RcCh(0) * RC_TO_VECTOR_SCALE;
+    chassis.reference.vy = GetDt7RcCh(1) * RC_TO_VECTOR_SCALE;
+    chassis.reference.chassis_mode = GetDt7RcSw(0);
+
+#elif (CONTROL_TYPE == DOUBLE_CONTROL)
+    Get_board_communication_information(&chassis.reference);
+#endif
 
     fp32 rc_x, rc_y;
     fp32 vx_channel, vy_channel;
@@ -268,7 +277,7 @@ void ChassisConsole(void)
 void ChassisSendCmd(void)
 {
 
-    CanCmdDjiMotor(1, 0x200, 
+    CanCmdDjiMotor(2, 0x200, 
     CHASSIS.wheel_motor[0].set.curr, CHASSIS.wheel_motor[1].set.curr,
     CHASSIS.wheel_motor[2].set.curr, CHASSIS.wheel_motor[3].set.curr);
 
