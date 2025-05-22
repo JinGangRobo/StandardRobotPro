@@ -27,7 +27,7 @@
 #if (GIMBAL_TYPE == GIMBAL_YAW_PITCH_DIRECT)
 Gimbal_s gimbal_direct;
 Gimbal_PID_t gimbal_direct_pid;
-
+#define ROBO_INIT_TIME 10
 /*--------------------------------Internal functions---------------------------------------*/
 /**以下函数均不会被外部调用，请注意！**/
 
@@ -63,7 +63,7 @@ bool Gimbal_direct_init_judge(void)
                 && (-0.003f) < gimbal_direct.reference.yaw - gimbal_direct.yaw.fdb.pos) 
                 && (gimbal_direct.reference.pitch - gimbal_direct.pitch.fdb.pos < 0.003f 
                 && (-0.003f) < gimbal_direct.reference.pitch - gimbal_direct.pitch.fdb.pos)) 
-            || gimbal_direct.init_timer >= GIMBAL_INIT_TIME)
+            || gimbal_direct.init_timer >= ROBO_INIT_TIME)
     {
         return true;
     }
@@ -194,9 +194,9 @@ void GimbalInit(void)
     gimbal_direct.init_continue = false;
 
     // step6 模式设置初始化
-    gimbal_direct.mode = GIMBAL_ZERO_FORCE;
-    gimbal_direct.last_mode = GIMBAL_ZERO_FORCE;
-    gimbal_direct.mode_before_rc_err = GIMBAL_ZERO_FORCE;
+    gimbal_direct.mode = ROBO_ZERO_FORCE;
+    gimbal_direct.last_mode = ROBO_ZERO_FORCE;
+    gimbal_direct.mode_before_rc_err = ROBO_ZERO_FORCE;
 }
 /*-------------------- Set mode --------------------*/
 
@@ -209,10 +209,10 @@ void GimbalSetMode(void)
 {
     if (toe_is_error(DBUS_TOE))
     {
-        gimbal_direct.mode = GIMBAL_DBUS_ERR;
+        gimbal_direct.mode = ROBO_DBUS_ERR;
     }
 
-    else if (gimbal_direct.last_mode == GIMBAL_DBUS_ERR)
+    else if (gimbal_direct.last_mode == ROBO_DBUS_ERR)
     {
         gimbal_direct.mode = gimbal_direct.mode_before_rc_err;
     }
@@ -220,30 +220,30 @@ void GimbalSetMode(void)
     // 下档无力
     else if ((switch_is_down(gimbal_direct.rc->rc.s[0]))) // 安全档优先级最高
     {
-        gimbal_direct.mode = GIMBAL_ZERO_FORCE;
+        gimbal_direct.mode = ROBO_ZERO_FORCE;
         gimbal_direct.init_continue = false;
     }
     // 初始校准模式
-    else if (gimbal_direct.mode == GIMBAL_ZERO_FORCE || gimbal_direct.mode == GIMBAL_INIT)
+    else if (gimbal_direct.mode == ROBO_ZERO_FORCE || gimbal_direct.mode == ROBO_INIT)
     {
 
-        gimbal_direct.mode = GIMBAL_INIT;
+        gimbal_direct.mode = ROBO_INIT;
 
         gimbal_direct.init_continue = Gimbal_direct_init_judge();
         if (gimbal_direct.init_continue == true) // 判断是否需要跳出循环
         {
-            gimbal_direct.mode = GIMBAL_GAP;
+            gimbal_direct.mode = ROBO_GIMBAL_GAP;
         }
     }
     // 上，中档陀螺仪控制
     else if (switch_is_mid(gimbal_direct.rc->rc.s[0]))
     {
-        gimbal_direct.mode = GIMBAL_IMU;
+        gimbal_direct.mode = ROBO_GIMBAL_IMU;
     }
 
     else if (switch_is_up(gimbal_direct.rc->rc.s[0]))
     {
-        gimbal_direct.mode = GIMBAL_AUTO_AIM;
+        gimbal_direct.mode = ROBO_AUTO_AIM;
     }
 }
 /*-------------------- Observe --------------------*/
@@ -268,9 +268,9 @@ void GimbalObserver(void)
 
     Angle_solution();
 
-    if (gimbal_direct.mode == GIMBAL_INIT) // 初始化校准模式时钟更新
+    if (gimbal_direct.mode == ROBO_INIT) // 初始化校准模式时钟更新
     {
-        if (gimbal_direct.last_mode != GIMBAL_INIT)
+        if (gimbal_direct.last_mode != ROBO_INIT)
         {
             gimbal_direct.init_start_time = xTaskGetTickCount();
         }
@@ -282,7 +282,7 @@ void GimbalObserver(void)
         gimbal_direct.init_timer = 0;
     }
 
-    if (gimbal_direct.mode == GIMBAL_DBUS_ERR && gimbal_direct.last_mode != GIMBAL_DBUS_ERR)
+    if (gimbal_direct.mode == ROBO_DBUS_ERR && gimbal_direct.last_mode != ROBO_DBUS_ERR)
     {
         gimbal_direct.mode_before_rc_err = gimbal_direct.last_mode;
     }
@@ -299,21 +299,21 @@ void GimbalObserver(void)
  */
 void GimbalReference(void)
 {
-    if (gimbal_direct.mode == GIMBAL_INIT)
+    if (gimbal_direct.mode == ROBO_INIT)
     {
         gimbal_direct.reference.pitch = loop_fp32_constrain(gimbal_direct.pitch.direction * (GIMBAL_DIRECT_PITCH_MID - gimbal_direct.pitch.fdb.pos) + gimbal_direct.feedback_pos.pitch, -M_PI, M_PI);
         gimbal_direct.reference.yaw = loop_fp32_constrain(gimbal_direct.yaw.direction * (GIMBAL_DIRECT_YAW_MID - gimbal_direct.yaw.fdb.pos) + gimbal_direct.feedback_pos.yaw, -M_PI, M_PI);
     }
 
-    else if (gimbal_direct.mode == GIMBAL_GAP)
+    else if (gimbal_direct.mode == ROBO_GIMBAL_GAP)
     {
         gimbal_direct.reference.pitch = gimbal_direct.feedback_pos.pitch;
         gimbal_direct.reference.yaw = gimbal_direct.feedback_pos.yaw;
     }
 
-    else if (gimbal_direct.mode == GIMBAL_IMU)
+    else if (gimbal_direct.mode == ROBO_GIMBAL_IMU)
     {
-        if (gimbal_direct.last_mode != GIMBAL_IMU)
+        if (gimbal_direct.last_mode != ROBO_GIMBAL_IMU)
         {
             gimbal_direct.reference.pitch = gimbal_direct.feedback_pos.pitch;
             gimbal_direct.reference.yaw = gimbal_direct.feedback_pos.yaw;
@@ -336,7 +336,7 @@ void GimbalReference(void)
         }
     }
 
-    else if (gimbal_direct.mode == GIMBAL_AUTO_AIM)
+    else if (gimbal_direct.mode == ROBO_AUTO_AIM)
     {
         // gimbal_direct.reference.pitch = fp32_constrain(Gimbal_direct_ecd_to_imu(AX_PITCH, GetScCmdGimbalAngle(AX_PITCH)), GIMBAL_LOWER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu, GIMBAL_UPPER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu);
         // gimbal_direct.reference.yaw = loop_fp32_constrain(Gimbal_direct_ecd_to_imu(AX_YAW, GetScCmdGimbalAngle(AX_YAW)), -M_PI, M_PI);
@@ -352,12 +352,12 @@ void GimbalReference(void)
  */
 void GimbalConsole(void)
 {
-    if (gimbal_direct.mode == GIMBAL_ZERO_FORCE || gimbal_direct.mode == GIMBAL_DBUS_ERR)
+    if (gimbal_direct.mode == ROBO_ZERO_FORCE || gimbal_direct.mode == ROBO_DBUS_ERR)
     {
         gimbal_direct.pitch.set.curr = 0;
         gimbal_direct.yaw.set.curr = 0;
     }
-    else if (gimbal_direct.mode == GIMBAL_IMU || gimbal_direct.mode == GIMBAL_GAP || gimbal_direct.mode == GIMBAL_AUTO_AIM || GIMBAL_INIT)
+    else if (gimbal_direct.mode == ROBO_GIMBAL_IMU || gimbal_direct.mode == ROBO_GIMBAL_GAP || gimbal_direct.mode == ROBO_AUTO_AIM || ROBO_INIT)
     {
         gimbal_direct.pitch.set.vel = PID_calc(&gimbal_direct_pid.pitch_angle, gimbal_direct.feedback_pos.pitch, gimbal_direct.reference.pitch);
         gimbal_direct.pitch.set.curr = gimbal_direct.pitch.direction * PID_calc(&gimbal_direct_pid.pitch_velocity, gimbal_direct.feedback_vel.pitch, gimbal_direct.pitch.set.vel);

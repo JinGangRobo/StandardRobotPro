@@ -74,7 +74,7 @@ typedef struct
 typedef struct
 {
     const RC_ctrl_t * rc;  // 遥控器指针
-    GimbalMode_e mode,last_mode,mode_before_rc_err;  // 模式
+    RoboMode_e mode,last_mode,mode_before_rc_err;  // 模式
 
     /*-------------------- Motors --------------------*/
     Motor_s yaw,pitch;

@@ -68,5 +68,16 @@ typedef enum __MotorType {
 } MotorType_e;
 // clang-format on
 
+typedef enum {
+    ROBO_ZERO_FORCE = 0,    //机器人整体无力,CHASSIS
+    ROBO_INIT ,          //机器人初始化：只有云台初始化   
+    ROBO_CHASSIS_FOLLOW_GIMBAL_YAW = 1,  //机器人进入底盘跟随云台CHASSIS
+    ROBO_SPIN = 2,              //机器人进入小陀螺模式CHASSIS
+    ROBO_AUTO_AIM = 3,         //机器人自动模式CHASSIS
+    ROBO_GIMBAL_IMU,        //云台绝对角度控制
+    ROBO_GIMBAL_GAP,         //跳出矫正进入IMU/AUTO_AIM模式之前的存储数据模式
+    ROBO_DBUS_ERR           //DBUS错误
+} RoboMode_e;
+
 #endif /* ROBOT_TYPEDEF_H */
 /*------------------------------ End of File ------------------------------*/

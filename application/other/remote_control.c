@@ -22,7 +22,7 @@
 
 //遥控器出错数据上限
 #define RC_CHANNAL_ERROR_VALUE 700
-
+#define CHASSIS_MODE_CHANNEL 0
 extern UART_HandleTypeDef huart3;
 extern DMA_HandleTypeDef hdma_usart3_rx;
 
@@ -156,7 +156,8 @@ void USART3_IRQHandler(void)
                 //记录数据接收时间
                 detect_hook(DBUS_TOE);
                 sbus_to_usart1(sbus_rx_buf[0]);
-                SendRC();
+                remote_set();
+                SendRC(rc_ctrl);
             } 
             else if (this_time_rx_len == SBUS_RC_FRAME_LENGTH)
             {
@@ -188,7 +189,7 @@ void USART3_IRQHandler(void)
                 //记录数据接收时间
                 detect_hook(DBUS_TOE);
                 sbus_to_usart1(sbus_rx_buf[1]);
-                SendRC();
+                
             }
             else if (this_time_rx_len == SBUS_RC_FRAME_LENGTH)
             {
@@ -198,6 +199,37 @@ void USART3_IRQHandler(void)
         }
     }
 
+}
+void remote_set(void)
+{
+    //遥控器设置模式
+    if (switch_is_mid(rc_ctrl.rc.s[CHASSIS_MODE_CHANNEL]))
+    {   
+        rc_ctrl.mode.chassis_mode = ROBO_ZERO_FORCE;
+    }
+    else if (switch_is_down(rc_ctrl.rc.s[CHASSIS_MODE_CHANNEL]))
+    {
+        rc_ctrl.mode.chassis_mode = ROBO_CHASSIS_FOLLOW_GIMBAL_YAW;
+    }
+    else if (switch_is_up(rc_ctrl.rc.s[CHASSIS_MODE_CHANNEL]))
+    {
+        rc_ctrl.mode.chassis_mode = ROBO_SPIN;
+    }
+}
+void SendRC(RC_ctrl_t rc_task){
+
+    uint8_t data_8[8];
+    data_8[0] = rc_task.rc.ch[0] >> 8;//vx
+    data_8[1] = rc_task.rc.ch[0];
+    data_8[2] = rc_task.rc.ch[1] >> 8;//vy
+    data_8[3] = rc_task.rc.ch[1];
+    data_8[4] = rc_task.mode.chassis_mode; //chassis_mode
+    data_8[5] = 1;
+    data_8[6] = 1; 
+    data_8[7] = 1; 
+
+    // 通过CAN总线发送遥控器的四个通道数据到指定板子
+    CanSendDataToBoard(1, 0, BOARD_OTHER, data_8);
 }
 
 //取正函数
@@ -276,22 +308,6 @@ void sbus_to_usart1(uint8_t *sbus)
         usart_tx_buf[19] += usart_tx_buf[i];
     }
     usart1_tx_dma_enable(usart_tx_buf, 20);
-}
-
-void SendRC(void){
-
-    uint8_t data_8[8];
-    data_8[0] = rc_ctrl.rc.ch[0] >> 8;//vx
-    data_8[1] = rc_ctrl.rc.ch[0];
-    data_8[2] = rc_ctrl.rc.ch[1] >> 8;//vy
-    data_8[3] = rc_ctrl.rc.ch[1];
-    data_8[4] = rc_ctrl.rc.s[0]; //chassis_mode
-    data_8[5] = 1;
-    data_8[6] = 1;      
-    data_8[7] = 1; 
-
-    // 通过CAN总线发送遥控器的四个通道数据到指定板子
-    CanSendDataToBoard(1, 0, BOARD_OTHER, data_8);
 }
 
 /******************************************************************/

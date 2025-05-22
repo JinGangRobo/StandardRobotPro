@@ -60,7 +60,7 @@ void ChassisInit(void)
     MotorInit(&chassis.wheel[3], WHEEL_4_ID, WHEEL_4_CAN, WHEEL_4_MOTOR_TYPE, WHEEL_4_DIRECTION, WHEEL_4_RATIO, WHEEL_4_MODE);
 
     // step4 初始模式设置
-    chassis.mode = CHASSIS_LOCK;
+    chassis.mode = ROBO_ZERO_FORCE;
 }
 
 /*-------------------- Observe --------------------*/
@@ -111,12 +111,12 @@ void ChassisReference(void)
     chassis.reference.vx = chassis.reference.vx * cos_yaw - chassis.reference.vy * sin_yaw;
     chassis.reference.vy = chassis.reference.vx * sin_yaw + chassis.reference.vy * cos_yaw;
 
-    if (chassis.reference.chassis_mode == CHASSIS_FOLLOW)
+    if (chassis.reference.chassis_mode == ROBO_CHASSIS_FOLLOW_GIMBAL_YAW)
     {
         chassis.reference.wz = 0;//PID_calc(&chassis_pid.follow, chassis.yaw_delta, 0);
     }
 
-    else if (chassis.reference.chassis_mode == CHASSIS_ROTATION)
+    else if (chassis.reference.chassis_mode == ROBO_SPIN)
     {
         chassis.reference.wz = 1;
     }

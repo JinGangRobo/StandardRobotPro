@@ -79,7 +79,7 @@ void ChassisInit(void)
 //     } else if (switch_is_mid(CHASSIS.rc->rc.s[CHASSIS_MODE_CHANNEL]) && (GetGimbalInitJudgeReturn())) {
 //         CHASSIS.mode = CHASSIS_FOLLOW_GIMBAL_YAW;
 //     } else if (switch_is_down(CHASSIS.rc->rc.s[CHASSIS_MODE_CHANNEL]) || !(GetGimbalInitJudgeReturn())) {
-//         CHASSIS.mode = CHASSIS_ZERO_FORCE;
+//         CHASSIS.mode = ROBO_ZERO_FORCE;
 //     }
 // }
 
@@ -136,13 +136,13 @@ void ChassisReference(void) {
     uint8_t i;
     //具体模式设定
     switch (CHASSIS.mode) {
-        case CHASSIS_ZERO_FORCE: { 
+        case ROBO_ZERO_FORCE: { 
             CHASSIS.wz_set = CHASSIA_STOP_SPEED;
             CHASSIS.vx_set = CHASSIA_STOP_SPEED;
             CHASSIS.vy_set = CHASSIA_STOP_SPEED;
             break;
         }
-        case CHASSIS_FOLLOW_GIMBAL_YAW:{//云台跟随模式
+        case ROBO_CHASSIS_FOLLOW_GIMBAL_YAW:{//云台跟随模式
 
             //GimbalSpeedVectorToChassisSpeedVector();
             fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;
@@ -156,13 +156,9 @@ void ChassisReference(void) {
             CHASSIS.wz_set = PID_calc(&CHASSIS.chassis_angle_pid, -CHASSIS.dyaw, 0);//反转dyaw角度
             break;
         }
-        case CHASSIS_STOP:
-            break;
-        case CHASSIS_FREE:{//底盘不跟随云台
-            CHASSIS.wz_set = NORMAL_MIN_CHASSIS_SPEED_WX;//暂时让这个模式下小陀螺不生效
-            break;
-        }
-        case CHASSIS_SPIN:{//小陀螺模式
+
+        
+        case ROBO_SPIN:{//小陀螺模式
 
             //GimbalSpeedVectorToChassisSpeedVector();
             fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;
@@ -175,15 +171,9 @@ void ChassisReference(void) {
 			CHASSIS.wz_set = NORMAL_MAX_CHASSIS_SPEED_WX;
             break;
         }
-        case CHASSIS_AUTO:
+        case ROBO_AUTO_AIM:
             break;
-        case CHASSIS_OPEN: {
-            uint16_t current;
-            current = CHASSIS.rc->rc.ch[CHASSIS_X_CHANNEL] * 3000 * RC_TO_ONE;
-            for (i = 0; i < 4; i++) {
-                CHASSIS.wheel_motor[0].set.curr = current;
-            }
-            break;
+
         }
         default:
             break;
