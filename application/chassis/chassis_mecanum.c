@@ -18,6 +18,7 @@
 
 
 #include "robot_param.h"
+
 #if (CHASSIS_TYPE == CHASSIS_MECANUM_WHEEL)
 #include "chassis_mecanum.h"
 #include "CAN_receive.h"
