@@ -18,7 +18,7 @@
 #include "string.h"
 #include "detect_task.h"
 #include "robot_param.h"
-#include "CAN_communication.h"
+#include "data_exchange.h"
 
 //遥控器出错数据上限
 #define RC_CHANNAL_ERROR_VALUE 700
@@ -155,9 +155,6 @@ void USART3_IRQHandler(void)
                 sbus_to_rc(sbus_rx_buf[0], &rc_ctrl);
                 //记录数据接收时间
                 detect_hook(DBUS_TOE);
-                sbus_to_usart1(sbus_rx_buf[0]);
-                remote_set();
-                SendRC(rc_ctrl);
             } 
             else if (this_time_rx_len == SBUS_RC_FRAME_LENGTH)
             {
@@ -188,8 +185,6 @@ void USART3_IRQHandler(void)
                 sbus_to_rc(sbus_rx_buf[1], &rc_ctrl);
                 //记录数据接收时间
                 detect_hook(DBUS_TOE);
-                sbus_to_usart1(sbus_rx_buf[1]);
-                
             }
             else if (this_time_rx_len == SBUS_RC_FRAME_LENGTH)
             {
@@ -199,37 +194,6 @@ void USART3_IRQHandler(void)
         }
     }
 
-}
-void remote_set(void)
-{
-    //遥控器设置模式
-    if (switch_is_mid(rc_ctrl.rc.s[CHASSIS_MODE_CHANNEL]))
-    {   
-        rc_ctrl.mode.chassis_mode = ROBO_ZERO_FORCE;
-    }
-    else if (switch_is_down(rc_ctrl.rc.s[CHASSIS_MODE_CHANNEL]))
-    {
-        rc_ctrl.mode.chassis_mode = ROBO_CHASSIS_FOLLOW_GIMBAL_YAW;
-    }
-    else if (switch_is_up(rc_ctrl.rc.s[CHASSIS_MODE_CHANNEL]))
-    {
-        rc_ctrl.mode.chassis_mode = ROBO_SPIN;
-    }
-}
-void SendRC(RC_ctrl_t rc_task){
-
-    uint8_t data_8[8];
-    data_8[0] = rc_task.rc.ch[0] >> 8;//vx
-    data_8[1] = rc_task.rc.ch[0];
-    data_8[2] = rc_task.rc.ch[1] >> 8;//vy
-    data_8[3] = rc_task.rc.ch[1];
-    data_8[4] = rc_task.mode.chassis_mode; //chassis_mode
-    data_8[5] = 1;
-    data_8[6] = 1; 
-    data_8[7] = 1; 
-
-    // 通过CAN总线发送遥控器的四个通道数据到指定板子
-    CanSendDataToBoard(1, 0, BOARD_OTHER, data_8);
 }
 
 //取正函数

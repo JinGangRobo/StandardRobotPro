@@ -1,5 +1,4 @@
 #include "communication_task.h"
-
 #include "bsp_uart.h"
 #include "cmsis_os.h"
 #include "communication.h"
@@ -14,14 +13,17 @@ uint32_t communication_high_water;
 
 void communication_task(void const * pvParameters)
 {
-    Usart1Init();
+    SendInit();
     // 空闲一段时间
     vTaskDelay(COMMUNICATION_TASK_INIT_TIME);
     while (1) {
+
+        if(BOARD_CURRENT == C_BOARD_OMNI_SENTINEIL_GIMBAL){
+            SendRC();
+        }
+
         DataPack("Hello World", 13, 0);
-
         UartSendTxMessage(&huart1, (uint8_t *)(&BOARD_TX_DATA), sizeof(BOARD_TX_DATA), 100);
-
         DataUnpack();
 
         // 系统延时

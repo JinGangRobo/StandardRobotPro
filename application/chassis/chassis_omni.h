@@ -60,8 +60,8 @@ typedef struct
     /*-------------------- Motors --------------------*/
     Motor_s wheel[4];  //底盘电机
     /*-------------------- Values --------------------*/
-    Reference_t reference; 
-    Reference_t reference_rc;
+    ChassisReference_t reference; 
+    ChassisReference_t reference_rc;
 
     fp32 feedback[4];
     fp32 set[4];
