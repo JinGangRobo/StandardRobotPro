@@ -2,6 +2,7 @@
 #define __COMMUNICATION_H
 
 #include "struct_typedef.h"
+#include "robot_param.h"
 
 #define FRAME_HEADER_SOF 0xA5
 #define FRAME_HEADER_LEN 5  // （字节）数据帧头部长度
@@ -29,7 +30,9 @@ typedef struct
 
 extern BoardCommunicateData_s BOARD_TX_DATA;
 
-extern void Usart1Init(void);
+void SendRC(void);
+
+extern void SendInit(void);
 
 extern void DataPack(uint8_t * data, uint8_t data_lenth, uint8_t data_id);
 

@@ -18,17 +18,20 @@
   */
 
 #include "communication.h"
-
+#include "data_exchange.h"
 #include "CRC8_CRC16.h"
 #include "bsp_uart.h"
 #include "bsp_usart.h"
 #include "fifo.h"
+#include "CAN_communication.h"
+#include "remote_control.h"
 
 #define USART_RX_BUF_LENGHT 512
 #define USART1_FIFO_BUF_LENGTH 1024
 
 // send data
 BoardCommunicateData_s BOARD_TX_DATA;
+extern RC_ctrl_t rc_ctrl;
 
 // receive data
 uint8_t BOARD_RX_DATA[DATA_NUM][DATA_LEN + 1];  //第一位存放数据长度信息
@@ -39,11 +42,28 @@ fifo_s_t usart1_fifo;
 uint8_t usart1_fifo_buf[USART1_FIFO_BUF_LENGTH];
 // unpack_data_t referee_unpack_obj;
 
-// 4pin Uart串口初始化
-void Usart1Init(void)
+// 发送初始化
+void SendInit(void)
 {
+
     fifo_s_init(&usart1_fifo, usart1_fifo_buf, USART1_FIFO_BUF_LENGTH);
     usart1_init(usart1_buf[0], usart1_buf[1], USART_RX_BUF_LENGHT);
+}
+
+void SendRC(){
+
+    uint8_t data_8[8];
+    data_8[0] = rc_ctrl.rc.ch[0] >> 8;//vx
+    data_8[1] = rc_ctrl.rc.ch[0];
+    data_8[2] = rc_ctrl.rc.ch[1] >> 8;//vy
+    data_8[3] = rc_ctrl.rc.ch[1];
+    data_8[4] = 1;//rc_ctrl.rc.s[0]; //chassis_mode
+    data_8[5] = 1;
+    data_8[6] = 1; 
+    data_8[7] = 1; 
+
+    // 通过CAN总线发送遥控器的四个通道数据到指定板子
+    CanSendDataToBoard(2, 0, BOARD_OTHER, data_8);
 }
 
 // 4pin Uart口中断处理函数
@@ -125,3 +145,5 @@ void DataUnpack(void)
         }
     }
 }
+
+

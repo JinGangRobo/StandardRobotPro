@@ -16,8 +16,9 @@
 */
 #include"gimbal_virtual.h"
 #if (GIMBAL_TYPE == GIMBAL_NONE)
+#include "CAN_receive.h"
 
-
+Motor_s yaw_motor;
 /* ---------------- GetGimbalDeltaYawMid -------------------- */
 
 /**
@@ -27,7 +28,11 @@
  */
 inline float GetGimbalDeltaYawMid(void)
 {
-  return 0.0f ; 
+  yaw_motor.type = GIMBAL_DIRECT_YAW_MOTOR_TYPE;
+  yaw_motor.can = 2;
+  yaw_motor.id = 1;
+  GetMotorMeasure(&yaw_motor);
+  return loop_fp32_constrain(yaw_motor.fdb.pos, -M_PI, M_PI);
 }
 
 /* ---------------- GetGimbalInitJudgeReturn -------------------- */

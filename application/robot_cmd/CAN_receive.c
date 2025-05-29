@@ -49,7 +49,7 @@ static LkMeasure_s CAN2_LK_MEASURE[LK_NUM];
 
 static SupCap_s SUP_CAP_MEASURE;
 
-static Reference_t BOARD_COMMUNICATION_MEASURE;
+static ChassisReference_t BOARD_COMMUNICATION_MEASURE;
 
 /*-------------------- Decode --------------------*/
 
@@ -132,7 +132,7 @@ void SupCapFdbData(SupCap_s *sup_cap_measure, uint8_t *rx_data)
  * @param[out]   board_communication_measure 底盘目标量结构体
  * @param[in]    rx_data 指向包含反馈数据的数组指针
  */
-void BoardCommunicationFdbData(Reference_t *board_communication_measure, uint8_t *rx_data)
+void BoardCommunicationFdbData(ChassisReference_t *board_communication_measure, uint8_t *rx_data)
 {
 
     int16_t ch0,ch1;
@@ -141,6 +141,7 @@ void BoardCommunicationFdbData(Reference_t *board_communication_measure, uint8_t
 
     board_communication_measure->vx = ch0 * RC_TO_VECTOR_SCALE;
     board_communication_measure->vy = ch1 * RC_TO_VECTOR_SCALE;
+    board_communication_measure->wz = 0;
     board_communication_measure->chassis_mode = rx_data[4];
 
 }
@@ -216,10 +217,6 @@ static void DecodeStdIdData(hcan_t *CAN, CAN_RxHeaderTypeDef *rx_header, uint8_t
         }
         return;
     }
-    default:
-    {
-        break;
-    }
     }
 
     // 超级电容通信数据解码
@@ -238,6 +235,7 @@ static void DecodeStdIdData(hcan_t *CAN, CAN_RxHeaderTypeDef *rx_header, uint8_t
         BoardCommunicationFdbData(&BOARD_COMMUNICATION_MEASURE, rx_data);
         return;
     }
+    
 }
 
 /**
@@ -516,9 +514,9 @@ void GetSupCapMeasure(SupCap_s *p_sup_cap)
  * @param board_communication
  * @return none
  */
-void Get_board_communication_information(Reference_t *board_communication)
+void GetBoardInfo(ChassisReference_t *board_communication)
 {
-    memcpy(board_communication, &BOARD_COMMUNICATION_MEASURE, sizeof(Reference_t));
+    memcpy(board_communication, &BOARD_COMMUNICATION_MEASURE, sizeof(ChassisReference_t));
 }
 
 /************************ END OF FILE ************************/

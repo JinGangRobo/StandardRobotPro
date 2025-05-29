@@ -103,7 +103,7 @@ void ChassisReference(void)
     chassis.reference.chassis_mode = GetDt7RcSw(0);
 
 #elif (CONTROL_TYPE == DOUBLE_CONTROL)
-    Get_board_communication_information(&chassis.reference);
+    GetBoardInfo(&chassis.reference);
 #endif
 
     // 在不同行为模式下，将云台坐标系下的值映射到底盘坐标系，供底盘解算，并设置绕z轴方向的速度值

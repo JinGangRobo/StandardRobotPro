@@ -7,13 +7,15 @@
 #define INCLUDED_ROBOT_PARAM_H
 #include "robot_typedef.h"
 
-#define CHASSIS_TYPE CHASSIS_OMNI_WHEEL                     // 选择底盘类型
-// #define CHASSIS_TYPE CHASSIS_NONE                     // 选择底盘类型
+// #define CHASSIS_TYPE CHASSIS_OMNI_WHEEL                     // 选择底盘类型
+#define CHASSIS_TYPE CHASSIS_NONE                     // 选择底盘类型
 
 #define GIMBAL_TYPE GIMBAL_NONE           // 选择云台类型
 // #define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT           // 选择云台类型
 
-#define SHOOT_TYPE SHOOT_NONE                         // 选择发射机构类型
+// #define SHOOT_TYPE SHOOT_NONE                         // 选择发射机构类型
+#define SHOOT_TYPE SHOOT_FRIC_TRIGGER
+
 #define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
 #define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
 
@@ -175,6 +177,7 @@
 #define FRIC_RADIUS 0.03f // (m)摩擦轮半径
 #define BULLET_NUM 8      // 定义拨弹盘容纳弹丸个数
 #define GUN_NUM 1         // 定义枪管个数（一个枪管2个摩擦轮）
+#define TRIGGER_REDUCTION_RATIO 1.0f  // 定义电机到拨弹盘的齿轮减速比
 
 /*MOTOR paramters --------------------*/
 
@@ -183,9 +186,9 @@
 #define FRIC_MOTOR_TYPE ((MotorType_e)DJI_M3508)
 
 // 电机ID
-#define TRIGGER_MOTOR_ID 8
-#define FRIC_MOTOR_R_ID 6
-#define FRIC_MOTOR_L_ID 5
+#define TRIGGER_MOTOR_ID 4
+#define FRIC_MOTOR_R_ID 2
+#define FRIC_MOTOR_L_ID 1
 
 // 电机can口
 #define TRIGGER_MOTOR_CAN 1
@@ -193,7 +196,7 @@
 #define FRIC_MOTOR_L_CAN 1
 
 // 电机std_id
-#define STD_ID 0x1FF
+#define STD_ID 0x200
 // 单环拨弹速度
 #define TRIGGER_SPEED (300.0f)
 // 摩擦轮速度
@@ -226,9 +229,9 @@
 /*PID parameters ---------------------*/
 
 // 拨弹轮电机PID速度环
-#define TRIGGER_SPEED_PID_KP (100.0f)
-#define TRIGGER_SPEED_PID_KI (0.5f)
-#define TRIGGER_SPEED_PID_KD (0.1f)
+#define TRIGGER_SPEED_PID_KP (100.0f)//100
+#define TRIGGER_SPEED_PID_KI (0.0f)
+#define TRIGGER_SPEED_PID_KD (0.0f)//0.1
 
 #define TRIGGER_SPEED_PID_MAX_OUT (10000.0f)
 #define TRIGGER_SPEED_PID_MAX_IOUT (1000.0f)
@@ -244,11 +247,12 @@
 // 摩擦轮电机PID
 #define FRIC_SPEED_PID_KP (666.0f)
 #define FIRC_SPEED_PID_KI (0.6f)
-#define FRIC_SPEED_PID_KD (1.0f)
+#define FRIC_SPEED_PID_KD (0.0f)
 
 #define FRIC_PID_MAX_OUT (16000.0f)
 #define FRIC_PID_MAX_IOUT (1000.0f)
 
-#define SHOOT_HEAT_REMAIN_VALUE 80 // 89
+// 当未连接裁判系统设置负值方便调试
+#define SHOOT_HEAT_REMAIN_VALUE -80 // 89
 
 #endif /* INCLUDED_ROBOT_PARAM_H */

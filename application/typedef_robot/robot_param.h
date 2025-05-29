@@ -23,8 +23,8 @@
 #include "struct_typedef.h"
 
 // 导入具体的机器人参数配置文件
-// #include "robot_param_omni_sentry.h"
-#include "robot_param_mecannum_hero.h"
+#include "robot_param_omni_sentry.h"
+// #include "robot_param_mecannum_hero.h"
 
 // 选择机器人的各种类型
 #define __RC_TYPE RC_DT7         // 遥控器类型
@@ -38,12 +38,15 @@
 // USB通信的部分选项
 #define __USB_SEND_DEBUG 0  // 发送DEBUG数据
 
-// 本板id
-#ifndef __SELF_BOARD_ID
-#define __SELF_BOARD_ID C_BOARD_OMNI_SENTINEIL_GIMBAL
+// 模块检查
+#ifndef CONTROL_TYPE
+#define CONTROL_TYPE SINGLE_CONTROL
 #endif
 
-// 模块检查
+#ifndef BOARD_CURRENT
+#define BOARD_CURRENT C_BOARD_DEFAULT
+#endif
+
 #ifndef CHASSIS_TYPE
 #define CHASSIS_TYPE CHASSIS_NONE
 #endif

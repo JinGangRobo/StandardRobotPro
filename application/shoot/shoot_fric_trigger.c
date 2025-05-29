@@ -89,7 +89,7 @@ void ShootInit(void)
 void ShootSetMode(void)
 {
   /*键鼠遥控器控制方式初版----------------------------*/
-   if (switch_is_up(SHOOT.rc->rc.s[SHOOT_MODE_CHANNEL]))//上档防止误触
+   if (switch_is_down(SHOOT.rc->rc.s[SHOOT_MODE_CHANNEL]))// 下档防止误触
    {
         SHOOT.state = FRIC_NOT_READY;
         SHOOT.mode = LOAD_STOP;
@@ -97,40 +97,75 @@ void ShootSetMode(void)
 
    else if (switch_is_mid(SHOOT.rc->rc.s[SHOOT_MODE_CHANNEL]))
    {
-        // if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_Q || GetScCmdFricOn())//Q启动摩擦轮
-        // {
-        //   SHOOT.fric_flag = 1;
-        // }
-        // else if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_E || !GetScCmdFricOn())//E关闭摩擦轮
-        // {
-        //   SHOOT.fric_flag = 0;
-        // }
-        if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_Q)//Q启动摩擦轮
-        {
-          SHOOT.fric_flag = 1;
-        }
-        else if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_E)//E关闭摩擦轮
-        {
-          SHOOT.fric_flag = 0;
-        }
+        // 测试使用
+        SHOOT.state = FRIC_READY;
+        SHOOT.mode = LOAD_STOP;
+        // // 设置摩擦轮状态位
+        // // if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_Q || GetScCmdFricOn())//Q启动摩擦轮
+        // // {
+        // //   SHOOT.fric_flag = 1;
+        // // }
+        // // else if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_E || !GetScCmdFricOn())//E关闭摩擦轮
+        // // {
+        // //   SHOOT.fric_flag = 0;
+        // // }
+        // // if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_Q)//Q启动摩擦轮
+        // // {
+        // //   SHOOT.fric_flag = 1;
+        // // }
+        // // else if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_E)//E关闭摩擦轮
+        // // {
+        // //   SHOOT.fric_flag = 0;
+        // // }
         
-        if (SHOOT.fric_flag)
-        {
-            SHOOT.state = FRIC_READY;
-        }
-        else
-        {
-            SHOOT.state = FRIC_NOT_READY;
-        }
+        // // 测试状态设置摩擦轮状态位
+        // SHOOT.fric_flag = 1;
 
+        // if (SHOOT.fric_flag)
+        // {
+        //     SHOOT.state = FRIC_READY;
+        // }
+        // else
+        // {
+        //     SHOOT.state = FRIC_NOT_READY;
+        // }
 
-        // if (SHOOT.rc->mouse.press_l && SHOOT.shoot_flag==0)
+        // // 设置开火状态位
+        // // if (SHOOT.rc->mouse.press_l && SHOOT.shoot_flag==0)
+        // // {
+        // //   SHOOT.mode = LAOD_BULLET;
+        // // }
+        // // else if (SHOOT.rc->mouse.press_r || GetScCmdFire())
+        // // {
+        // //   SHOOT.mode = LOAD_BURSTFIRE;
+        // // }
+        // // else
+        // // {
+        // //   SHOOT.mode = LOAD_STOP;
+        // // }
+        
+        // // SHOOT.shoot_flag = SHOOT.rc->mouse.press_l;
+
+        // // if (SHOOT.move_flag)
+        // // {
+        // //   SHOOT.mode = LAOD_BULLET;
+        // //}
+
+        // if (SHOOT.rc->mouse.press_l && !SHOOT.shoot_flag) // 左键单发
         // {
         //   SHOOT.mode = LAOD_BULLET;
         // }
-        // else if (SHOOT.rc->mouse.press_r || GetScCmdFire())
+        // else if (SHOOT.rc->mouse.press_r) // 右键连发
         // {
-        //   SHOOT.mode = LOAD_BURSTFIRE;
+        //     // 这里根据上位机指令判断，暂时不需要
+        //     // if (GetScCmdFire())
+        //     // {
+        //       SHOOT.mode = LOAD_BURSTFIRE;
+        //     // }
+        //     // else
+        //     // {
+        //     //   SHOOT.mode = LOAD_STOP;
+        //     // }
         // }
         // else
         // {
@@ -142,57 +177,31 @@ void ShootSetMode(void)
         // if (SHOOT.move_flag)
         // {
         //   SHOOT.mode = LAOD_BULLET;
-        //}
-
-        if (SHOOT.rc->mouse.press_l && !SHOOT.shoot_flag)
-        {
-          SHOOT.mode = LAOD_BULLET;
-        }
-        else if (SHOOT.rc->mouse.press_r)
-        {
-            if (GetScCmdFire())
-            {
-              SHOOT.mode = LOAD_BURSTFIRE;
-            }
-            else
-            {
-              SHOOT.mode = LOAD_STOP;
-            }
-        }
-        else
-        {
-          SHOOT.mode = LOAD_STOP;
-        }
+        // }
         
-        SHOOT.shoot_flag = SHOOT.rc->mouse.press_l;
-
-        if (SHOOT.move_flag)
-        {
-          SHOOT.mode = LAOD_BULLET;
-        }
-        
-        if (SHOOT.rc->mouse.press_l)
-        {
-          if (SHOOT.mr_time < 180)
-          {
-            SHOOT.mr_time++;
-          }
-          else
-          {
-            SHOOT.mode = LOAD_BURSTFIRE;
-            SHOOT.move_flag = 0;
-          }
-        }
-        else
-        {
-          SHOOT.mr_time = 0;
-        }
+        // // 右键连发计时
+        // if (SHOOT.rc->mouse.press_l)
+        // {
+        //   if (SHOOT.mr_time < 180)
+        //   {
+        //     SHOOT.mr_time++;
+        //   }
+        //   else
+        //   {
+        //     SHOOT.mode = LOAD_BURSTFIRE;
+        //     SHOOT.move_flag = 0;
+        //   }
+        // }
+        // else
+        // {
+        //   SHOOT.mr_time = 0;
+        // }
     } 
-    else if (switch_is_down(SHOOT.rc->rc.s[SHOOT_MODE_CHANNEL]))
+    else if (switch_is_up(SHOOT.rc->rc.s[SHOOT_MODE_CHANNEL])) // 上档连发
     {
       //清弹
         SHOOT.state = FRIC_READY;
-        SHOOT.mode = LOAD_BURSTFIRE;
+        SHOOT.mode = LAOD_BULLET;//LOAD_BURSTFIRE;
 
       //上位机测试
         // SHOOT.state = FRIC_READY;
@@ -212,15 +221,17 @@ void ShootSetMode(void)
     {
       if(SHOOT.block_time >= BLOCK_TIME)
       {
-        SHOOT.mode = LOAD_BLOCK;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+        // 不启动拨弹轮暂时注释
+        // SHOOT.mode = LOAD_BLOCK;
       }
-  
-      if(fabs(SHOOT.last_trigger_vel)<BLOCK_TRIGGER_SPEED&&SHOOT.block_time<BLOCK_TIME)
+      
+      // 堵转时间计时
+      if(fabs(SHOOT.last_trigger_vel)<BLOCK_TRIGGER_SPEED && SHOOT.block_time<BLOCK_TIME)
       {
         SHOOT.block_time++;
         SHOOT.reverse_time = 0;
       }
-      else if(SHOOT.block_time== BLOCK_TIME&& SHOOT.reverse_time< REVERSE_TIME)
+      else if(SHOOT.block_time== BLOCK_TIME && SHOOT.reverse_time< REVERSE_TIME)
       {
         SHOOT.reverse_time++;  
       }
@@ -231,25 +242,25 @@ void ShootSetMode(void)
       
     }
 
-    //过热保护
-    if (fabs(SHOOT.last_fric_vel) < FRIC_SPEED_LIMIT)
-    {
-      SHOOT.mode = LOAD_STOP;
-      fric_ui = 0;
-    }
-    else
-    {
-      fric_ui = 1;
-    }
+    // //过热保护
+    // if (fabs(SHOOT.last_fric_vel) < FRIC_SPEED_LIMIT)
+    // {
+    //   SHOOT.mode = LOAD_STOP;
+    //   fric_ui = 0;
+    // } else {
+    //   fric_ui = 1;
+    // }
     
     //热量限制
     if (TRIGGER_MOTOR_TYPE == DJI_M2006)
     {
-      get_shoot_heat0_limit_and_heat0(&SHOOT.heat_limit, &SHOOT.heat);
+      SHOOT.heat = get_heat_auto();
+      SHOOT.heat_limit = get_heat_limit();
     }
     else if (TRIGGER_MOTOR_TYPE == DM_4310)
     {
-      get_shoot_heat42_limit_and_heat42(&SHOOT.heat_limit, &SHOOT.heat);
+      SHOOT.heat = get_heat_auto();
+      SHOOT.heat_limit = get_heat_limit();
     }
 
     if ((SHOOT.heat + SHOOT_HEAT_REMAIN_VALUE) > SHOOT.heat_limit)
@@ -258,7 +269,7 @@ void ShootSetMode(void)
     }
 
     //安全档
-    if ((switch_is_down(SHOOT.rc->rc.s[0])))
+    if ((switch_is_down(SHOOT.rc->rc.s[1])))
     {
       SHOOT.mode = LOAD_STOP;
       SHOOT.state = FRIC_NOT_READY;
@@ -292,13 +303,14 @@ void ShootObserver(void)
 
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
   {
+
+    // 拨弹轮点击编码器值规整
     if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd > HALF_ECD_RANGE)
     {
         SHOOT.ecd_count--;
     }
     else if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd < -HALF_ECD_RANGE)
     {
-        
         SHOOT.ecd_count++;
     }
 
@@ -310,11 +322,12 @@ void ShootObserver(void)
     {
         SHOOT.ecd_count = FULL_COUNT-1;
     }
+
     //计算输出轴角度
     SHOOT.FDB.trigger_angel_fdb = (SHOOT.ecd_count * ECD_RANGE + SHOOT.trigger_motor.fdb.ecd )* MOTOR_ECD_TO_ANGLE;
 
     //记录上一个ecd值
-   SHOOT.last_ecd = SHOOT.trigger_motor.fdb.ecd;
+    SHOOT.last_ecd = SHOOT.trigger_motor.fdb.ecd;
 
   //电机圈数重置， 因为输出轴旋转一圈， 电机轴旋转 36圈，将电机轴数据处理成输出轴数据，用于控制输出轴角度
   //if(FULL_COUNT%2 == 0)
@@ -383,6 +396,8 @@ void ShootObserver(void)
  */
 void ShootReference(void) 
 {
+
+  // 摩擦轮目标量设置
   switch (SHOOT.state)
   {
   case FRIC_NOT_READY:
@@ -399,6 +414,7 @@ void ShootReference(void)
   break;
   }
 
+  // 拨弹盘目标量设置
   switch (SHOOT.mode)
   {
   case LOAD_STOP:
@@ -410,7 +426,7 @@ void ShootReference(void)
   {
     if (SHOOT.move_flag == 0)
     {
-      SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.FDB.trigger_angel_fdb + 2*PI/BULLET_NUM/TRIGGER_REDUCTION_RATIO);
+      SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.FDB.trigger_angel_fdb + 2 * PI / BULLET_NUM / TRIGGER_REDUCTION_RATIO );
     }
 
     if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) > 0.01f)
@@ -426,7 +442,7 @@ void ShootReference(void)
   {
     if (SHOOT.move_flag == 0)
     {
-      SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.FDB.trigger_angel_fdb - 2*PI/BULLET_NUM/TRIGGER_REDUCTION_RATIO);
+      SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.FDB.trigger_angel_fdb - 2.0f*PI/BULLET_NUM/TRIGGER_REDUCTION_RATIO);
     }
 
     if (theta_format(SHOOT.FDB.trigger_angel_fdb - SHOOT.REF.trigger_angel_ref) > 0.01f)
@@ -465,8 +481,8 @@ void ShootReference(void)
  */
 void ShootConsole(void) 
 {
-  SHOOT.fric_motor[0].set.curr= PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R,SHOOT.REF.fric_speed_ref_R);
-  SHOOT.fric_motor[1].set.curr= PID_calc(&SHOOT.fric_pid[1], SHOOT.FDB.fric_speed_fdb_L,SHOOT.REF.fric_speed_ref_L);
+  SHOOT.fric_motor[0].set.curr= 0;//PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R,SHOOT.REF.fric_speed_ref_R);
+  SHOOT.fric_motor[1].set.curr= 0;//PID_calc(&SHOOT.fric_pid[1], SHOOT.FDB.fric_speed_fdb_L,SHOOT.REF.fric_speed_ref_L);
 
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
   {
