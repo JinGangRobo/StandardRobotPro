@@ -19,28 +19,28 @@
 #include "struct_typedef.h"
 #include "custom_typedef.h"
 
-typedef enum __DataExchangeIndex {
-    TEST_DATA = 0,
-    YAW_ANGLE,
-    Data_Exchange_INDEX_NUM
-} DataExchangeIndex_e;
+// typedef enum __DataExchangeIndex {
+//     TEST_DATA = 0,
+//     YAW_ANGLE,
+//     Data_Exchange_INDEX_NUM
+// } DataExchangeIndex_e;
 
-typedef enum __Data_Type {
-    DE_INT8 = 0,
-    DE_UINT8,
-    DE_INT16,
-    DE_UINT16,
-    DE_INT32,
-    DE_UINT32,
-    DE_FLOAT,
-    Data_Type_NUM
-} DataType_e;
+// typedef enum __Data_Type {
+//     DE_INT8 = 0,
+//     DE_UINT8,
+//     DE_INT16,
+//     DE_UINT16,
+//     DE_INT32,
+//     DE_UINT32,
+//     DE_FLOAT,
+//     Data_Type_NUM
+// } DataType_e;
 
 typedef enum DataPublishStatus {
-    PUBLISH_FAIL = 0,
-    PUBLISH_OK,
-    PUBLISH_ALREADY_EXIST,
-    PUBLISH_ALREADY_FULL
+    PUBLISH_FAIL = 0,       //发布失败
+    PUBLISH_OK,             //发布成功
+    PUBLISH_ALREADY_EXIST,  //已经发布过
+    PUBLISH_ALREADY_FULL    //发布队列已满
 } DataPublishStatus_e;
 
 typedef enum DataSubscribeStatus { SUBSCRIBE_FAIL = 0, SUBSCRIBE_OK } DataSubscribeStatus_e;

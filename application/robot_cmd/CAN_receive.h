@@ -77,6 +77,6 @@ extern void GetMotorMeasure(Motor_s * p_motor);
 
 extern void GetSupCapMeasure(SupCap_s * p_sup_cap);
 
-extern void Get_board_communication_information(Reference_t *board_communication);
+extern void GetBoardInfo(ChassisReference_t *board_communication);
 
 #endif
