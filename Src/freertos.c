@@ -58,9 +58,9 @@ osThreadId communication_handle;
 osThreadId chassisTaskHandle;
 #endif
 
-#if (GIMBAL_TYPE != GIMBAL_NONE)
+// #if (GIMBAL_TYPE != GIMBAL_NONE)
 osThreadId gimbalTaskHandle;
-#endif
+// #endif
 
 #if (SHOOT_TYPE != SHOOT_NONE)
 osThreadId shootTaskHandle;
@@ -198,10 +198,10 @@ void MX_FREERTOS_Init(void) {
     chassisTaskHandle = osThreadCreate(osThread(ChassisTask), NULL);
 #endif
 
-#if (GIMBAL_TYPE != GIMBAL_NONE)
+// #if (GIMBAL_TYPE != GIMBAL_NONE)
     osThreadDef(gimbalTask, gimbal_task, osPriorityHigh, 0, 512);
     gimbalTaskHandle = osThreadCreate(osThread(gimbalTask), NULL);
-#endif
+// #endif
 
 #if (SHOOT_TYPE != SHOOT_NONE)
     osThreadDef(shootTask, shoot_task, osPriorityHigh, 0, 512);
