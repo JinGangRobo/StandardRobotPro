@@ -378,6 +378,9 @@
         "files": [
           {
             "path": "../components/controller/pid.c"
+          },
+          {
+            "path": "../components/controller/FF_pid.c"
           }
         ],
         "folders": []
