@@ -7,11 +7,11 @@
 #define INCLUDED_ROBOT_PARAM_H
 #include "robot_typedef.h"
 
-#define CHASSIS_TYPE CHASSIS_OMNI_WHEEL                     // 选择底盘类型
-// #define CHASSIS_TYPE CHASSIS_NONE                     // 选择底盘类型
+// #define CHASSIS_TYPE CHASSIS_OMNI_WHEEL                     // 选择底盘类型
+#define CHASSIS_TYPE CHASSIS_NONE                     // 选择底盘类型
 
-#define GIMBAL_TYPE GIMBAL_NONE           // 选择云台类型
-// #define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT           // 选择云台类型
+// #define GIMBAL_TYPE GIMBAL_NONE           // 选择云台类型
+#define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT           // 选择云台类型
 
 #define SHOOT_TYPE SHOOT_NONE                         // 选择发射机构类型
 // #define SHOOT_TYPE SHOOT_FRIC_TRIGGER
@@ -21,11 +21,11 @@
 
 #define CONTROL_TYPE DOUBLE_CONTROL                 //选择板子控制类型
 
-// #define BOARD_CURRENT C_BOARD_OMNI_SENTINEIL_GIMBAL
-// #define BOARD_OTHER C_BOARD_OMNI_SENTINEIL_CHASSIS
+#define BOARD_CURRENT C_BOARD_OMNI_SENTINEIL_GIMBAL
+#define BOARD_OTHER C_BOARD_OMNI_SENTINEIL_CHASSIS
 
-#define BOARD_CURRENT C_BOARD_OMNI_SENTINEIL_CHASSIS
-#define BOARD_OTHER C_BOARD_OMNI_SENTINEIL_GIMBAL
+// #define BOARD_CURRENT C_BOARD_OMNI_SENTINEIL_CHASSIS
+// #define BOARD_OTHER C_BOARD_OMNI_SENTINEIL_GIMBAL
 
 /*-------------------- Chassis --------------------*/
 
@@ -142,7 +142,7 @@
 #define GIMBAL_LOWER_LIMIT_PITCH (-0.3f)
 
 // 电机角度中值设置
-#define GIMBAL_DIRECT_PITCH_MID (-0.6741f) // 云台初始化正对齐的时候使用的pitch轴正中心量
+#define GIMBAL_DIRECT_PITCH_MID (3.0671f) // 云台初始化正对齐的时候使用的pitch轴正中心量
 #define GIMBAL_DIRECT_YAW_MID (1.5393f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
 
 // PID parameters ---------------------

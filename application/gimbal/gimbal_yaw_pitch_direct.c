@@ -40,14 +40,18 @@ Gimbal_PID_t gimbal_direct_pid;
  */
 void Angle_solution(void)
 {
+    // 电机, imu 反馈值
     float motor_feedback = gimbal_direct.pitch.fdb.pos;
     float imu_feedback = gimbal_direct.feedback_pos.pitch;
+    // 电机, imu 中值
     float motor_mid = GIMBAL_DIRECT_PITCH_MID;
     float imu_mid = 0.0;
 
+    // 电机, imu 差值
     float motor_delta = GIMBAL_DIRECT_PITCH_DIRECTION * (motor_feedback - motor_mid);
     float imu_delta = imu_feedback - imu_mid;
-    gimbal_direct.angle_zero_for_imu = imu_delta - motor_delta;
+    // 更新云台中值对应的imu值
+    gimbal_direct.angle_zero_for_imu = 0;//imu_delta - motor_delta;
 }
 
 /*----------------Gimbal_direct_init_judge--------------------*/
