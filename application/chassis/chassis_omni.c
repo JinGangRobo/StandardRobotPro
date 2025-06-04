@@ -97,19 +97,19 @@ void ChassisReference(void)
 {
 
 #if (CONTROL_TYPE == SINGLE_CONTROL)
-    chassis.reference.vx = GetDt7RcCh(0) * RC_TO_VECTOR_SCALE;
-    chassis.reference.vy = GetDt7RcCh(1) * RC_TO_VECTOR_SCALE;
-    chassis.reference.chassis_mode = GetDt7RcSw(0);
+    chassis.reference_rc.vx = GetDt7RcCh(0) * RC_TO_VECTOR_SCALE;
+    chassis.reference_rc.vy = GetDt7RcCh(1) * RC_TO_VECTOR_SCALE;
+    chassis.reference_rc.chassis_mode = GetDt7RcSw(0);
 
 #elif (CONTROL_TYPE == DOUBLE_CONTROL)
-    GetBoardInfo(&chassis.reference);
+    GetBoardInfo(&chassis.reference_rc);
 #endif
 
     // 在不同行为模式下，将云台坐标系下的值映射到底盘坐标系，供底盘解算，并设置绕z轴方向的速度值
     float sin_yaw = sin(chassis.yaw_delta);
     float cos_yaw = cos(chassis.yaw_delta);
-    chassis.reference.vx = chassis.reference.vx * cos_yaw - chassis.reference.vy * sin_yaw;
-    chassis.reference.vy = chassis.reference.vx * sin_yaw + chassis.reference.vy * cos_yaw;
+    chassis.reference.vx = chassis.reference_rc.vx * cos_yaw + chassis.reference_rc.vy * sin_yaw;
+    chassis.reference.vy = -chassis.reference_rc.vx * sin_yaw + chassis.reference_rc.vy * cos_yaw;
 
     if (chassis.reference.chassis_mode == ROBO_CHASSIS_FOLLOW_GIMBAL_YAW)
     {
@@ -131,10 +131,10 @@ void ChassisReference(void)
  */
 void ChassisConsole(void)
 {
-    chassis.set[0] = (sqrt(2) * (chassis.reference.vx - chassis.reference.vy) - WHEEL_CENTER_DISTANCE * chassis.reference.wz) / WHEEL_RADIUS * chassis.wheel[0].reduction_ratio;
-    chassis.set[1] = (sqrt(2) * (chassis.reference.vx + chassis.reference.vy) - WHEEL_CENTER_DISTANCE * chassis.reference.wz) / WHEEL_RADIUS * chassis.wheel[1].reduction_ratio;
-    chassis.set[2] = (sqrt(2) * (-chassis.reference.vx + chassis.reference.vy) - WHEEL_CENTER_DISTANCE * chassis.reference.wz) / WHEEL_RADIUS * chassis.wheel[2].reduction_ratio;
-    chassis.set[3] = (sqrt(2) * (-chassis.reference.vx - chassis.reference.vy) - WHEEL_CENTER_DISTANCE * chassis.reference.wz) / WHEEL_RADIUS * chassis.wheel[3].reduction_ratio;
+    chassis.set[3] = (sqrt(2) * (chassis.reference.vx - chassis.reference.vy) - WHEEL_CENTER_DISTANCE * chassis.reference.wz) / WHEEL_RADIUS * chassis.wheel[0].reduction_ratio;
+    chassis.set[0] = (sqrt(2) * (chassis.reference.vx + chassis.reference.vy) - WHEEL_CENTER_DISTANCE * chassis.reference.wz) / WHEEL_RADIUS * chassis.wheel[1].reduction_ratio;
+    chassis.set[1] = (sqrt(2) * (-chassis.reference.vx + chassis.reference.vy) - WHEEL_CENTER_DISTANCE * chassis.reference.wz) / WHEEL_RADIUS * chassis.wheel[2].reduction_ratio;
+    chassis.set[2] = (sqrt(2) * (-chassis.reference.vx - chassis.reference.vy) - WHEEL_CENTER_DISTANCE * chassis.reference.wz) / WHEEL_RADIUS * chassis.wheel[3].reduction_ratio;
 
     for (int i = 0; i < 4; ++i)
     {
