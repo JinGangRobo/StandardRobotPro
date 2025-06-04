@@ -25,6 +25,6 @@ typedef struct
     fp32 error[2];  //误差项 0最新 1上一次 2上上次
 
 } FF_pid_type_def;
-fp32 FF_PID_calc(pid_type_def * FF_pid, fp32 ref, fp32 set,fp32 Sys_est);
+fp32 FF_PID_calc(FF_pid_type_def * FF_pid, fp32 ref, fp32 set,fp32 Sys_est);
 void FF_PID_init(FF_pid_type_def * FF_pid, uint8_t mode, const fp32 PID[3], fp32 max_out, fp32 max_iout);
 #endif
