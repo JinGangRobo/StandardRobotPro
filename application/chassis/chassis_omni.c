@@ -101,12 +101,12 @@ void ChassisReference(void)
 {
 
 #if (CONTROL_TYPE == SINGLE_CONTROL)
-    chassis.reference.vx = GetDt7RcCh(0) * RC_TO_VECTOR_SCALE;
-    chassis.reference.vy = GetDt7RcCh(1) * RC_TO_VECTOR_SCALE;
-    chassis.reference.chassis_mode = GetDt7RcSw(0);
+    chassis.reference_rc.vx = GetDt7RcCh(0) * RC_TO_VECTOR_SCALE;
+    chassis.reference_rc.vy = GetDt7RcCh(1) * RC_TO_VECTOR_SCALE;
+    chassis.reference_rc.chassis_mode = GetDt7RcSw(0);
 
 #elif (CONTROL_TYPE == DOUBLE_CONTROL)
-    GetBoardInfo(&chassis.reference);
+    GetBoardInfo(&chassis.reference_rc);
 #endif
 
     // 在不同行为模式下，将云台坐标系下的值映射到底盘坐标系，供底盘解算，并设置绕z轴方向的速度值
