@@ -38,6 +38,7 @@ static Shoot_s SHOOT = {
 
 uint8_t fric_ui;
 fp32 delta;
+int a2;
 
 /*-------------------- Init --------------------*/
 
@@ -201,7 +202,7 @@ void ShootSetMode(void)
     {
       //清弹
         SHOOT.state = FRIC_READY;
-        SHOOT.mode = LAOD_BULLET;//LOAD_BURSTFIRE;
+        SHOOT.mode = LOAD_BURSTFIRE;//LOAD_BURSTFIRE;
 
       //上位机测试
         // SHOOT.state = FRIC_READY;
@@ -222,7 +223,7 @@ void ShootSetMode(void)
       if(SHOOT.block_time >= BLOCK_TIME)
       {
         // 不启动拨弹轮暂时注释
-        // SHOOT.mode = LOAD_BLOCK;
+        SHOOT.mode = LOAD_BLOCK;
       }
       
       // 堵转时间计时
@@ -263,10 +264,10 @@ void ShootSetMode(void)
       SHOOT.heat_limit = get_heat_limit();
     }
 
-    if ((SHOOT.heat + SHOOT_HEAT_REMAIN_VALUE) > SHOOT.heat_limit)
-    {
-      SHOOT.mode = LOAD_STOP;
-    }
+    // if ((SHOOT.heat + SHOOT_HEAT_REMAIN_VALUE) > SHOOT.heat_limit)
+    // {
+    //   SHOOT.mode = LOAD_STOP;
+    // }
 
     //安全档
     if ((switch_is_down(SHOOT.rc->rc.s[1])))
@@ -481,8 +482,10 @@ void ShootReference(void)
  */
 void ShootConsole(void) 
 {
-  SHOOT.fric_motor[0].set.curr= 0;//PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R,SHOOT.REF.fric_speed_ref_R);
-  SHOOT.fric_motor[1].set.curr= 0;//PID_calc(&SHOOT.fric_pid[1], SHOOT.FDB.fric_speed_fdb_L,SHOOT.REF.fric_speed_ref_L);
+  SHOOT.fric_motor[0].set.curr=PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R,SHOOT.REF.fric_speed_ref_R);
+  SHOOT.fric_motor[1].set.curr=PID_calc(&SHOOT.fric_pid[1], SHOOT.FDB.fric_speed_fdb_L,SHOOT.REF.fric_speed_ref_L);
+  // PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R,SHOOT.REF.fric_speed_ref_R);
+  
 
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
   {
@@ -540,7 +543,8 @@ void ShootSendCmd(void)
 {
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
   {
-    CanCmdDjiMotor(FRIC_MOTOR_R_CAN, STD_ID , SHOOT.fric_motor[1].set.curr,SHOOT.fric_motor[0].set.curr,0, SHOOT.trigger_motor.set.curr);
+    CanCmdDjiMotor(FRIC_MOTOR_R_CAN, STD_ID , SHOOT.fric_motor[1].set.curr,SHOOT.fric_motor[0].set.curr,0,0);
+    CanCmdDjiMotor(TRIGGER_MOTOR_CAN, 0x1ff , 0,0,SHOOT.trigger_motor.set.curr,0);
   }
   else if (TRIGGER_MOTOR_TYPE == DM_4310)
   {

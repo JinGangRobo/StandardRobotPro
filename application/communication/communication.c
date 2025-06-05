@@ -32,7 +32,7 @@
 // send data
 BoardCommunicateData_s BOARD_TX_DATA;
 extern RC_ctrl_t rc_ctrl;
-
+int a1;
 // receive data
 uint8_t BOARD_RX_DATA[DATA_NUM][DATA_LEN + 1];  //第一位存放数据长度信息
 
@@ -61,7 +61,7 @@ void SendRC(){
     data_8[5] = 1;
     data_8[6] = 1; 
     data_8[7] = 1; 
-
+a1++;
     // 通过CAN总线发送遥控器的四个通道数据到指定板子
     CanSendDataToBoard(2, 0, BOARD_OTHER, data_8);
 }

@@ -323,7 +323,7 @@ void GimbalReference(void)
         {
             // 读取摇杆的数据
             gimbal_direct.reference.pitch = fp32_constrain(
-                        gimbal_direct.reference.pitch - fp32_deadline(gimbal_direct.rc->rc.ch[1], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY, 
+                        gimbal_direct.reference.pitch - fp32_deadline(gimbal_direct.rc->rc.ch[3], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY, 
                         GIMBAL_LOWER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu, 
                         GIMBAL_UPPER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu);
             // gimbal_direct.reference.pitch = fp32_constrain(
@@ -331,7 +331,7 @@ void GimbalReference(void)
             //             GIMBAL_LOWER_LIMIT_PITCH, 
             //             GIMBAL_UPPER_LIMIT_PITCH);
             gimbal_direct.reference.yaw = loop_fp32_constrain(
-                        gimbal_direct.reference.yaw - fp32_deadline(gimbal_direct.rc->rc.ch[0], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY,
+                        gimbal_direct.reference.yaw - fp32_deadline(gimbal_direct.rc->rc.ch[2], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY,
                         -M_PI, M_PI);
         }
     }
@@ -377,7 +377,7 @@ void GimbalConsole(void)
  */
 void GimbalSendCmd(void)
 {
-    CanCmdDjiMotor(GIMBAL_CAN, GIMBAL_STDID, gimbal_direct.yaw.set.curr, gimbal_direct.pitch.set.curr, 0, 0);
+    CanCmdDjiMotor(GIMBAL_CAN, GIMBAL_STDID, gimbal_direct.pitch.set.curr, gimbal_direct.yaw.set.curr, 0, 0);
 }
 
 #endif // GIMBAL_YAW_PITCH

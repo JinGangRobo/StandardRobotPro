@@ -34,3 +34,16 @@ void communication_task(void const * pvParameters)
 #endif
     }
 }
+
+__weak void SendInit()
+{
+    /* 
+     NOTE : 在其他文件中定义具体内容
+    */
+}
+__weak void SendRC()  
+{
+     /* 
+     NOTE : 在其他文件中定义具体内容
+    */
+}
