@@ -11,6 +11,7 @@
 #define USB_OFFLINE_NAME "usb_offline"
 #define VIRTUAL_RC_NAME "virtual_rc_ctrl"
 #define CALI_BUZZER_STATE_NAME "CaliBuzzerState"
+#define PID_DEBUG_NAME "PID_DEBUG"                  // pid 调试数据
 
 typedef enum
 {

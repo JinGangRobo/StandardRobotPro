@@ -36,43 +36,45 @@
 uint32_t usb_high_water;
 #endif
 
-#define USB_TASK_CONTROL_TIME 1  // ms
+#define USB_TASK_CONTROL_TIME 1 // ms
 
-#define USB_OFFLINE_THRESHOLD 100  // ms
+#define USB_OFFLINE_THRESHOLD 100 // ms
 #define USB_CONNECT_CNT 10
 
-#define SEND_DURATION_Debug              5  // ms
-#define SEND_DURATION_Imu                5  // ms
-#define SEND_DURATION_RobotStateInfo    10  // ms
-#define SEND_DURATION_PidDebug          10  // ms
+#define SEND_DURATION_Debug 5           // ms
+#define SEND_DURATION_Imu 5             // ms
+#define SEND_DURATION_RobotStateInfo 10 // ms
+#define SEND_DURATION_PidDebug 10       // ms
 
-#define USB_RX_DATA_SIZE 256  // byte
-#define USB_RECEIVE_LEN 150   // byte
-#define HEADER_SIZE 4         // byte
+#define USB_RX_DATA_SIZE 256 // byte
+#define USB_RECEIVE_LEN 150  // byte
+#define HEADER_SIZE 4        // byte
 
-#define CheckDurationAndSend(send_name)                                                  \
-    do {                                                                                 \
-        if ((HAL_GetTick() - LAST_SEND_TIME.##send_name) >= SEND_DURATION_##send_name) { \
-            LAST_SEND_TIME.##send_name = HAL_GetTick();                                  \
-            UsbSend##send_name##Data();                                                  \
-        }                                                                                \
+#define CheckDurationAndSend(send_name)                                                \
+    do                                                                                 \
+    {                                                                                  \
+        if ((HAL_GetTick() - LAST_SEND_TIME.##send_name) >= SEND_DURATION_##send_name) \
+        {                                                                              \
+            LAST_SEND_TIME.##send_name = HAL_GetTick();                                \
+            UsbSend##send_name##Data();                                                \
+        }                                                                              \
     } while (0)
 
 // Variable Declarations
 static uint8_t USB_RX_BUF[USB_RX_DATA_SIZE];
 
-static const Imu_t * IMU;
+static const Imu_t *IMU;
 
 // 判断USB连接状态用到的一些变量
 static bool USB_OFFLINE = true;
 static uint32_t RECEIVE_TIME = 0;
-static uint32_t LATEST_RX_TIMESTAMP = 0;
+// static uint32_t LATEST_RX_TIMESTAMP = 0;
 static uint32_t CONTINUE_RECEIVE_CNT = 0;
 
 // 数据发送结构体
-// static SendDataDebug_s              SEND_DATA_DEBUG;
+static SendDataDebug_s SEND_DATA_DEBUG;
 // static SendDataImu_s                SEND_DATA_IMU;
-static SendDataRobotStateInfo_s     SEND_DATA_ROBOT_STATE_INFO;
+static SendDataRobotStateInfo_s SEND_DATA_ROBOT_STATE_INFO;
 // static SendDataPidDebug_s           SEND_DATA_PID;
 
 // 数据接收结构体
@@ -106,7 +108,7 @@ static void UsbInit(void);
 /* Send Function                                                               */
 /*******************************************************************************/
 
-// static void UsbSendDebugData(void);
+static void UsbSendDebugData(void);
 // static void UsbSendImuData(void);
 static void UsbSendRobotStateInfoData(void);
 // static void UsbSendPidDebugData(void);
@@ -127,29 +129,36 @@ static void UsbSendRobotStateInfoData(void);
  * @param[in]  argument: 任务参数
  * @retval     None
  */
-void usb_task(void const * argument)
+void usb_task(void const *argument)
 {
     Publish(&ROBOT_CMD_DATA, ROBOT_CMD_DATA_NAME);
     Publish(&USB_OFFLINE, USB_OFFLINE_NAME);
     Publish(&VIRTUAL_RC_CTRL, VIRTUAL_RC_NAME);
+    Publish(&RECEIVE_PID_DEBUG_DATA, PID_DEBUG_NAME);
 
     MX_USB_DEVICE_Init();
-
-    vTaskDelay(10);  //等待USB设备初始化完成
+    
+    vTaskDelay(10); // 等待USB设备初始化完成
     UsbInit();
 
-    while (1) {
+    while (1)
+    {
         UsbSendData();
         UsbReceiveData();
         // GetCmdData();
         // GetVirtualRcCtrlData();
 
-        if (HAL_GetTick() - RECEIVE_TIME > USB_OFFLINE_THRESHOLD) {
+        if (HAL_GetTick() - RECEIVE_TIME > USB_OFFLINE_THRESHOLD)
+        {
             USB_OFFLINE = true;
             CONTINUE_RECEIVE_CNT = 0;
-        } else if (CONTINUE_RECEIVE_CNT > USB_CONNECT_CNT) {
+        }
+        else if (CONTINUE_RECEIVE_CNT > USB_CONNECT_CNT)
+        {
             USB_OFFLINE = false;
-        } else {
+        }
+        else
+        {
             CONTINUE_RECEIVE_CNT++;
         }
 
@@ -173,7 +182,7 @@ void usb_task(void const * argument)
 static void UsbInit(void)
 {
     // 订阅数据
-    IMU = Subscribe(IMU_NAME);                             // 获取IMU数据指针
+    IMU = Subscribe(IMU_NAME); // 获取IMU数据指针
 
     // 数据置零
     memset(&LAST_SEND_TIME, 0, sizeof(LastSendTime_t));
@@ -186,20 +195,18 @@ static void UsbInit(void)
     /*******************************************************************************/
     /* Serial                                                                     */
     /*******************************************************************************/
-    
-    // // 1.初始化调试数据包
-    // // 帧头部分
-    // SEND_DATA_DEBUG.frame_header.sof = PACKET_VERSION;
-    // SEND_DATA_DEBUG.frame_header.len = (uint8_t)(sizeof(SendDataDebug_s) - 6);
-    // SEND_DATA_DEBUG.frame_header.id = DEBUG_DATA_SEND_ID;
-    // append_CRC8_check_sum(  // 添加帧头 CRC8 校验位
-    //     (uint8_t *)(&SEND_DATA_DEBUG.frame_header), sizeof(SEND_DATA_DEBUG.frame_header));
-    // // 数据部分
-    // for (uint8_t i = 0; i < DEBUG_PACKAGE_NUM; i++) {
-    //     SEND_DATA_DEBUG.packages[i].type = 1;
-    //     SEND_DATA_DEBUG.packages[i].name[0] = '\0';
-    // }
-    
+
+    // 1.初始化调试数据包
+    // 帧尾部分
+    static const uint8_t TAIL_DATA[4] = {0x00, 0x00, 0x80, 0x7f};
+    memcpy(&SEND_DATA_DEBUG.tail, TAIL_DATA, sizeof(TAIL_DATA));
+
+    // 数据部分
+    for (int i = 0; i < DEBUG_PACKAGE_NUM; i++)
+    {
+        SEND_DATA_DEBUG.data[i] = 0;
+    }
+
     // // 2.初始化IMU数据包
     // SEND_DATA_IMU.frame_header.sof = PACKET_VERSION;
     // SEND_DATA_IMU.frame_header.len = (uint8_t)(sizeof(SendDataImu_s) - 6);
@@ -211,25 +218,25 @@ static void UsbInit(void)
     // 帧头部分
     SEND_DATA_ROBOT_STATE_INFO.frame_header.sof = PACKET_VERSION;
     SEND_DATA_ROBOT_STATE_INFO.frame_header.len = (uint8_t)(sizeof(SendDataRobotStateInfo_s) - 6);
-    SEND_DATA_ROBOT_STATE_INFO.frame_header.id  = ROBOT_STATE_DATA_INFO_SEND_ID;
-    append_CRC8_check_sum(  // 添加帧头 CRC8 校验位
+    SEND_DATA_ROBOT_STATE_INFO.frame_header.id = ROBOT_STATE_DATA_INFO_SEND_ID;
+    append_CRC8_check_sum( // 添加帧头 CRC8 校验位
         (uint8_t *)(&SEND_DATA_ROBOT_STATE_INFO.frame_header), sizeof(SEND_DATA_ROBOT_STATE_INFO.frame_header));
     // 数据部分
-    SEND_DATA_ROBOT_STATE_INFO.data.roll                = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.pitch               = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.yaw                 = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.encoder_down        = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.encoder_up          = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work   = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage   = 0;
-    
+    SEND_DATA_ROBOT_STATE_INFO.data.roll = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.pitch = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.yaw = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.encoder_down = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.encoder_up = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage = 0;
+
     // // 4.初始化pid调参数据
     // SEND_DATA_PID.frame_header.sof = PACKET_VERSION;
     // SEND_DATA_PID.frame_header.len = (uint8_t)(sizeof(SendDataPidDebug_s) - 6);
     // SEND_DATA_PID.frame_header.id = PID_DEBUG_DATA_SEND_ID;
     // append_CRC8_check_sum(  // 添加帧头 CRC8 校验位
     //     (uint8_t *)(&SEND_DATA_PID.frame_header), sizeof(SEND_DATA_PID.frame_header));
-}   
+}
 
 /**
  * @brief      用USB发送数据
@@ -239,7 +246,7 @@ static void UsbInit(void)
 static void UsbSendData(void)
 {
     // 发送Debug数据
-    // CheckDurationAndSend(Debug);
+    CheckDurationAndSend(Debug);
     // 发送Imu数据
     // CheckDurationAndSend(Imu);
     // 发送RobotStateInfo数据
@@ -256,61 +263,82 @@ static void UsbSendData(void)
 static void UsbReceiveData(void)
 {
     static uint32_t len = USB_RECEIVE_LEN;
-    static uint8_t * rx_data_start_address = USB_RX_BUF;  // 接收数据包时存放于缓存区的起始位置
-    static uint8_t * rx_data_end_address;  // 接收数据包时存放于缓存区的结束位置
-    uint8_t * sof_address = USB_RX_BUF;
+    static uint8_t *rx_data_start_address = USB_RX_BUF; // 接收数据包时存放于缓存区的起始位置
+    static uint8_t *rx_data_end_address;                // 接收数据包时存放于缓存区的结束位置
+    uint8_t *sof_address = USB_RX_BUF;
 
     // 计算数据包的结束位置
     rx_data_end_address = rx_data_start_address + USB_RECEIVE_LEN;
     // 读取数据
-    USB_Receive(rx_data_start_address, &len);  // Read data into the buffer
+    USB_Receive(rx_data_start_address, &len); // Read data into the buffer
 
-    while (sof_address <= rx_data_end_address) {  // 解析缓冲区中的所有数据包
+    while (sof_address <= rx_data_end_address)
+    { // 解析缓冲区中的所有数据包
         // 寻找帧头位置
-        while (*(sof_address) != PACKET_VERSION && (sof_address <= rx_data_end_address)) {
+        while (*(sof_address) != PACKET_VERSION && *(sof_address) != PACKET_DEBUG_VERSION && (sof_address <= rx_data_end_address))
+        {
             sof_address++;
         }
         // 判断是否超出接收数据范围
-        if (sof_address > rx_data_end_address) {
-            break;  // 退出循环
+        if (sof_address > rx_data_end_address)
+        {
+            break; // 退出循环
         }
-        // 检查CRC8校验
-        bool crc8_ok = verify_CRC8_check_sum(sof_address, HEADER_SIZE);
-        if (crc8_ok) {
-            uint8_t data_len = sof_address[1];
-            uint8_t data_id = sof_address[2];
-            // 检查整包CRC16校验 4: header size, 2: crc16 size
-            bool crc16_ok = verify_CRC16_check_sum(sof_address, 4 + data_len + 2);
-            if (crc16_ok) {
-                switch (data_id) {
-                    case ROBOT_CMD_DATA_RECEIVE_ID: {
+
+        if (*(sof_address) == PACKET_VERSION)
+        {
+            // 检查CRC8校验
+            bool crc8_ok = verify_CRC8_check_sum(sof_address, HEADER_SIZE);
+            if (crc8_ok)
+            {
+                uint8_t data_len = sof_address[1];
+                uint8_t data_id = sof_address[2];
+                // 检查整包CRC16校验 4: header size, 2: crc16 size
+                bool crc16_ok = verify_CRC16_check_sum(sof_address, 4 + data_len + 2);
+                if (crc16_ok)
+                {
+                    switch (data_id)
+                    {
+                    case ROBOT_CMD_DATA_RECEIVE_ID:
+                    {
                         memcpy(&RECEIVE_ROBOT_CMD_DATA, sof_address, sizeof(ReceiveDataRobotCmd_s));
-                    } break;
-                    case PID_DEBUG_DATA_RECEIVE_ID: {
+                    }
+                    break;
+                    case PID_DEBUG_DATA_RECEIVE_ID:
+                    {
                         memcpy(&RECEIVE_PID_DEBUG_DATA, sof_address, sizeof(ReceiveDataPidDebug_s));
-                    } break;
-                    case VIRTUAL_RC_DATA_RECEIVE_ID: {
+                    }
+                    break;
+                    case VIRTUAL_RC_DATA_RECEIVE_ID:
+                    {
                         memcpy(
                             &RECEIVE_VIRTUAL_RC_DATA, sof_address, sizeof(ReceiveDataVirtualRc_s));
-                    } break;
+                    }
+                    break;
                     default:
                         break;
+                    }
                 }
-                if (*((uint32_t *)(&sof_address[4])) > LATEST_RX_TIMESTAMP) {
-                    LATEST_RX_TIMESTAMP = *((uint32_t *)(&sof_address[4]));
-                    RECEIVE_TIME = HAL_GetTick();
-                }
+                sof_address += (data_len + HEADER_SIZE + 2);
             }
-            sof_address += (data_len + HEADER_SIZE + 2);
-        } else {  //CRC8校验失败，移动到下一个字节
+        }
+        else if (*(sof_address) == PACKET_DEBUG_VERSION)
+        {
+            
+        }
+        else
+        {
             sof_address++;
         }
     }
     // 更新下一次接收数据的起始位置
-    if (sof_address > rx_data_start_address + USB_RECEIVE_LEN) {
+    if (sof_address > rx_data_start_address + USB_RECEIVE_LEN)
+    {
         // 缓冲区中没有剩余数据，下次接收数据的起始位置为缓冲区的起始位置
         rx_data_start_address = USB_RX_BUF;
-    } else {
+    }
+    else
+    {
         uint16_t remaining_data_len = USB_RECEIVE_LEN - (sof_address - rx_data_start_address);
         // 缓冲区中有剩余数据，下次接收数据的起始位置为缓冲区中剩余数据的起始位置
         rx_data_start_address = USB_RX_BUF + remaining_data_len;
@@ -323,16 +351,23 @@ static void UsbReceiveData(void)
 /* Send Function                                                               */
 /*******************************************************************************/
 
-
 /**
  * @brief 发送DEBUG数据
  * @param duration 发送周期
  */
-// static void UsbSendDebugData(void)
-// {
-//     append_CRC16_check_sum((uint8_t *)&SEND_DATA_DEBUG, sizeof(SendDataDebug_s));
-//     USB_Transmit((uint8_t *)&SEND_DATA_DEBUG, sizeof(SendDataDebug_s));
-// }
+static void UsbSendDebugData(void)
+{
+    if (IMU == NULL)
+    {
+        return;
+    }
+
+    SEND_DATA_DEBUG.data[0] = IMU->pitch;
+    SEND_DATA_DEBUG.data[1] = IMU->roll;
+    SEND_DATA_DEBUG.data[2] = IMU->yaw;
+
+    USB_Transmit((uint8_t *)&SEND_DATA_DEBUG, sizeof(SendDataDebug_s));
+}
 
 /**
  * @brief 发送IMU数据
@@ -366,14 +401,14 @@ static void UsbReceiveData(void)
  */
 static void UsbSendRobotStateInfoData(void)
 {
-    SEND_DATA_ROBOT_STATE_INFO.data.roll    = IMU->roll;
-    SEND_DATA_ROBOT_STATE_INFO.data.pitch   = IMU->pitch;
-    SEND_DATA_ROBOT_STATE_INFO.data.yaw     = IMU->yaw;
+    SEND_DATA_ROBOT_STATE_INFO.data.roll = IMU->roll;
+    SEND_DATA_ROBOT_STATE_INFO.data.pitch = IMU->pitch;
+    SEND_DATA_ROBOT_STATE_INFO.data.yaw = IMU->yaw;
 
-    SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work   = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage   = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.encoder_up          = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.encoder_down        = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.encoder_up = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.encoder_down = 0;
 
     append_CRC16_check_sum((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
     USB_Transmit((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
@@ -459,8 +494,8 @@ static void UsbSendRobotStateInfoData(void)
 //     if (axis == AX_X)
 //     {
 //         return ROBOT_CMD_DATA.speed_vector.vx;
-//     } 
-//     else if (axis == AX_Y) 
+//     }
+//     else if (axis == AX_Y)
 //     {
 //         return ROBOT_CMD_DATA.speed_vector.vy;
 //     }

@@ -7,7 +7,10 @@
 
 #define DEBUG_PACKAGE_NUM 10
 
+// usb通讯版本号
 #define PACKET_VERSION                  ((uint8_t)0x31)
+// debug 专用版本号
+#define PACKET_DEBUG_VERSION            ((uint8_t)0x21)
 
 #define DEBUG_DATA_SEND_ID              ((uint8_t)0x01)
 #define IMU_DATA_SEND_ID                ((uint8_t)0x02)
@@ -17,6 +20,22 @@
 #define PID_DEBUG_DATA_RECEIVE_ID       ((uint8_t)0x01)
 #define VIRTUAL_RC_DATA_RECEIVE_ID      ((uint8_t)0x02)
 #define ROBOT_CMD_DATA_RECEIVE_ID       ((uint8_t)0x3A)
+
+/*-------------------- 下面定义 vofa 的命令接收参数 ID --------------------*/
+// 电机pid参数
+#define VOFA_ABS_KP_ID                              ((uint8_t)0x11)
+#define VOFA_ABS_KI_ID                              ((uint8_t)0x12)
+#define VOFA_ABS_KD_ID                              ((uint8_t)0x13)
+#define VOFA_SPE_KP_ID                              ((uint8_t)0x14)
+#define VOFA_SPE_KI_ID                              ((uint8_t)0x15)
+#define VOFA_SPE_KD_ID                              ((uint8_t)0x16)
+//调试电机id
+#define VOFA_GIMBAL_PITCH_MOTOR_ID                  ((uint8_t)0x17)
+#define VOFA_GIMBAL_YAW_MOTOR_ID                    ((uint8_t)0x18)
+#define VOFA_SHOOT_TRIGGER_MOTOR_ID                 ((uint8_t)0x19)
+#define VOFA_SHOOT_L_MOTOR_ID                       ((uint8_t)0x1A)
+#define VOFA_SHOOT_R_MOTOR_ID                       ((uint8_t)0x1B)
+
 
 typedef struct
 {
@@ -30,14 +49,8 @@ typedef struct
 // 串口调试数据包
 typedef struct
 {
-    FrameHeader_t frame_header; // 数据段id = 0x01
-    struct
-    {
-        uint8_t name[10];
-        uint8_t type;
-        float data;
-    } __packed__ packages[DEBUG_PACKAGE_NUM];
-    uint16_t checksum;
+    float data[DEBUG_PACKAGE_NUM];          // 小端浮点数组
+    unsigned char tail[4];          // 帧尾固定值
 } __packed__ SendDataDebug_s;
 
 // IMU 数据包
@@ -112,16 +125,15 @@ typedef struct RobotCmdData
 // PID调参数据包
 typedef struct
 {
-    FrameHeader_t frame_header; // 数据段id = 0x02
-    struct
-    {
-        float kp;
-        float ki;
-        float kd;
-        float max_out;
-        float max_iout;
-    } __packed__ data;
-    uint16_t crc;
+    uint8_t motor_id;
+
+    uint8_t abs_kp;
+    uint8_t abs_ki;
+    uint8_t abs_kd;
+
+    uint8_t spe_kp;
+    uint8_t spe_ki;
+    uint8_t spe_kd;
 } __packed__ ReceiveDataPidDebug_s;
 
 // 虚拟遥控器数据包
