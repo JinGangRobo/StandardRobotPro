@@ -22,9 +22,5 @@
 #include "gimbal.h"
 #include  "user_lib.h"
 
-extern void GimbalInit(void);
-
-extern void GimbalObserver(void);
-
 #endif
 #endif

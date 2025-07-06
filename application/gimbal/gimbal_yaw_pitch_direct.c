@@ -40,18 +40,14 @@ Gimbal_PID_t gimbal_direct_pid;
  */
 void Angle_solution(void)
 {
-    // 电机, imu 反馈值
     float motor_feedback = gimbal_direct.pitch.fdb.pos;
     float imu_feedback = gimbal_direct.feedback_pos.pitch;
-    // 电机, imu 中值
     float motor_mid = GIMBAL_DIRECT_PITCH_MID;
     float imu_mid = 0.0;
 
-    // 电机, imu 差值
     float motor_delta = GIMBAL_DIRECT_PITCH_DIRECTION * (motor_feedback - motor_mid);
     float imu_delta = imu_feedback - imu_mid;
-    // 更新云台中值对应的imu值
-    gimbal_direct.angle_zero_for_imu = 0;//imu_delta - motor_delta;
+    gimbal_direct.angle_zero_for_imu = imu_delta - motor_delta;
 }
 
 /*----------------Gimbal_direct_init_judge--------------------*/
@@ -327,7 +323,7 @@ void GimbalReference(void)
         {
             // 读取摇杆的数据
             gimbal_direct.reference.pitch = fp32_constrain(
-                        gimbal_direct.reference.pitch - fp32_deadline(gimbal_direct.rc->rc.ch[1], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY, 
+                        gimbal_direct.reference.pitch - fp32_deadline(gimbal_direct.rc->rc.ch[3], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY, 
                         GIMBAL_LOWER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu, 
                         GIMBAL_UPPER_LIMIT_PITCH + gimbal_direct.angle_zero_for_imu);
             // gimbal_direct.reference.pitch = fp32_constrain(
@@ -335,7 +331,7 @@ void GimbalReference(void)
             //             GIMBAL_LOWER_LIMIT_PITCH, 
             //             GIMBAL_UPPER_LIMIT_PITCH);
             gimbal_direct.reference.yaw = loop_fp32_constrain(
-                        gimbal_direct.reference.yaw - fp32_deadline(gimbal_direct.rc->rc.ch[0], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY,
+                        gimbal_direct.reference.yaw - fp32_deadline(gimbal_direct.rc->rc.ch[2], REMOTE_CONTROLLER_MIN_DEADLINE, REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY,
                         -M_PI, M_PI);
         }
     }
@@ -381,7 +377,7 @@ void GimbalConsole(void)
  */
 void GimbalSendCmd(void)
 {
-    CanCmdDjiMotor(GIMBAL_CAN, GIMBAL_STDID, gimbal_direct.yaw.set.curr, gimbal_direct.pitch.set.curr, 0, 0);
+    CanCmdDjiMotor(GIMBAL_CAN, GIMBAL_STDID, gimbal_direct.pitch.set.curr, gimbal_direct.yaw.set.curr, 0, 0);
 }
 
 #endif // GIMBAL_YAW_PITCH

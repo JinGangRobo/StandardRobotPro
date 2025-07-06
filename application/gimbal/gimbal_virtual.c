@@ -28,7 +28,11 @@ Motor_s yaw_motor;
  */
 inline float GetGimbalDeltaYawMid(void)
 {
-  return loop_fp32_constrain(yaw_motor.fdb.pos - GIMBAL_DIRECT_YAW_MID, -M_PI, M_PI);
+  yaw_motor.type = GIMBAL_DIRECT_YAW_MOTOR_TYPE;
+  yaw_motor.can = 2;
+  yaw_motor.id = 1;
+  GetMotorMeasure(&yaw_motor);
+  return loop_fp32_constrain(yaw_motor.fdb.pos, -M_PI, M_PI);
 }
 
 /* ---------------- GetGimbalInitJudgeReturn -------------------- */
@@ -53,40 +57,6 @@ inline bool GetGimbalInitJudgeReturn(void)
 inline float CmdGimbalJointState(uint8_t axis)
 {
   return 0.0f ;
-}
-
-/*-------------------- Init --------------------*/
-
-/**
- * @brief          初始化
- * @param[in]      none
- * @retval         none
- */
-void GimbalInit(void)
-{
-
-    // step4 初始化电机
-    MotorInit(&yaw_motor, 
-      GIMBAL_DIRECT_YAW_ID, 
-      GIMBAL_DIRECT_YAW_CAN, 
-      GIMBAL_DIRECT_YAW_MOTOR_TYPE, 
-      GIMBAL_DIRECT_YAW_DIRECTION, 
-      GIMBAL_DIRECT_YAW_REDUCTION_RATIO, 
-      GIMBAL_DIRECT_YAW_MODE);
-
-}
-
-/*-------------------- Observe --------------------*/
-
-/**
- * @brief          更新状态量
- * @param[in]      none
- * @retval         none
- */
-void GimbalObserver(void)
-{
-    // 电机相关数据更新
-    GetMotorMeasure(&yaw_motor);
 }
 
 #endif

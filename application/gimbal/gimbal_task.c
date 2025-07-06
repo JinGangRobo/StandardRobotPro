@@ -22,7 +22,6 @@
 #include "attribute_typedef.h"
 #include "cmsis_os.h"
 #include "gimbal_yaw_pitch_direct.h"
-#include "gimbal_virtual.h"
 #include "usb_debug.h"
 
 #ifndef GIMBAL_TASK_INIT_TIME

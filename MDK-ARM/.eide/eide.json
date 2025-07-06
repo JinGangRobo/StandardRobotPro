@@ -384,6 +384,9 @@
         "files": [
           {
             "path": "../components/controller/pid.c"
+          },
+          {
+            "path": "../components/controller/FF_pid.c"
           }
         ],
         "folders": []
@@ -688,6 +691,9 @@
               },
               {
                 "path": "../application/typedef_robot/robot_param_omni_sentry.h"
+              },
+              {
+                "path": "../application/typedef_robot/robot_param_omni_mini.h"
               }
             ],
             "folders": []

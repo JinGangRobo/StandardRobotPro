@@ -60,11 +60,11 @@
 
 //PID parameters ---------------------
 //驱动轮速度环PID参数
-#define KP_OMNI_VEL (20.0f)
-#define KI_OMNI_VEL (0.3f)
-#define KD_OMNI_VEL (0.3f)
-#define MAX_IOUT_OMNI_VEL (10000.0f)
-#define MAX_OUT_OMNI_VEL (30000.0f)
+#define KP_OMNI_VEL (100.0f)
+#define KI_OMNI_VEL (5.0f)
+#define KD_OMNI_VEL (3.0f)
+#define MAX_IOUT_OMNI_VEL (7000.0f)
+#define MAX_OUT_OMNI_VEL (16000.0f)
 
 //云台跟随角度环PID参数
 #define KP_CHASSIS_FOLLOW_GIMBAL (2.0f)
@@ -180,7 +180,7 @@
 //电机std_id
 #define STD_ID 0x1FF
 //单环拨弹速度
-#define TRIGGER_SPEED               (300.0f)
+#define TRIGGER_SPEED               (-500.0f)
 //摩擦轮速度
 #define FRIC_R_SPEED                  (666.0f) 
 #define FRIC_L_SPEED                  (-666.0f) 
@@ -202,7 +202,7 @@
 #define BLOCK_TRIGGER_SPEED         5.0f
 #define BLOCK_TIME                  1000
 #define REVERSE_TIME                1250
-#define REVERSE_SPEED               (-20.0f) 
+#define REVERSE_SPEED               (500.0f) 
 
 /*MIT parameters ---------------------*/
 
@@ -227,7 +227,7 @@
 #define TRIGGER_ANGEL_PID_MAX_IOUT (30.0f)
 
 //摩擦轮电机PID
-#define FRIC_SPEED_PID_KP (666.0f)
+#define FRIC_SPEED_PID_KP (20.0f)
 #define FIRC_SPEED_PID_KI (0.6f)
 #define FRIC_SPEED_PID_KD (1.0f)
 
