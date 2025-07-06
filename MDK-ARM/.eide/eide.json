@@ -384,9 +384,6 @@
         "files": [
           {
             "path": "../components/controller/pid.c"
-          },
-          {
-            "path": "../components/controller/FF_pid.c"
           }
         ],
         "folders": []
@@ -927,7 +924,7 @@
             "output-debug-info": "enable"
           },
           "c/cpp-compiler": {
-            "optimization": "level-3",
+            "optimization": "level-0",
             "one-elf-section-per-function": true,
             "c99-mode": true,
             "C_FLAGS": "--diag_suppress=1 --diag_suppress=1295 --diag_error=warning",

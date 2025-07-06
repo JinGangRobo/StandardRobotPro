@@ -31,8 +31,7 @@
 
 // send data
 BoardCommunicateData_s BOARD_TX_DATA;
-extern RC_ctrl_t rc_ctrl;
-int a1;
+
 // receive data
 uint8_t BOARD_RX_DATA[DATA_NUM][DATA_LEN + 1];  //第一位存放数据长度信息
 
@@ -45,7 +44,6 @@ uint8_t usart1_fifo_buf[USART1_FIFO_BUF_LENGTH];
 // 发送初始化
 void SendInit(void)
 {
-
     fifo_s_init(&usart1_fifo, usart1_fifo_buf, USART1_FIFO_BUF_LENGTH);
     usart1_init(usart1_buf[0], usart1_buf[1], USART_RX_BUF_LENGHT);
 }
@@ -53,15 +51,27 @@ void SendInit(void)
 void SendRC(){
 
     uint8_t data_8[8];
-    data_8[0] = rc_ctrl.rc.ch[0] >> 8;//vx
-    data_8[1] = rc_ctrl.rc.ch[0];
-    data_8[2] = rc_ctrl.rc.ch[1] >> 8;//vy
-    data_8[3] = rc_ctrl.rc.ch[1];
-    data_8[4] = 1;//rc_ctrl.rc.s[0]; //chassis_mode
+    
+    // 获取-1到1的浮点数
+    float ch0_float = GetDt7RcCh(0); // 范围: -1.0 ~ 1.0
+    float ch1_float = GetDt7RcCh(1); // 范围: -1.0 ~ 1.0
+    
+    // 使用128作为中值的映射算法
+    // 公式: uint8_val = (float_val * 127) + 128
+    int16_t temp_ch0 = (int16_t)(ch0_float * 127.0f + 128.0f);
+    int16_t temp_ch1 = (int16_t)(ch1_float * 127.0f + 128.0f);
+    
+    // 限制范围防止溢出
+    data_8[0] = (uint8_t)(temp_ch0 < 0 ? 0 : (temp_ch0 > 255 ? 255 : temp_ch0));
+    data_8[1] = (uint8_t)(temp_ch1 < 0 ? 0 : (temp_ch1 > 255 ? 255 : temp_ch1));
+    
+    data_8[2] = 0;
+    data_8[3] = 0;
+    data_8[4] = (uint8_t)GetDt7RcSw(0); //chassis_mode
     data_8[5] = 1;
-    data_8[6] = 1; 
-    data_8[7] = 1; 
-a1++;
+    data_8[6] = 1;
+    data_8[7] = 1;
+
     // 通过CAN总线发送遥控器的四个通道数据到指定板子
     CanSendDataToBoard(2, 0, BOARD_OTHER, data_8);
 }

@@ -18,10 +18,12 @@ void communication_task(void const * pvParameters)
     vTaskDelay(COMMUNICATION_TASK_INIT_TIME);
     while (1) {
 
-        if(BOARD_CURRENT == C_BOARD_OMNI_SENTINEIL_GIMBAL){
+        // can发送
+        if(BOARD_CURRENT == C_BOARD_UP){
             SendRC();
         }
 
+        //uart1发送
         DataPack("Hello World", 13, 0);
         UartSendTxMessage(&huart1, (uint8_t *)(&BOARD_TX_DATA), sizeof(BOARD_TX_DATA), 100);
         DataUnpack();

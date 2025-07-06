@@ -23,7 +23,8 @@
 #include "struct_typedef.h"
 
 // 导入具体的机器人参数配置文件
-#include "robot_param_omni_mini.h"
+#include "robot_param_omni_sentry.h"
+// #include "robot_param_omni_mini.h"
 // #include "robot_param_mecannum_hero.h"
 
 // 选择机器人的各种类型
@@ -39,10 +40,6 @@
 #define __USB_SEND_DEBUG 0  // 发送DEBUG数据
 
 // 模块检查
-#ifndef CONTROL_TYPE
-#define CONTROL_TYPE SINGLE_CONTROL
-#endif
-
 #ifndef BOARD_CURRENT
 #define BOARD_CURRENT C_BOARD_DEFAULT
 #endif

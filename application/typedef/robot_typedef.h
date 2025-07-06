@@ -46,14 +46,16 @@
 #define RC_DT7      0  // DT7遥控器
 
 // C板id
-#define C_BOARD_DEFAULT                  1  // C板默认id
-#define C_BOARD_OMMI_INFANTRY_CHASSIS    2  // 全向轮步兵底盘C板
-#define C_BOARD_OMMI_INFANTRY_GIMBAL     3  // 全向轮步兵云台C板
-#define C_BOARD_OMNI_SENTINEIL_CHASSIS   4  // 全向轮哨兵底盘C板
-#define C_BOARD_OMNI_SENTINEIL_GIMBAL    5  // 全向轮哨兵云台C板
-#define C_BOARD_MECANUM_HERO_CHASSIS     6  // 麦克纳姆轮英雄底盘C板
-#define C_BOARD_MECANUM_HERO_GIMBAL      7  // 麦克纳姆轮英雄云台C板
-#define C_BOARD_ENGINEER_CHASSIS         8  // (单板)工程C板
+#define C_BOARD_DEFAULT                  0  // C板默认id
+#define C_BOARD_UP                       1  // C板上
+#define C_BOARD_DOWN                     2  // C板下
+#define C_BOARD_OMMI_INFANTRY_CHASSIS    3  // 全向轮步兵底盘C板
+#define C_BOARD_OMMI_INFANTRY_GIMBAL     4  // 全向轮步兵云台C板
+#define C_BOARD_OMNI_SENTINEIL_CHASSIS   5  // 全向轮哨兵底盘C板
+#define C_BOARD_OMNI_SENTINEIL_GIMBAL    6  // 全向轮哨兵云台C板
+#define C_BOARD_MECANUM_HERO_CHASSIS     7  // 麦克纳姆轮英雄底盘C板
+#define C_BOARD_MECANUM_HERO_GIMBAL      8  // 麦克纳姆轮英雄云台C板
+#define C_BOARD_ENGINEER_CHASSIS         9  // (单板)工程C板
 
 // 可用电机类型
 typedef enum __MotorType {

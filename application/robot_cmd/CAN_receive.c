@@ -135,12 +135,13 @@ void SupCapFdbData(SupCap_s *sup_cap_measure, uint8_t *rx_data)
 void BoardCommunicationFdbData(ChassisReference_t *board_communication_measure, uint8_t *rx_data)
 {
 
-    int16_t ch0,ch1;
-    ch0 = (rx_data[0] << 8) | (rx_data[1]);//vx
-    ch1 = (rx_data[2] << 8) | (rx_data[3]);//vy
+    // int16_t ch0,ch1;
+    // ch0 = (rx_data[0] << 8) | (rx_data[1]);//vx
+    // ch1 = (rx_data[2] << 8) | (rx_data[3]);//vy
 
-    board_communication_measure->vx = ch0 * RC_TO_VECTOR_SCALE;
-    board_communication_measure->vy = ch1 * RC_TO_VECTOR_SCALE;
+    // 公式: float_val = (uint8_val - 128) / 127.0
+    board_communication_measure->vx = ((float)rx_data[0] - 128.0f) / 127.0f;
+    board_communication_measure->vy = ((float)rx_data[1] - 128.0f) / 127.0f;
     board_communication_measure->wz = 0;
     board_communication_measure->chassis_mode = rx_data[4];
 
