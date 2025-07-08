@@ -12,23 +12,6 @@
   *
   @verbatim
   ==============================================================================
-    add a sensor 
-    1. in detect_task.h, add the sensor name at the end of errorList,like
-    enum errorList
-    {
-        ...
-        XXX_TOE,    //new sensor
-        ERROR_LIST_LENGHT,
-    };
-    2.in detect_init function, add the offlineTime, onlinetime, priority params,like
-        uint16_t set_item[ERROR_LIST_LENGHT][3] =
-        {
-            ...
-            {n,n,n}, //XX_TOE
-        };
-    3. if XXX_TOE has data_is_error_fun ,solve_lost_fun,solve_data_error_fun function, 
-        please assign to function pointer.
-    4. when XXX_TOE sensor data come, add the function detect_hook(XXX_TOE) function.
     如果要添加一个新设备
     1.第一步在detect_task.h，添加设备名字在errorList的最后，像
     enum errorList
@@ -62,20 +45,23 @@
 enum errorList
 {
     DBUS_TOE = 0,
-    CHASSIS_MOTOR1_TOE,
-    CHASSIS_MOTOR2_TOE,
-    CHASSIS_MOTOR3_TOE,
-    CHASSIS_MOTOR4_TOE,
-    YAW_GIMBAL_MOTOR_TOE,
-    PITCH_GIMBAL_MOTOR_TOE,
-    TRIGGER_MOTOR_TOE,
-    BOARD_GYRO_TOE,
-    BOARD_ACCEL_TOE,
-    BOARD_MAG_TOE,
-    REFEREE_TOE,
-    RM_IMU_TOE,
-    OLED_TOE,
-    ERROR_LIST_LENGHT,
+    CHASSIS_MOTOR1_TOE = 1,
+    CHASSIS_MOTOR2_TOE = 2,
+    CHASSIS_MOTOR3_TOE = 3,
+    CHASSIS_MOTOR4_TOE = 4,
+    YAW_GIMBAL_MOTOR_TOE = 5,
+    PITCH_GIMBAL_MOTOR_TOE = 6,
+    TRIGGER_MOTOR_TOE = 7,
+    BOARD_GYRO_TOE = 8,
+    BOARD_ACCEL_TOE = 9,
+    BOARD_MAG_TOE = 10,
+    REFEREE_TOE = 11,
+    RM_IMU_TOE = 12,
+    OLED_TOE = 13,
+
+    BOARD_COMMUNICATION_TOE = 14,    // 板间通信超时检测
+
+    ERROR_LIST_LENGHT = 15,
 };
 
 typedef __packed struct
@@ -100,22 +86,12 @@ typedef __packed struct
 
 
 /**
-  * @brief          detect task
-  * @param[in]      pvParameters: NULL
-  * @retval         none
-  */
-/**
   * @brief          检测任务
   * @param[in]      pvParameters: NULL
   * @retval         none
   */
 extern void detect_task(void const *pvParameters);
 
-/**
-  * @brief          get toe error status
-  * @param[in]      toe: table of equipment
-  * @retval         true (eror) or false (no error)
-  */
 /**
   * @brief          获取设备对应的错误状态
   * @param[in]      toe:设备目录
@@ -124,22 +100,12 @@ extern void detect_task(void const *pvParameters);
 extern bool_t toe_is_error(uint8_t err);
 
 /**
-  * @brief          record the time
-  * @param[in]      toe: table of equipment
-  * @retval         none
-  */
-/**
   * @brief          记录时间
   * @param[in]      toe:设备目录
   * @retval         none
   */
 extern void detect_hook(uint8_t toe);
 
-/**
-  * @brief          get error list
-  * @param[in]      none
-  * @retval         the point of error_list
-  */
 /**
   * @brief          得到错误列表
   * @param[in]      none

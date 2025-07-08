@@ -859,9 +859,14 @@
         },
         "OpenOCD": {
           "bin": "",
-          "target": "stm32f1x",
-          "interface": "stlink",
+          "target": "stm32f4x",
+          "interface": "cmsis-dap",
           "baseAddr": "0x08000000"
+        },
+        "Custom": {
+          "bin": "",
+          "commandLine": "",
+          "eraseChipCommand": ""
         }
       },
       "custom_dep": {

@@ -145,7 +145,24 @@ void BoardCommunicationFdbData(ChassisReference_t *board_communication_measure, 
     board_communication_measure->wz = 0;
     board_communication_measure->chassis_mode = rx_data[4];
 
+        // 添加检测钩子 - 表示收到了板间通信数据
+    detect_hook(BOARD_COMMUNICATION_TOE);
+
 }
+
+// 板间通信丢失处理函数
+void SolveBoardCommunicationLost(void)
+{
+    // 板间通信丢失时的处理
+    // 例如：设置安全的默认值
+    BOARD_COMMUNICATION_MEASURE.vx = 0.0f;
+    BOARD_COMMUNICATION_MEASURE.vy = 0.0f;
+    BOARD_COMMUNICATION_MEASURE.wz = 0.0f;
+    BOARD_COMMUNICATION_MEASURE.chassis_mode = CHASSIS_ZERO_FORCE;  // 设置为无力模式
+    
+    // 可以设置LED指示或其他报警
+}
+
 
 /**
  * @brief          若接收到的数据标识符为StdId则对应解码

@@ -19,9 +19,7 @@ void communication_task(void const * pvParameters)
     while (1) {
 
         // can发送
-        if(BOARD_CURRENT == C_BOARD_UP){
-            SendRC();
-        }
+        SendRC();
 
         //uart1发送
         DataPack("Hello World", 13, 0);

@@ -159,7 +159,7 @@ void ChassisReference(void) {
         }
 
         
-        case ROBO_SPIN:{//小陀螺模式
+        case ROBO_AUTO_WITH_SPIN:{//小陀螺模式
 
             //GimbalSpeedVectorToChassisSpeedVector();
             fp32 sin_yaw = 0.0f, cos_yaw = 0.0f;
@@ -172,7 +172,7 @@ void ChassisReference(void) {
 			CHASSIS.wz_set = NORMAL_MAX_CHASSIS_SPEED_WX;
             break;
         }
-        case ROBO_AUTO_AIM:
+        case ROBO_AUTO:
             break;
 
         }

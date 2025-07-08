@@ -23,10 +23,6 @@
 #define CUSTOM_CONTROLLER_NONE         0  // 无自定义控制器
 #define CUSTOM_CONTROLLER_ENGINEER     1  // 工程用的自定义控制器
 
-// 定义控制模式
-#define SINGLE_CONTROL 0    //单板控制
-#define DOUBLE_CONTROL 1    //双板控制
-
 // 可用调参模式
 #define TUNING_NONE     0
 #define TUNING_CHASSIS  1
@@ -70,16 +66,36 @@ typedef enum __MotorType {
 } MotorType_e;
 // clang-format on
 
+// typedef enum {
+//     ROBO_ZERO_FORCE = 2,                    //机器人整体无力                           云台：无力        底盘：无力
+//     ROBO_CHASSIS_FOLLOW_GIMBAL_YAW = 3,     //机器人进入底盘跟随云台,云台绝对角度控制    云台：绝对角度    底盘：跟随云台
+//     ROBO_AUTO = 1,                          //机器人自动模式没有陀螺                   云台：绝对角度    底盘：不跟随
+//     ROBO_AUTO_WITH_SPIN,                    //机器人自动模式有陀螺                   云台：绝对角度    底盘：陀螺
+//     ROBO_INIT_OLD,                              //机器人初始化
+//     ROBO_GIMBAL_IMU,                        //云台绝对角度控制
+//     ROBO_GIMBAL_GAP,                        //跳出矫正进入IMU/AUTO_AIM模式之前的存储数据模式
+//     ROBO_DBUS_ERR                           //DBUS错误
+// } RoboMode_e;
+
 typedef enum {
-    ROBO_ZERO_FORCE = 0,    //机器人整体无力,CHASSIS
-    ROBO_INIT ,          //机器人初始化：只有云台初始化   
-    ROBO_CHASSIS_FOLLOW_GIMBAL_YAW = 1,  //机器人进入底盘跟随云台CHASSIS
-    ROBO_SPIN = 2,              //机器人进入小陀螺模式CHASSIS
-    ROBO_AUTO_AIM = 3,         //机器人自动模式CHASSIS
-    ROBO_GIMBAL_IMU,        //云台绝对角度控制
-    ROBO_GIMBAL_GAP,         //跳出矫正进入IMU/AUTO_AIM模式之前的存储数据模式
-    ROBO_DBUS_ERR           //DBUS错误
-} RoboMode_e;
+    ROBO_INIT                   = 0,      // 机器人初始化
+
+    GIMBAL_ZERO_FORCE           = 2,      // 云台无力
+    GIMBAL_ABSOLUTE_ANGLE       = 1,      // 云台绝对角度控制
+    GIMBAL_AUTO_AIM             = 3,      // 云台自动瞄准控制
+
+    GIMBAL_RELATIVE_ANGLE       = 4,      // 云台相对角度控制
+    GIMBAL_GAP                  = 5,      // 云台跳出矫正进入IMU
+    GIMBAL_DBUS_ERR             = 6,      // 云台DBUS错误
+
+
+    CHASSIS_ZERO_FORCE          = 12,      // 底盘无力
+    CHASSIS_NO_FOLLOW           = 11,      // 底盘不跟随云台
+    CHASSIS_FOLLOW_GIMBAL_YAW   = 13,      // 底盘跟随云台
+    
+    CHASSIS_NOMOVE              = 14,      // 底盘不动
+    CHASSIS_SPIN                = 15,      // 底盘陀螺
+} BoardMode_e;
 
 #endif /* ROBOT_TYPEDEF_H */
 /*------------------------------ End of File ------------------------------*/

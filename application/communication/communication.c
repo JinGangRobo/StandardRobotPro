@@ -25,6 +25,7 @@
 #include "fifo.h"
 #include "CAN_communication.h"
 #include "remote_control.h"
+#include "detect_task.h"
 
 #define USART_RX_BUF_LENGHT 512
 #define USART1_FIFO_BUF_LENGTH 1024
@@ -50,6 +51,8 @@ void SendInit(void)
 
 void SendRC(){
 
+    if(BOARD_CURRENT != C_BOARD_UP || toe_is_error(DBUS_TOE)) return; // 如果当前板子不是上板，或者遥控器断开连接，则不发送遥控器数据
+    
     uint8_t data_8[8];
     
     // 获取-1到1的浮点数

@@ -1,9 +1,7 @@
 /**
   ****************************(C) COPYRIGHT 2019 DJI****************************
   * @file       detect_task.c/h
-  * @brief      detect error task, judged by receiving data time. provide detect
-                hook function, error exist function.
-  *             检测错误任务， 通过接收数据时间来判断.提供 检测钩子函数,错误存在函数.
+  * @brief      检测错误任务， 通过接收数据时间来判断.提供 检测钩子函数,错误存在函数.
   * @note       
   * @history
   *  Version    Date            Author          Modification
@@ -217,6 +215,8 @@ static void detect_init(uint32_t time)
             {100, 100, 5},  //referee
             {10, 10, 7},    //rm imu
             {100, 100, 1},  //oled
+
+            {50, 20, 6},    // BOARD_COMMUNICATION_TOE: 50ms超时，20ms稳定时间，优先级6
         };
 
     for (uint8_t i = 0; i < ERROR_LIST_LENGHT; i++)
@@ -242,6 +242,11 @@ static void detect_init(uint32_t time)
     error_list[OLED_TOE].data_is_error_fun = NULL;
     error_list[OLED_TOE].solve_lost_fun = OLED_com_reset;
     error_list[OLED_TOE].solve_data_error_fun = NULL;
+
+    // 新增通信检测配置
+    error_list[BOARD_COMMUNICATION_TOE].data_is_error_fun = NULL;
+    error_list[BOARD_COMMUNICATION_TOE].solve_lost_fun = NULL;
+    error_list[BOARD_COMMUNICATION_TOE].solve_data_error_fun = NULL;
 
 //    error_list[DBUSTOE].dataIsErrorFun = RC_data_is_error;
 //    error_list[DBUSTOE].solveLostFun = slove_RC_lost;
