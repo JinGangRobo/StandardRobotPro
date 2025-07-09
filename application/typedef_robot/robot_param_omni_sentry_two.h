@@ -1,6 +1,6 @@
 /**
- * @file       robot_param_omni_sentry.h
- * @brief      这里是全向轮哨兵机器人参数配置文件，包括物理参数、PID参数等
+ * @file       robot_param_omni_sentry_two.h
+ * @brief      这里是全向轮双yaw哨兵机器人参数配置文件，包括物理参数、PID参数等
  */
 
 #ifndef INCLUDED_ROBOT_PARAM_H
@@ -51,9 +51,9 @@
 #define CHASSIS_STDID (0x200)
 
 // 电机ID ---------------------
-#define WHEEL_1_ID (2)
-#define WHEEL_2_ID (3)
-#define WHEEL_3_ID (4)
+#define WHEEL_1_ID (3)
+#define WHEEL_2_ID (4)
+#define WHEEL_3_ID (2)
 #define WHEEL_4_ID (1)
 
 // 电机CAN ---------------------

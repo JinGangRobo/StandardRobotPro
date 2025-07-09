@@ -120,8 +120,8 @@ void ChassisReference(void)
     {
         float sin_yaw = sin(chassis.yaw_delta);
         float cos_yaw = cos(chassis.yaw_delta);
-        chassis.reference.vx = chassis.reference_rc.vx * cos_yaw + chassis.reference_rc.vy * sin_yaw;
-        chassis.reference.vy = -chassis.reference_rc.vx * sin_yaw + chassis.reference_rc.vy * cos_yaw;
+        chassis.reference.vx = (-chassis.reference_rc.vx * cos_yaw - chassis.reference_rc.vy * sin_yaw) * CHASSIS_RC_MAX_SPEED;
+        chassis.reference.vy = (-chassis.reference_rc.vx * sin_yaw + chassis.reference_rc.vy * cos_yaw) * CHASSIS_RC_MAX_SPEED;
         chassis.reference.wz = 0;
         break;
     }
@@ -129,9 +129,18 @@ void ChassisReference(void)
     {
         float sin_yaw = sin(chassis.yaw_delta);
         float cos_yaw = cos(chassis.yaw_delta);
-        chassis.reference.vx = chassis.reference_rc.vx * cos_yaw + chassis.reference_rc.vy * sin_yaw;
-        chassis.reference.vy = -chassis.reference_rc.vx * sin_yaw + chassis.reference_rc.vy * cos_yaw;
+        chassis.reference.vx = (-chassis.reference_rc.vx * cos_yaw - chassis.reference_rc.vy * sin_yaw) * CHASSIS_RC_MAX_SPEED;
+        chassis.reference.vy = (-chassis.reference_rc.vx * sin_yaw + chassis.reference_rc.vy * cos_yaw) * CHASSIS_RC_MAX_SPEED;
         chassis.reference.wz = 0; // PID_calc(&chassis_pid.follow, chassis.yaw_delta, 0);
+        break;
+    }
+    case CHASSIS_SPIN:
+    {
+        float sin_yaw = sin(chassis.yaw_delta);
+        float cos_yaw = cos(chassis.yaw_delta);
+        chassis.reference.vx = -chassis.reference_rc.vx * cos_yaw - chassis.reference_rc.vy * sin_yaw;
+        chassis.reference.vy = -chassis.reference_rc.vx * sin_yaw + chassis.reference_rc.vy * cos_yaw;
+        chassis.reference.wz = 1.0f * CHASSIS_RC_MAX_VELOCITY;
         break;
     }
     }
@@ -172,10 +181,21 @@ void ChassisConsole(void)
  * @param[in]      none
  * @retval         none
  */
-
 void ChassisSendCmd(void)
 {
-    CanCmdDjiMotor(CHASSIS_CAN, CHASSIS_STDID, chassis.wheel[3].set.curr, chassis.wheel[0].set.curr, chassis.wheel[1].set.curr, chassis.wheel[2].set.curr);
+    float cmd_array[4] = {0, 0, 0, 0};
+    
+    // 根据每个轮子的实际ID设置对应位置的控制量
+    for (int i = 0; i < 4; ++i)
+    {
+        uint8_t motor_id = chassis.wheel[i].id;
+        if (motor_id >= 1 && motor_id <= 4)
+        {
+            cmd_array[motor_id - 1] = chassis.wheel[i].set.curr;
+        }
+    }
+    
+    CanCmdDjiMotor(CHASSIS_CAN, CHASSIS_STDID, cmd_array[0], cmd_array[1], cmd_array[2], cmd_array[3]);
 }
 
 /*------------------------------ Calibrate Function ------------------------------*/

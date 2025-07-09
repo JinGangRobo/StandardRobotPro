@@ -70,7 +70,23 @@ void SendRC(){
     
     data_8[2] = 0;
     data_8[3] = 0;
-    data_8[4] = (uint8_t)GetDt7RcSw(0); //chassis_mode
+
+    switch (GetDt7RcSw(0))
+    {
+    case RC_SW_UP:
+        data_8[4] = CHASSIS_SPIN;
+        break;
+    case RC_SW_MID:
+        data_8[4] = CHASSIS_NO_FOLLOW;
+        break;
+    case RC_SW_DOWN:
+        data_8[4] = CHASSIS_NOMOVE;
+        break;
+    default:
+        data_8[4] = CHASSIS_NOMOVE;
+        break;
+    }
+
     data_8[5] = 1;
     data_8[6] = 1;
     data_8[7] = 1;
