@@ -57,6 +57,7 @@ typedef struct feedback
   fp32 trigger_speed_fdb;// 拨弹盘输出轴速度
   fp32 fric_speed_fdb_L;   // 摩擦轮输出轴速度
   fp32 fric_speed_fdb_R;
+  fp32 fric_speed_fdb_U;
 } Fdb;
 
 typedef struct reference
@@ -65,6 +66,7 @@ typedef struct reference
   fp32 trigger_speed_ref;// 拨弹盘速度期望
   fp32 fric_speed_ref_L;   // 摩擦轮速度期望
   fp32 fric_speed_ref_R;
+  fp32 fric_speed_ref_U;
 } Ref;
 
 typedef struct
@@ -73,13 +75,13 @@ typedef struct
   LoadMode_e mode;       // 射击模式
   FricState_e state;     // 摩擦轮状态
 
-  Motor_s fric_motor[2];  // 摩擦轮电机
+  Motor_s fric_motor[3];  // 摩擦轮电机
   Motor_s trigger_motor;  // 拨弹盘电机
 
     //pid
   pid_type_def trigger_angel_pid;
   pid_type_def trigger_speed_pid;
-  pid_type_def fric_pid[2];
+  pid_type_def fric_pid[3];
 
     //block_reverse
   uint16_t reverse_time;

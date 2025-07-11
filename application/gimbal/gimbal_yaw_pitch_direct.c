@@ -185,8 +185,8 @@ void GimbalInit(void)
     PID_init(&gimbal_direct_pid.pitch_velocity, PID_POSITION, gimbal_pitch_velocity, MAX_OUT_GIMBAL_PITCH_VELOCITY, MAX_IOUT_GIMBAL_PITCH_VELOCITY);
 
     // step4 初始化电机
-    MotorInit(&gimbal_direct.yaw, GIMBAL_DIRECT_YAW_ID, GIMBAL_DIRECT_YAW_CAN, GIMBAL_DIRECT_YAW_MOTOR_TYPE, GIMBAL_DIRECT_YAW_DIRECTION, GIMBAL_DIRECT_YAW_REDUCTION_RATIO, GIMBAL_DIRECT_YAW_MODE);
-    MotorInit(&gimbal_direct.pitch, GIMBAL_DIRECT_PITCH_ID, GIMBAL_DIRECT_PITCH_CAN, GIMBAL_DIRECT_PITCH_MOTOR_TYPE, GIMBAL_DIRECT_PITCH_DIRECTION, GIMBAL_DIRECT_PITCH_REDUCTION_RATIO, GIMBAL_DIRECT_PITCH_MODE);
+    MotorInit(&gimbal_direct.yaw, GIMBAL_DIRECT_YAW_ID, GIMBAL_CAN, GIMBAL_DIRECT_YAW_MOTOR_TYPE, GIMBAL_DIRECT_YAW_DIRECTION, GIMBAL_DIRECT_YAW_REDUCTION_RATIO, GIMBAL_DIRECT_YAW_MODE);
+    MotorInit(&gimbal_direct.pitch, GIMBAL_DIRECT_PITCH_ID, GIMBAL_CAN, GIMBAL_DIRECT_PITCH_MOTOR_TYPE, GIMBAL_DIRECT_PITCH_DIRECTION, GIMBAL_DIRECT_PITCH_REDUCTION_RATIO, GIMBAL_DIRECT_PITCH_MODE);
 
     // step5 初始化云台初始化校准相关变量
     gimbal_direct.init_start_time = 0;
@@ -377,7 +377,15 @@ void GimbalConsole(void)
  */
 void GimbalSendCmd(void)
 {
-    CanCmdDjiMotor(GIMBAL_CAN, GIMBAL_STDID, gimbal_direct.pitch.set.curr, gimbal_direct.yaw.set.curr, 0, 0);
+    int16_t cmd_array[4] = {0, 0, 0, 0};
+    
+    // 自动根据电机ID分配控制量
+    cmd_array[gimbal_direct.pitch.id - 1] = gimbal_direct.pitch.set.curr;
+    cmd_array[gimbal_direct.yaw.id - 1] = gimbal_direct.yaw.set.curr;
+    
+    // 发送CAN命令
+    CanCmdDjiMotor(GIMBAL_CAN, GIMBAL_STDID, 
+                  cmd_array[0], cmd_array[1], cmd_array[2], cmd_array[3]);
 }
 
 #endif // GIMBAL_YAW_PITCH

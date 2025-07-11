@@ -38,7 +38,6 @@ static Shoot_s SHOOT = {
 
 uint8_t fric_ui;
 fp32 delta;
-int a2;
 
 /*-------------------- Init --------------------*/
 
@@ -54,16 +53,26 @@ void ShootInit(void)
 
   //摩擦轮相关
   MotorInit(&SHOOT.fric_motor[0],FRIC_MOTOR_R_ID, FRIC_MOTOR_R_CAN, FRIC_MOTOR_TYPE, 1, 1.0f, 0);//初始化R摩擦轮电机结构体
-  MotorInit(&SHOOT.fric_motor[1],FRIC_MOTOR_L_ID, FRIC_MOTOR_L_CAN, FRIC_MOTOR_TYPE, 1, 1.0f, 0);//初始化L摩擦轮电机结构体
+  MotorInit(&SHOOT.fric_motor[1],FRIC_MOTOR_L_ID, FRIC_MOTOR_L_CAN, FRIC_MOTOR_TYPE, -1, 1.0f, 0);//初始化L摩擦轮电机结构体
+  MotorInit(&SHOOT.fric_motor[2],FRIC_MOTOR_U_ID, FRIC_MOTOR_U_CAN, FRIC_MOTOR_TYPE, 1, 1.0f, 0);//初始化U摩擦轮电机结构体
 
   const fp32 pid_fric[3] = {FRIC_SPEED_PID_KP, FIRC_SPEED_PID_KI, FRIC_SPEED_PID_KD};//摩擦轮速度环
 
   PID_init(&SHOOT.fric_pid[0], PID_POSITION, pid_fric, FRIC_PID_MAX_OUT, FRIC_PID_MAX_IOUT);
-  PID_init(&SHOOT.fric_pid[1], PID_POSITION, pid_fric, FRIC_PID_MAX_OUT, FRIC_PID_MAX_IOUT);//摩擦轮初始化pid
+  PID_init(&SHOOT.fric_pid[1], PID_POSITION, pid_fric, FRIC_PID_MAX_OUT, FRIC_PID_MAX_IOUT);
+  PID_init(&SHOOT.fric_pid[2], PID_POSITION, pid_fric, FRIC_PID_MAX_OUT, FRIC_PID_MAX_IOUT);//摩擦轮初始化pid
 
   //拨弹盘相关
   MotorInit(&SHOOT.trigger_motor,TRIGGER_MOTOR_ID, TRIGGER_MOTOR_CAN, TRIGGER_MOTOR_TYPE, 1, 1.0f, 0);//初始化拨弹盘电机结构体
  if (TRIGGER_MOTOR_TYPE == DJI_M2006)
+ {
+  const fp32 pid_angel_trigger[3] = {TRIGGER_ANGEL_PID_KP, TRIGGER_ANGEL_PID_KI, TRIGGER_ANGEL_PID_KD};//拨弹盘角度环
+  const fp32 pid_speed_trigger[3] = {TRIGGER_SPEED_PID_KP, TRIGGER_SPEED_PID_KI, TRIGGER_SPEED_PID_KD};//拨弹盘速度环
+
+  PID_init(&SHOOT.trigger_angel_pid, PID_POSITION, pid_angel_trigger, TRIGGER_ANGEL_PID_MAX_OUT, TRIGGER_ANGEL_PID_MAX_IOUT);
+  PID_init(&SHOOT.trigger_speed_pid, PID_POSITION, pid_speed_trigger, TRIGGER_SPEED_PID_MAX_OUT, TRIGGER_SPEED_PID_MAX_IOUT);  //拨弹盘初始化pid
+ }
+ else if (TRIGGER_MOTOR_TYPE == DJI_M3508)
  {
   const fp32 pid_angel_trigger[3] = {TRIGGER_ANGEL_PID_KP, TRIGGER_ANGEL_PID_KI, TRIGGER_ANGEL_PID_KD};//拨弹盘角度环
   const fp32 pid_speed_trigger[3] = {TRIGGER_SPEED_PID_KP, TRIGGER_SPEED_PID_KI, TRIGGER_SPEED_PID_KD};//拨弹盘速度环
@@ -258,6 +267,11 @@ void ShootSetMode(void)
       SHOOT.heat = get_heat_auto();
       SHOOT.heat_limit = get_heat_limit();
     }
+    else if (TRIGGER_MOTOR_TYPE == DJI_M3508)
+    {
+      SHOOT.heat = get_heat_auto();
+      SHOOT.heat_limit = get_heat_limit();
+    }
     else if (TRIGGER_MOTOR_TYPE == DM_4310)
     {
       SHOOT.heat = get_heat_auto();
@@ -296,13 +310,89 @@ void ShootObserver(void)
   GetMotorMeasure(&SHOOT.trigger_motor);
   GetMotorMeasure(&SHOOT.fric_motor[0]);
   GetMotorMeasure(&SHOOT.fric_motor[1]);
+  GetMotorMeasure(&SHOOT.fric_motor[2]);
 
   SHOOT.FDB.fric_speed_fdb_R = SHOOT.fric_motor[0].fdb.vel;
   SHOOT.FDB.fric_speed_fdb_L = SHOOT.fric_motor[1].fdb.vel;
+  SHOOT.FDB.fric_speed_fdb_U = SHOOT.fric_motor[2].fdb.vel;
 
   SHOOT.FDB.trigger_speed_fdb = SHOOT.trigger_motor.fdb.vel;
 
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
+  {
+
+    // 拨弹轮点击编码器值规整
+    if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd > HALF_ECD_RANGE)
+    {
+        SHOOT.ecd_count--;
+    }
+    else if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd < -HALF_ECD_RANGE)
+    {
+        SHOOT.ecd_count++;
+    }
+
+    if (SHOOT.ecd_count == FULL_COUNT)
+    {
+        SHOOT.ecd_count = -(FULL_COUNT - 1);
+    }
+    else if (SHOOT.ecd_count == -FULL_COUNT)
+    {
+        SHOOT.ecd_count = FULL_COUNT-1;
+    }
+
+    //计算输出轴角度
+    SHOOT.FDB.trigger_angel_fdb = (SHOOT.ecd_count * ECD_RANGE + SHOOT.trigger_motor.fdb.ecd )* MOTOR_ECD_TO_ANGLE;
+
+    //记录上一个ecd值
+    SHOOT.last_ecd = SHOOT.trigger_motor.fdb.ecd;
+
+  //电机圈数重置， 因为输出轴旋转一圈， 电机轴旋转 36圈，将电机轴数据处理成输出轴数据，用于控制输出轴角度
+  //if(FULL_COUNT%2 == 0)
+  //{
+    // if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd > HALF_ECD_RANGE)
+    // {
+    //     SHOOT.ecd_count--;
+    // }
+    // else if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd < -HALF_ECD_RANGE)
+    // {
+        
+    //     SHOOT.ecd_count++;
+    // }
+
+    // if (SHOOT.ecd_count == FULL_COUNT)
+    // {
+    //     SHOOT.ecd_count = -(FULL_COUNT - 1);
+    // }
+    // else if (SHOOT.ecd_count == -FULL_COUNT)
+    // {
+    //     SHOOT.ecd_count = FULL_COUNT-1;
+    // }
+  //}
+  // //电机圈数重置， 因为输出轴旋转一圈， 电机轴旋转 51圈，将电机轴数据处理成输出轴数据，用于控制输出轴角度
+  // else
+  // {
+  //   if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd > HALF_ECD_RANGE)
+  //   {
+  //       SHOOT.ecd_count--;
+  //   }
+  //   else if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd < -HALF_ECD_RANGE)
+  //   {
+        
+  //       SHOOT.ecd_count++;
+  //   }
+
+  //   if (SHOOT.ecd_count == FULL_COUNT)
+  //   {
+  //       SHOOT.ecd_count = -FULL_COUNT;
+  //   }
+  //   else if (SHOOT.ecd_count == -FULL_COUNT)
+  //   {
+  //       SHOOT.ecd_count = FULL_COUNT;
+  //   }
+  //}
+
+  }
+  else if (TRIGGER_MOTOR_TYPE == DJI_M3508)
   {
 
     // 拨弹轮点击编码器值规整
@@ -404,11 +494,13 @@ void ShootReference(void)
   case FRIC_NOT_READY:
   SHOOT.REF.fric_speed_ref_R=0.0f;
   SHOOT.REF.fric_speed_ref_L=0.0f;
+  SHOOT.REF.fric_speed_ref_U=0.0f;
   break;
 
   case FRIC_READY:
   SHOOT.REF.fric_speed_ref_R=FRIC_R_SPEED;
   SHOOT.REF.fric_speed_ref_L=FRIC_L_SPEED;
+  SHOOT.REF.fric_speed_ref_U=FRIC_U_SPEED;
   break;
   
   default:
@@ -424,6 +516,22 @@ void ShootReference(void)
   
   case LAOD_BULLET:
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
+  {
+    if (SHOOT.move_flag == 0)
+    {
+      SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.FDB.trigger_angel_fdb + 2 * PI / BULLET_NUM / TRIGGER_REDUCTION_RATIO );
+    }
+
+    if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) > 0.01f)
+    {
+      SHOOT.move_flag = 1;
+    }
+    else
+    {
+      SHOOT.move_flag = 0;
+    }
+  }
+  else if (TRIGGER_MOTOR_TYPE == DJI_M3508)
   {
     if (SHOOT.move_flag == 0)
     {
@@ -484,10 +592,33 @@ void ShootConsole(void)
 {
   SHOOT.fric_motor[0].set.curr=PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R,SHOOT.REF.fric_speed_ref_R);
   SHOOT.fric_motor[1].set.curr=PID_calc(&SHOOT.fric_pid[1], SHOOT.FDB.fric_speed_fdb_L,SHOOT.REF.fric_speed_ref_L);
+  SHOOT.fric_motor[2].set.curr=PID_calc(&SHOOT.fric_pid[2], SHOOT.FDB.fric_speed_fdb_U,SHOOT.REF.fric_speed_ref_U);
   // PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R,SHOOT.REF.fric_speed_ref_R);
   
 
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
+  {
+    if (SHOOT.mode == LOAD_STOP)
+    {
+        SHOOT.trigger_motor.set.curr = PID_calc(&SHOOT.trigger_speed_pid, SHOOT.FDB.trigger_speed_fdb, SHOOT.REF.trigger_speed_ref);
+    }
+    else if (SHOOT.mode == LOAD_BURSTFIRE)
+    {
+        SHOOT.trigger_motor.set.curr = PID_calc(&SHOOT.trigger_speed_pid, SHOOT.FDB.trigger_speed_fdb, SHOOT.REF.trigger_speed_ref);
+    }
+    else if (SHOOT.mode == LAOD_BULLET)
+    {
+        delta = theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb);
+
+        SHOOT.REF.trigger_speed_ref = PID_calc(&SHOOT.trigger_angel_pid,0,delta);
+        SHOOT.trigger_motor.set.curr = PID_calc(&SHOOT.trigger_speed_pid,SHOOT.FDB.trigger_speed_fdb, SHOOT.REF.trigger_speed_ref);
+    }
+    else if (SHOOT.mode == LOAD_BLOCK) 
+    {
+        SHOOT.trigger_motor.set.curr = PID_calc(&SHOOT.trigger_speed_pid, SHOOT.FDB.trigger_speed_fdb, SHOOT.REF.trigger_speed_ref);
+    }
+  }
+  if (TRIGGER_MOTOR_TYPE == DJI_M3508)
   {
     if (SHOOT.mode == LOAD_STOP)
     {
@@ -541,21 +672,118 @@ void ShootConsole(void)
  */
 void ShootSendCmd(void) 
 {
-  if (TRIGGER_MOTOR_TYPE == DJI_M2006)
-  {
-    CanCmdDjiMotor(FRIC_MOTOR_R_CAN, STD_ID , SHOOT.fric_motor[1].set.curr,SHOOT.fric_motor[0].set.curr,0,0);
-    CanCmdDjiMotor(TRIGGER_MOTOR_CAN, 0x1ff , 0,0,SHOOT.trigger_motor.set.curr,0);
-  }
-  else if (TRIGGER_MOTOR_TYPE == DM_4310)
-  {
-    if (SHOOT.trigger_motor.fdb.state == DM_STATE_DISABLE) 
+    // 为两条CAN总线和两种标准ID创建发送数组
+    int16_t can1_0x200[4] = {0, 0, 0, 0};  // CAN1 ID 1-4
+    int16_t can1_0x1FF[4] = {0, 0, 0, 0};  // CAN1 ID 5-8
+    int16_t can2_0x200[4] = {0, 0, 0, 0};  // CAN2 ID 1-4
+    int16_t can2_0x1FF[4] = {0, 0, 0, 0};  // CAN2 ID 5-8
+    
+    bool need_send_can1_0x200 = false;
+    bool need_send_can1_0x1FF = false;
+    bool need_send_can2_0x200 = false;
+    bool need_send_can2_0x1FF = false;
+    
+    // 处理三个摩擦轮电机
+    for (int i = 0; i < 3; ++i)
     {
-      DmEnable(&SHOOT.trigger_motor);
+        uint8_t motor_id = SHOOT.fric_motor[i].id;
+        uint8_t can_bus = SHOOT.fric_motor[i].can;
+        int16_t current = SHOOT.fric_motor[i].set.curr;
+        
+        // 根据CAN总线和ID范围分配
+        if (can_bus == 1)
+        {
+            if (motor_id >= 1 && motor_id <= 4)
+            {
+                can1_0x200[motor_id - 1] = current;
+                need_send_can1_0x200 = true;
+            }
+            else if (motor_id >= 5 && motor_id <= 8)
+            {
+                can1_0x1FF[motor_id - 5] = current;
+                need_send_can1_0x1FF = true;
+            }
+        }
+        else if (can_bus == 2)
+        {
+            if (motor_id >= 1 && motor_id <= 4)
+            {
+                can2_0x200[motor_id - 1] = current;
+                need_send_can2_0x200 = true;
+            }
+            else if (motor_id >= 5 && motor_id <= 8)
+            {
+                can2_0x1FF[motor_id - 5] = current;
+                need_send_can2_0x1FF = true;
+            }
+        }
     }
-    DmMitCtrlVelocity(&SHOOT.trigger_motor, TRIGGER_SPEED_MIT_KD);
-  
-    CanCmdDjiMotor(FRIC_MOTOR_R_CAN, STD_ID ,0 ,SHOOT.fric_motor[1].set.curr,SHOOT.fric_motor[0].set.curr, 0);
-  }
+    
+    // 处理拨弹轮电机（仅DJI电机需要CAN发送）
+    if (TRIGGER_MOTOR_TYPE == DJI_M2006 || TRIGGER_MOTOR_TYPE == DJI_M3508)
+    {
+        uint8_t trigger_id = SHOOT.trigger_motor.id;
+        uint8_t trigger_can = SHOOT.trigger_motor.can;
+        int16_t trigger_current = SHOOT.trigger_motor.set.curr;
+        
+        if (trigger_can == 1)
+        {
+            if (trigger_id >= 1 && trigger_id <= 4)
+            {
+                can1_0x200[trigger_id - 1] = trigger_current;
+                need_send_can1_0x200 = true;
+            }
+            else if (trigger_id >= 5 && trigger_id <= 8)
+            {
+                can1_0x1FF[trigger_id - 5] = trigger_current;
+                need_send_can1_0x1FF = true;
+            }
+        }
+        else if (trigger_can == 2)
+        {
+            if (trigger_id >= 1 && trigger_id <= 4)
+            {
+                can2_0x200[trigger_id - 1] = trigger_current;
+                need_send_can2_0x200 = true;
+            }
+            else if (trigger_id >= 5 && trigger_id <= 8)
+            {
+                can2_0x1FF[trigger_id - 5] = trigger_current;
+                need_send_can2_0x1FF = true;
+            }
+        }
+    }
+    
+    // 发送所有需要的CAN命令
+    if (need_send_can1_0x200)
+    {
+        CanCmdDjiMotor(1, 0x200, can1_0x200[0], can1_0x200[1], can1_0x200[2], can1_0x200[3]);
+    }
+    
+    if (need_send_can1_0x1FF)
+    {
+        CanCmdDjiMotor(1, 0x1FF, can1_0x1FF[0], can1_0x1FF[1], can1_0x1FF[2], can1_0x1FF[3]);
+    }
+    
+    if (need_send_can2_0x200)
+    {
+        CanCmdDjiMotor(2, 0x200, can2_0x200[0], can2_0x200[1], can2_0x200[2], can2_0x200[3]);
+    }
+    
+    if (need_send_can2_0x1FF)
+    {
+        CanCmdDjiMotor(2, 0x1FF, can2_0x1FF[0], can2_0x1FF[1], can2_0x1FF[2], can2_0x1FF[3]);
+    }
+    
+    // 处理达妙电机（独立发送）
+    if (TRIGGER_MOTOR_TYPE == DM_4310)
+    {
+        if (SHOOT.trigger_motor.fdb.state == DM_STATE_DISABLE) 
+        {
+            DmEnable(&SHOOT.trigger_motor);
+        }
+        DmMitCtrlVelocity(&SHOOT.trigger_motor, TRIGGER_SPEED_MIT_KD);
+    }
 }
 
 #endif  // SHOOT_TYPE == SHOOT_FRIC

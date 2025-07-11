@@ -42,11 +42,10 @@
 // clang-format off
 #define IMU_temp_PWM(pwm)  imu_pwm_set(pwm)                    //pwm给定
 
-#define BMI088_BOARD_INSTALL_SPIN_MATRIX    \
-    {0.0f, 1.0f, 0.0f},                     \
-    {-1.0f, 0.0f, 0.0f},                     \
-    {0.0f, 0.0f, 1.0f}                      \
-
+// #define BMI088_BOARD_INSTALL_SPIN_MATRIX    \
+//     {1.0f, 0.0f, 0.0f},                     \
+//     {0.0f, 1.0f, 0.0f},                     \
+//     {0.0f, 0.0f, 1.0f}                      \
 
 #define IST8310_BOARD_INSTALL_SPIN_MATRIX   \
     {1.0f, 0.0f, 0.0f},                     \
@@ -57,16 +56,9 @@
 #define IMU_CALI_MAX_COUNT 100
 // clang-format on
 
-/**
-  * @brief          rotate the gyro, accel and mag, and calculate the zero drift, because sensors have 
-  *                 different install derection.
-  * @param[out]     gyro: after plus zero drift and rotate
-  * @param[out]     accel: after plus zero drift and rotate
-  * @param[out]     mag: after plus zero drift and rotate
-  * @param[in]      bmi088: gyro and accel data
-  * @param[in]      ist8310: mag data
-  * @retval         none
-  */
+// 计算ZYX欧拉角旋转矩阵的函数
+void calculate_rotation_matrix_zyx(float roll, float pitch, float yaw, float matrix[3][3]);
+
 /**
   * @brief          旋转陀螺仪,加速度计和磁力计,并计算零漂,因为设备有不同安装方式
   * @param[out]     gyro: 加上零漂和旋转
@@ -81,21 +73,11 @@ static void imu_cali_slove(
     ist8310_real_data_t * ist8310);
 
 /**
-  * @brief          control the temperature of bmi088
-  * @param[in]      temp: the temperature of bmi088
-  * @retval         none
-  */
-/**
   * @brief          控制bmi088的温度
   * @param[in]      temp:bmi088的温度
   * @retval         none
   */
 static void imu_temp_control(fp32 temp);
-/**
-  * @brief          open the SPI DMA accord to the value of imu_update_flag
-  * @param[in]      none
-  * @retval         none
-  */
 /**
   * @brief          根据imu_update_flag的值开启SPI DMA
   * @param[in]      temp:bmi088的温度
@@ -132,11 +114,11 @@ volatile uint8_t imu_start_dma_flag = 0;
 
 
 bmi088_real_data_t bmi088_real_data;
-fp32 gyro_scale_factor[3][3] = {BMI088_BOARD_INSTALL_SPIN_MATRIX};
+fp32 gyro_scale_factor[3][3];
 fp32 gyro_offset[3];
 fp32 gyro_cali_offset[3];
 
-fp32 accel_scale_factor[3][3] = {BMI088_BOARD_INSTALL_SPIN_MATRIX};
+fp32 accel_scale_factor[3][3];
 fp32 accel_offset[3];
 fp32 accel_cali_offset[3];
 
@@ -158,9 +140,6 @@ static fp32 accel_fliter_2[3] = {0.0f, 0.0f, 0.0f};
 static fp32 accel_fliter_3[3] = {0.0f, 0.0f, 0.0f};
 static const fp32 fliter_num[3] = {1.929454039488895f, -0.93178349823448126f, 0.002329458745586203f};
 
-
-
-
 static fp32 INS_gyro[3] = {0.0f, 0.0f, 0.0f};
 static fp32 INS_accel[3] = {0.0f, 0.0f, 0.0f};
 static fp32 INS_mag[3] = {0.0f, 0.0f, 0.0f};
@@ -180,42 +159,6 @@ static Imu_t IMU_DATA = {
     .z_accel = 0.0f,
 };
 
-// typedef struct ImuCaliData
-// {
-//     struct reference
-//     {
-//         float ax, ay, az;
-//         float r, p, y1, y2;
-//     } ref;
-
-//     struct time
-//     {
-//         uint32_t start;
-//         uint32_t end;
-//     } time;
-
-//     struct offect
-//     {
-//         float roll;
-//         float pitch;
-//         float yaw;
-//         float yaw_drift_rate;
-//     } offect;
-
-//     uint8_t read_cnt;
-// } ImuCaliData_t;
-
-// static ImuCaliData_t IMU_CALI_DATA = {
-//     .ref = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f},
-//     .offect = {0.0f, 0.0f, 0.0f, 0.0f},
-//     .read_cnt = 0,
-// };
-
-/**
-  * @brief          imu task, init bmi088, ist8310, calculate the euler angle
-  * @param[in]      pvParameters: NULL
-  * @retval         none
-  */
 /**
   * @brief          imu任务, 初始化 bmi088, ist8310, 计算欧拉角
   * @param[in]      pvParameters: NULL
@@ -225,6 +168,12 @@ void IMU_task(void const * pvParameters)
 {
     // 发布IMU数据
     Publish(&IMU_DATA, IMU_NAME);
+
+    // 初始化陀螺仪和加速度计的旋转矩阵
+    calculate_rotation_matrix_zyx(
+        IMU_ROLL_ANGLE, IMU_PITCH_ANGLE, IMU_YAW_ANGLE, gyro_scale_factor);
+    calculate_rotation_matrix_zyx(
+        IMU_ROLL_ANGLE, IMU_PITCH_ANGLE, IMU_YAW_ANGLE, accel_scale_factor);
 
     // clang-format off
     //wait a time
@@ -333,58 +282,6 @@ void IMU_task(void const * pvParameters)
     }
 }
 
-/**
- * @brief 自动校准IMU数据，每次上电时，读取一定数量的数据，计算出静态角度
- * @param  
- */
-// static void AutoCaliImuData(void)
-// {
-//     if (HAL_GetTick() < 100) {
-//         return;
-//     }
-
-//     if (IMU_CALI_DATA.read_cnt > IMU_CALI_MAX_COUNT) {
-//         return;
-//     }
-
-//     if (IMU_CALI_DATA.read_cnt < IMU_CALI_MAX_COUNT) {
-//         IMU_CALI_DATA.ref.ax += INS_accel[INS_ACCEL_X_ADDRESS_OFFSET];
-//         IMU_CALI_DATA.ref.ay += INS_accel[INS_ACCEL_Y_ADDRESS_OFFSET];
-//         IMU_CALI_DATA.ref.az += INS_accel[INS_ACCEL_Z_ADDRESS_OFFSET];
-
-//         IMU_CALI_DATA.ref.r += INS_angle[INS_ROLL_ADDRESS_OFFSET];
-//         IMU_CALI_DATA.ref.p += INS_angle[INS_PITCH_ADDRESS_OFFSET];
-
-//         if (IMU_CALI_DATA.read_cnt == 0) {
-//             IMU_CALI_DATA.ref.y1 = INS_angle[INS_YAW_ADDRESS_OFFSET];
-//             IMU_CALI_DATA.time.start = HAL_GetTick();
-//         }
-
-//         IMU_CALI_DATA.read_cnt++;
-//     } else if (IMU_CALI_DATA.read_cnt == IMU_CALI_MAX_COUNT) {
-//         IMU_CALI_DATA.time.end = HAL_GetTick();
-//         IMU_CALI_DATA.ref.y2 = INS_angle[INS_YAW_ADDRESS_OFFSET];
-
-//         IMU_CALI_DATA.ref.ax = IMU_CALI_DATA.ref.ax / IMU_CALI_MAX_COUNT;
-//         IMU_CALI_DATA.ref.ay = IMU_CALI_DATA.ref.ay / IMU_CALI_MAX_COUNT;
-//         IMU_CALI_DATA.ref.az = IMU_CALI_DATA.ref.az / IMU_CALI_MAX_COUNT;
-
-//         IMU_CALI_DATA.ref.r = IMU_CALI_DATA.ref.r / IMU_CALI_MAX_COUNT;
-//         IMU_CALI_DATA.ref.p = IMU_CALI_DATA.ref.p / IMU_CALI_MAX_COUNT;
-
-//         float static_roll = atan2f(IMU_CALI_DATA.ref.ay, IMU_CALI_DATA.ref.az);
-//         float static_pitch = atan2f(
-//             -IMU_CALI_DATA.ref.ax, sqrtf(
-//                                        IMU_CALI_DATA.ref.ay * IMU_CALI_DATA.ref.ay +
-//                                        IMU_CALI_DATA.ref.az * IMU_CALI_DATA.ref.az));
-
-//         IMU_CALI_DATA.offect.roll = static_roll - IMU_CALI_DATA.ref.r;
-//         IMU_CALI_DATA.offect.pitch = static_pitch - IMU_CALI_DATA.ref.p;
-
-//         IMU_CALI_DATA.read_cnt++;
-//     }
-// }
-
 static void UpdateImuData(void)
 {
     // clang-format off
@@ -407,16 +304,30 @@ static void UpdateImuData(void)
 
 // clang-format off
 
-/**
-  * @brief          rotate the gyro, accel and mag, and calculate the zero drift, because sensors have 
-  *                 different install derection.
-  * @param[out]     gyro: after plus zero drift and rotate
-  * @param[out]     accel: after plus zero drift and rotate
-  * @param[out]     mag: after plus zero drift and rotate
-  * @param[in]      bmi088: gyro and accel data
-  * @param[in]      ist8310: mag data
-  * @retval         none
-  */
+// 计算ZYX欧拉角旋转矩阵的函数
+void calculate_rotation_matrix_zyx(float roll, float pitch, float yaw, float matrix[3][3])
+{
+    float cr = cos(roll);   // cos(a) - 绕X轴
+    float sr = sin(roll);   // sin(a)
+    float cp = cos(pitch);  // cos(b) - 绕Y轴  
+    float sp = sin(pitch);  // sin(b)
+    float cy = cos(yaw);    // cos(c) - 绕Z轴
+    float sy = sin(yaw);    // sin(c)
+    
+    // ZYX旋转矩阵 R = Rz(yaw) * Ry(pitch) * Rx(roll)
+    matrix[0][0] = cy * cp;
+    matrix[0][1] = cy * sp * sr - sy * cr;
+    matrix[0][2] = cy * sp * cr + sy * sr;
+    
+    matrix[1][0] = sy * cp;
+    matrix[1][1] = sy * sp * sr + cy * cr;
+    matrix[1][2] = sy * sp * cr - cy * sr;
+    
+    matrix[2][0] = -sp;
+    matrix[2][1] = cp * sr;
+    matrix[2][2] = cp * cr;
+}
+
 /**
   * @brief          旋转陀螺仪,加速度计和磁力计,并计算零漂,因为设备有不同安装方式
   * @param[out]     gyro: 加上零漂和旋转
@@ -430,17 +341,23 @@ static void imu_cali_slove(fp32 gyro[3], fp32 accel[3], fp32 mag[3], bmi088_real
 {
     for (uint8_t i = 0; i < 3; i++)
     {
-        gyro[i] = bmi088->gyro[0] * gyro_scale_factor[i][0] + bmi088->gyro[1] * gyro_scale_factor[i][1] + bmi088->gyro[2] * gyro_scale_factor[i][2] + gyro_offset[i];
-        accel[i] = bmi088->accel[0] * accel_scale_factor[i][0] + bmi088->accel[1] * accel_scale_factor[i][1] + bmi088->accel[2] * accel_scale_factor[i][2] + accel_offset[i];
-        mag[i] = ist8310->mag[0] * mag_scale_factor[i][0] + ist8310->mag[1] * mag_scale_factor[i][1] + ist8310->mag[2] * mag_scale_factor[i][2] + mag_offset[i];
+        // 陀螺仪数据变换：原始数据 × 旋转矩阵 + 零漂偏移
+        gyro[i] = bmi088->gyro[0] * gyro_scale_factor[i][0] + 
+                  bmi088->gyro[1] * gyro_scale_factor[i][1] + 
+                  bmi088->gyro[2] * gyro_scale_factor[i][2] + gyro_offset[i];
+        
+        // 加速度计数据变换
+        accel[i] = bmi088->accel[0] * accel_scale_factor[i][0] + 
+                   bmi088->accel[1] * accel_scale_factor[i][1] + 
+                   bmi088->accel[2] * accel_scale_factor[i][2] + accel_offset[i];
+        
+        // 磁力计数据变换
+        mag[i] = ist8310->mag[0] * mag_scale_factor[i][0] + 
+                 ist8310->mag[1] * mag_scale_factor[i][1] + 
+                 ist8310->mag[2] * mag_scale_factor[i][2] + mag_offset[i];
     }
 }
 
-/**
-  * @brief          control the temperature of bmi088
-  * @param[in]      temp: the temperature of bmi088
-  * @retval         none
-  */
 /**
   * @brief          控制bmi088的温度
   * @param[in]      temp:bmi088的温度
@@ -530,12 +447,6 @@ void INS_cali_gyro(fp32 cali_scale[3], fp32 cali_offset[3], uint32_t *time_count
 }
 
 /**
-  * @brief          get gyro zero drift from flash
-  * @param[in]      cali_scale:scale, default 1.0
-  * @param[in]      cali_offset:zero drift, 
-  * @retval         none
-  */
-/**
   * @brief          校准陀螺仪设置，将从flash或者其他地方传入校准值
   * @param[in]      陀螺仪的比例因子，1.0f为默认值，不修改
   * @param[in]      陀螺仪的零漂
@@ -552,11 +463,6 @@ void INS_set_cali_gyro(fp32 cali_scale[3], fp32 cali_offset[3])
 }
 
 /**
-  * @brief          get the quat
-  * @param[in]      none
-  * @retval         the point of INS_quat
-  */
-/**
   * @brief          获取四元数
   * @param[in]      none
   * @retval         INS_quat的指针
@@ -565,11 +471,7 @@ const fp32 *get_INS_quat_point(void)
 {
     return INS_quat;
 }
-/**
-  * @brief          get the euler angle, 0:yaw, 1:pitch, 2:roll unit rad
-  * @param[in]      none
-  * @retval         the point of INS_angle
-  */
+
 /**
   * @brief          获取欧拉角, 0:yaw, 1:pitch, 2:roll 单位 rad
   * @param[in]      none
@@ -581,11 +483,6 @@ const fp32 *get_INS_angle_point(void)
 }
 
 /**
-  * @brief          get the rotation speed, 0:x-axis, 1:y-axis, 2:roll-axis,unit rad/s
-  * @param[in]      none
-  * @retval         the point of INS_gyro
-  */
-/**
   * @brief          获取角速度,0:x轴, 1:y轴, 2:roll轴 单位 rad/s
   * @param[in]      none
   * @retval         INS_gyro的指针
@@ -594,11 +491,7 @@ extern const fp32 *get_gyro_data_point(void)
 {
     return INS_gyro;
 }
-/**
-  * @brief          get aceel, 0:x-axis, 1:y-axis, 2:roll-axis unit m/s2
-  * @param[in]      none
-  * @retval         the point of INS_accel
-  */
+
 /**
   * @brief          获取加速度,0:x轴, 1:y轴, 2:roll轴 单位 m/s2
   * @param[in]      none
@@ -608,11 +501,7 @@ extern const fp32 *get_accel_data_point(void)
 {
     return INS_accel;
 }
-/**
-  * @brief          get mag, 0:x-axis, 1:y-axis, 2:roll-axis unit ut
-  * @param[in]      none
-  * @retval         the point of INS_mag
-  */
+
 /**
   * @brief          获取加速度,0:x轴, 1:y轴, 2:roll轴 单位 ut
   * @param[in]      none
@@ -667,11 +556,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 }
 
-/**
-  * @brief          open the SPI DMA accord to the value of imu_update_flag
-  * @param[in]      none
-  * @retval         none
-  */
 /**
   * @brief          根据imu_update_flag的值开启SPI DMA
   * @param[in]      temp:bmi088的温度

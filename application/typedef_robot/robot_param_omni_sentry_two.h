@@ -9,8 +9,8 @@
 
 //快速选择对应的板子
 // #define BOARD_CURRENT C_BOARD_DEFAULT
-#define BOARD_CURRENT C_BOARD_DOWN
-// #define BOARD_CURRENT C_BOARD_UP
+// #define BOARD_CURRENT C_BOARD_DOWN
+#define BOARD_CURRENT C_BOARD_UP
 
 // 快速设置双板的配置
 #if(BOARD_CURRENT == C_BOARD_DOWN)
@@ -35,6 +35,12 @@
 //通用配置
 #define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
 #define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
+
+/*-------------------- IMU --------------------*/
+// IMU安装角度参数 (单位：度)
+#define IMU_ROLL_ANGLE (0.0f)    // 绕X轴旋转角度
+#define IMU_PITCH_ANGLE (0.0f)   // 绕Y轴旋转角度 
+#define IMU_YAW_ANGLE (90.0f)    // 绕Z轴旋转角度
 
 /*-------------------- Chassis --------------------*/
 
@@ -111,7 +117,7 @@
 /*-------------------- Gimbal --------------------*/
 // 云台电流发送参数
 #define GIMBAL_CAN (2)
-#define GIMBAL_STDID (0x1FF) //电压控制1-4(0x1FF)5-7(0x2FF) 电流控制 1-4(0x1FE)5-7(0x2FE)
+#define GIMBAL_STDID (0x1FF) //电压控制1-4(0x1FF)5-7(0x2FF)
 
 // gimbal_init-------------------------------
 #define GIMBAL_INIT_TIME (uint32_t)201
@@ -125,10 +131,6 @@
 // 电机id
 #define GIMBAL_DIRECT_YAW_ID ((uint8_t)1)
 #define GIMBAL_DIRECT_PITCH_ID ((uint8_t)2)
-
-// 电机can口
-#define GIMBAL_DIRECT_YAW_CAN ((uint8_t)2)
-#define GIMBAL_DIRECT_PITCH_CAN ((uint8_t)2)
 
 // 电机种类
 #define GIMBAL_DIRECT_YAW_MOTOR_TYPE ((MotorType_e)DJI_M6020)
@@ -185,33 +187,36 @@
 // physical parameters ---------------------
 #define FRIC_RADIUS 0.03f // (m)摩擦轮半径
 #define BULLET_NUM 8      // 定义拨弹盘容纳弹丸个数
-#define GUN_NUM 1         // 定义枪管个数（一个枪管2个摩擦轮）
+#define GUN_NUM 1         // 定义枪管个数
 #define TRIGGER_REDUCTION_RATIO 1.0f  // 定义电机到拨弹盘的齿轮减速比
 
 /*MOTOR paramters --------------------*/
 
 // 电机种类
-#define TRIGGER_MOTOR_TYPE ((MotorType_e)DJI_M2006)
+#define TRIGGER_MOTOR_TYPE ((MotorType_e)DJI_M3508)
 #define FRIC_MOTOR_TYPE ((MotorType_e)DJI_M3508)
 
 // 电机ID
 #define TRIGGER_MOTOR_ID 4
 #define FRIC_MOTOR_R_ID 2
-#define FRIC_MOTOR_L_ID 1
+#define FRIC_MOTOR_L_ID 5
+#define FRIC_MOTOR_U_ID 3
 
 // 电机can口
 #define TRIGGER_MOTOR_CAN 1
 #define FRIC_MOTOR_R_CAN 1
 #define FRIC_MOTOR_L_CAN 1
+#define FRIC_MOTOR_U_CAN 1
 
 // 电机std_id
 #define STD_ID 0x200
 // 单环拨弹速度
 #define TRIGGER_SPEED (300.0f)
 // 摩擦轮速度
-#define FRIC_R_SPEED (666.0f)
-#define FRIC_L_SPEED (-666.0f)
-#define FRIC_SPEED_LIMIT (600.0f)
+#define FRIC_R_SPEED (330.0f)//660
+#define FRIC_L_SPEED (-330.0f)
+#define FRIC_U_SPEED (-330.0f)
+#define FRIC_SPEED_LIMIT (150.0f)//600
 
 /*ECD parameters------------*/
 // 电机反馈码盘值范围
