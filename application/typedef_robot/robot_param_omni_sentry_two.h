@@ -151,6 +151,8 @@
 // physical parameters ---------------------
 #define GIMBAL_UPPER_LIMIT_PITCH (0.2f)
 #define GIMBAL_LOWER_LIMIT_PITCH (-0.3f)
+#define GIMBAL_LOWER_LIMIT_YAW (-M_PI)
+#define GIMBAL_UPPER_LIMIT_YAW (M_PI)
 
 // 电机角度中值设置
 #define GIMBAL_DIRECT_PITCH_MID (3.0671f) // 云台初始化正对齐的时候使用的pitch轴正中心量

@@ -26,7 +26,9 @@
             "bit": "c",
             "compare": "c",
             "limits": "c",
-            "new": "c"
+            "new": "c",
+            "cmath": "c",
+            "cstdlib": "c"
         },
         "[yaml]": {
             "editor.insertSpaces": true,

@@ -384,6 +384,12 @@
         "files": [
           {
             "path": "../components/controller/pid.c"
+          },
+          {
+            "path": "../components/controller/FF_pid.c"
+          },
+          {
+            "path": "../components/controller/npid.c"
           }
         ],
         "folders": []
