@@ -38,6 +38,11 @@ static Shoot_s SHOOT = {
 
 uint8_t fric_ui;
 fp32 delta;
+int date;
+fp32 all_error; //总误差
+int all_Transmission_ratio_z; //电机到拨弹盘的总传动比的整数
+int COUNT; //拨弹盘转半圈所需的电机圈数的整数
+int COUNT_error;//误差
 
 /*-------------------- Init --------------------*/
 
@@ -86,8 +91,21 @@ void ShootInit(void)
 
   PID_init(&SHOOT.trigger_angel_pid, PID_POSITION, pid_angel_trigger, TRIGGER_ANGEL_PID_MAX_OUT, TRIGGER_ANGEL_PID_MAX_IOUT); //拨弹盘初始化pid
  }
- 
-}
+
+
+
+ all_Transmission_ratio_z=all_Transmission_ratio;
+ COUNT=all_Transmission_ratio_z/2.0f;
+ if(all_Transmission_ratio_z/2.0f==COUNT)
+ {
+ COUNT_error=1;
+ }
+ else
+ {
+  COUNT_error=0;
+ }
+
+ COUNT++;}
 
 /*-------------------- Set mode --------------------*/
 
@@ -325,24 +343,26 @@ void ShootObserver(void)
     if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd > HALF_ECD_RANGE)
     {
         SHOOT.ecd_count--;
+        all_error += error1;
     }
     else if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd < -HALF_ECD_RANGE)
     {
         SHOOT.ecd_count++;
+        all_error -= error1;
     }
 
-    if (SHOOT.ecd_count == FULL_COUNT)
+    if (SHOOT.ecd_count == COUNT)
     {
-        SHOOT.ecd_count = -(FULL_COUNT - 1);
+        SHOOT.ecd_count = -COUNT + COUNT_error;
     }
-    else if (SHOOT.ecd_count == -FULL_COUNT)
+    else if (SHOOT.ecd_count == -COUNT + COUNT_error)
     {
-        SHOOT.ecd_count = FULL_COUNT-1;
+        SHOOT.ecd_count = COUNT;
     }
 
     //计算输出轴角度
-    SHOOT.FDB.trigger_angel_fdb = (SHOOT.ecd_count * ECD_RANGE + SHOOT.trigger_motor.fdb.ecd )* MOTOR_ECD_TO_ANGLE;
-
+    SHOOT.FDB.trigger_angel_fdb = (SHOOT.ecd_count * ECD_RANGE + SHOOT.trigger_motor.fdb.ecd+all_error )* 2*PI/(all_Transmission_ratio*ECD_RANGE);
+    SHOOT.FDB.trigger_angel_fdb = theta_format(SHOOT.trigger_motor.fdb.pos);
     //记录上一个ecd值
     SHOOT.last_ecd = SHOOT.trigger_motor.fdb.ecd;
 
@@ -517,12 +537,19 @@ void ShootReference(void)
   case LAOD_BULLET:
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
   {
-    if (SHOOT.move_flag == 0)
-    {
-      SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.FDB.trigger_angel_fdb + 2 * PI / BULLET_NUM / TRIGGER_REDUCTION_RATIO );
-    }
+        date++;
+    if (SHOOT.move_flag == 0&&date>1600)
+        {
+         SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.REF.trigger_angel_ref - 2 * PI / BULLET_NUM  );
+         date=0;
+        }
+    // if (SHOOT.move_flag == 0)
+    // {
+    //   SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.FDB.trigger_angel_fdb + 2 * PI / BULLET_NUM / TRIGGER_REDUCTION_RATIO );
+    // }
 
-    if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) > 0.01f)
+    // if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) > 0.01f)
+    if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) < -0.01f)
     {
       SHOOT.move_flag = 1;
     }
@@ -538,7 +565,9 @@ void ShootReference(void)
       SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.FDB.trigger_angel_fdb + 2 * PI / BULLET_NUM / TRIGGER_REDUCTION_RATIO );
     }
 
-    if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) > 0.01f)
+    // if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) > 0.01f)
+       if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) < -0.01f)
+
     {
       SHOOT.move_flag = 1;
     }
