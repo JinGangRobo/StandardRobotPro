@@ -41,6 +41,11 @@
 
 // #define BOARD_CURRENT C_BOARD_OMNI_SENTINEIL_CHASSIS
 // #define BOARD_OTHER C_BOARD_OMNI_SENTINEIL_GIMBAL
+/*-------------------- IMU --------------------*/
+// IMU安装角度参数 (单位：度)
+#define IMU_ROLL_ANGLE (0.0f)    // 绕X轴旋转角度
+#define IMU_PITCH_ANGLE (0.0f)   // 绕Y轴旋转角度 
+#define IMU_YAW_ANGLE (90.0f)    // 绕Z轴旋转角度
 
 /*-------------------- Chassis --------------------*/
 
@@ -156,6 +161,8 @@
 // physical parameters ---------------------
 #define GIMBAL_UPPER_LIMIT_PITCH (0.2f)
 #define GIMBAL_LOWER_LIMIT_PITCH (-0.3f)
+#define GIMBAL_LOWER_LIMIT_YAW (-M_PI)
+#define GIMBAL_UPPER_LIMIT_YAW (M_PI)
 
 // 电机角度中值设置
 #define GIMBAL_DIRECT_PITCH_MID (-0.6741f) // 云台初始化正对齐的时候使用的pitch轴正中心量
@@ -190,11 +197,14 @@
 
 /*-------------------- Shoot --------------------*/
 // physical parameters ---------------------
-#define FRIC_RADIUS 0.03f // (m)摩擦轮半径
 #define BULLET_NUM 8      // 定义拨弹盘容纳弹丸个数
+#define ECD_RANGE 8192      // 电机反馈码盘值范围
+#define TRIGGER_REDUCTION_RATIO 58/42   // 定义电机到拨弹盘的齿轮减速比
+#define dianji_Transmission_ratio  36.0f //电机的传动比
+#define all_Transmission_ratio dianji_Transmission_ratio*TRIGGER_REDUCTION_RATIO //电机到拨弹盘的总传动比
+#define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
 #define GUN_NUM 1         // 定义枪管个数（一个枪管2个摩擦轮）
-#define TRIGGER_REDUCTION_RATIO 1.0f   // 定义电机到拨弹盘的齿轮减速比
-
+#define FRIC_RADIUS 0.03f // (m)摩擦轮半径
 /*MOTOR paramters --------------------*/
 
 // 电机种类
@@ -205,11 +215,15 @@
 #define TRIGGER_MOTOR_ID 7
 #define FRIC_MOTOR_R_ID 2
 #define FRIC_MOTOR_L_ID 1
+#define FRIC_MOTOR_U_ID 3
 
 // 电机can口
 #define TRIGGER_MOTOR_CAN 2
 #define FRIC_MOTOR_R_CAN 1
 #define FRIC_MOTOR_L_CAN 1
+#define FRIC_MOTOR_U_CAN 1
+
+
 
 // 电机std_id
 #define STD_ID 0x200
@@ -217,12 +231,13 @@
 #define TRIGGER_SPEED (-550.0f)
 #define FRIC_R_SPEED (200.0f)
 #define FRIC_L_SPEED (-200.0f)
+#define FRIC_U_SPEED (-330.0f)
 #define FRIC_SPEED_LIMIT (600.0f)
 
 /*ECD parameters------------*/
 // 电机反馈码盘值范围
 #define HALF_ECD_RANGE 4096
-#define ECD_RANGE 8191
+
 
 // 电机rpm 变化成 旋转速度的比例
 #define MOTOR_RPM_TO_SPEED 0.00290888208665721596153948461415f
