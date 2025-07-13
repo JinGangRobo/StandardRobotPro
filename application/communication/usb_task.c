@@ -42,6 +42,7 @@ uint32_t usb_high_water;
 #define USB_CONNECT_CNT 10
 
 #define SEND_DURATION_RobotStateInfo 10 // ms
+#define SEND_DURATION_PidtoVofa 10 // ms
 
 #define USB_RX_DATA_SIZE 256 // byte
 #define USB_RECEIVE_LEN 150  // byte
@@ -60,7 +61,8 @@ uint32_t usb_high_water;
 // Variable Declarations
 static uint8_t USB_RX_BUF[USB_RX_DATA_SIZE];
 
-static const Imu_t *IMU;
+// static const Imu_t *IMU;
+static const PidToVofa_t *PID_TO_VOFA;
 
 // 判断USB连接状态用到的一些变量
 static bool USB_OFFLINE = true;
@@ -69,14 +71,17 @@ static uint32_t CONTINUE_RECEIVE_CNT = 0;
 
 // 数据发送结构体
 static SendDataRobotStateInfo_s SEND_DATA_ROBOT_STATE_INFO;
+static SendDataPidTuning_s SEND_DATA_PID_TUNING;
 
 // 数据接收结构体
 static ReceiveDataRobotCmd_s RECEIVE_ROBOT_CMD_DATA;
-
+static ReceiveDataVofa_s RECEIVE_VOFA_DATA;
+static PidGetVofa_t RECEIVE_PID_GET_VOFA;
 // 发送数据间隔时间
 typedef struct
 {
     uint32_t RobotStateInfo;
+    uint32_t PidtoVofa;
 } LastSendTime_t;
 
 static LastSendTime_t LAST_SEND_TIME;
@@ -93,7 +98,15 @@ static void UsbInit(void);
 /* Send Function                                                               */
 /*******************************************************************************/
 
-static void UsbSendRobotStateInfoData(void);
+// static void UsbSendRobotStateInfoData(void);
+static void UsbSendPidtoVofaData(void);
+
+/*******************************************************************************/
+/* Receive Function                                                            */
+/*******************************************************************************/
+
+static void ProcessVofaData(ReceiveDataVofa_s *vofa_data);
+// static uint16_t ParseVofaFrame(uint8_t *buffer, uint16_t buffer_size);
 
 /******************************************************************/
 /* Task                                                           */
@@ -107,6 +120,7 @@ static void UsbSendRobotStateInfoData(void);
 void usb_task(void const *argument)
 {
     Publish(&USB_OFFLINE, USB_OFFLINE_NAME);
+    Publish(&RECEIVE_PID_GET_VOFA, PID_GET_VOFA_NAME);
 
     MX_USB_DEVICE_Init();
     
@@ -152,11 +166,14 @@ void usb_task(void const *argument)
 static void UsbInit(void)
 {
     // 订阅数据
-    IMU = Subscribe(IMU_NAME); // 获取IMU数据指针
+    // IMU = Subscribe(IMU_NAME); // 获取IMU数据指针
+    PID_TO_VOFA = Subscribe(PID_TO_VOFA_NAME); // 获取PID调节数据指针
 
     // 数据置零
     memset(&LAST_SEND_TIME, 0, sizeof(LastSendTime_t));
     memset(&RECEIVE_ROBOT_CMD_DATA, 0, sizeof(ReceiveDataRobotCmd_s));
+    memset(&RECEIVE_PID_GET_VOFA, 0, sizeof(PidGetVofa_t));
+    memset(&RECEIVE_VOFA_DATA, 0, sizeof(ReceiveDataVofa_s));
 
     /*******************************************************************************/
     /* Serial                                                                     */
@@ -177,6 +194,16 @@ static void UsbInit(void)
     SEND_DATA_ROBOT_STATE_INFO.data.encoder_up = 0;
     SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work = 0;
     SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage = 0;
+
+    // 2.初始化PID调节数据包
+    //帧尾部分
+    uint8_t tail_data[] = {0x00, 0x00, 0x80, 0x7f};
+    memcpy(SEND_DATA_PID_TUNING.tail, tail_data, sizeof(tail_data));
+    // 数据部分
+    for (int i = 0; i < DEBUG_PACKAGE_NUM; i++)
+    {
+        SEND_DATA_PID_TUNING.data[i] = 0.0f; // 初始化数据数组
+    }
 }
 
 /**
@@ -187,7 +214,9 @@ static void UsbInit(void)
 static void UsbSendData(void)
 {
     // 发送RobotStateInfo数据
-    CheckDurationAndSend(RobotStateInfo);
+    // CheckDurationAndSend(RobotStateInfo);
+    // 发送PID调节数据
+    CheckDurationAndSend(PidtoVofa);
 }
 
 /**
@@ -199,72 +228,139 @@ static void UsbReceiveData(void)
 {
     static uint32_t len = USB_RECEIVE_LEN;
     static uint8_t *rx_data_start_address = USB_RX_BUF; // 接收数据包时存放于缓存区的起始位置
-    static uint8_t *rx_data_end_address;                // 接收数据包时存放于缓存区的结束位置
-    uint8_t *sof_address = USB_RX_BUF;
+    // static uint8_t *rx_data_end_address;                // 接收数据包时存放于缓存区的结束位置
 
     // 计算数据包的结束位置
-    rx_data_end_address = rx_data_start_address + USB_RECEIVE_LEN;
+    // rx_data_end_address = rx_data_start_address + USB_RECEIVE_LEN;
     // 读取数据
     USB_Receive(rx_data_start_address, &len); // Read data into the buffer
 
-    while (sof_address <= rx_data_end_address)
-    { // 解析缓冲区中的所有数据包
-        // 寻找帧头位置
-        while (*(sof_address) != PACKET_VERSION && (sof_address <= rx_data_end_address))
+    // 如果接收到数据，处理VOFA协议和原有协议
+    if (len > 0)
+    {
+        uint8_t *current_ptr = USB_RX_BUF; // 当前处理位置指针
+        uint8_t *data_end = USB_RX_BUF + len; // 实际数据结束位置
+        
+        // 首先处理VOFA数据帧
+        uint16_t vofa_processed = 0;
+        uint8_t *vofa_search_ptr = current_ptr;
+        
+        while (vofa_search_ptr <= data_end - VOFA_DATA_FRAME_SIZE)
         {
-            sof_address++;
-        }
-        // 判断是否超出接收数据范围
-        if (sof_address > rx_data_end_address)
-        {
-            break; // 退出循环
-        }
-
-        if (*(sof_address) == PACKET_VERSION)
-        {
-            // 检查CRC8校验
-            bool crc8_ok = verify_CRC8_check_sum(sof_address, HEADER_SIZE);
-            if (crc8_ok)
+            // 查找VOFA帧头 FA FA
+            if (vofa_search_ptr[0] == VOFA_FRAME_HEADER_1 && vofa_search_ptr[1] == VOFA_FRAME_HEADER_2)
             {
-                uint8_t data_len = sof_address[1];
-                uint8_t data_id = sof_address[2];
-                // 检查整包CRC16校验 4: header size, 2: crc16 size
-                bool crc16_ok = verify_CRC16_check_sum(sof_address, 4 + data_len + 2);
-                if (crc16_ok)
-                {
-                    switch (data_id)
-                    {
-                    case ROBOT_CMD_DATA_RECEIVE_ID:
-                    {
-                        memcpy(&RECEIVE_ROBOT_CMD_DATA, sof_address, sizeof(ReceiveDataRobotCmd_s));
-                    }
-                    break;
-                    default:
-                        break;
-                    }
+                // 找到VOFA帧头，复制完整帧数据
+                memcpy(&RECEIVE_VOFA_DATA, vofa_search_ptr, sizeof(ReceiveDataVofa_s));
+                
+                // 处理VOFA数据
+                ProcessVofaData(&RECEIVE_VOFA_DATA);
+                
+                // 从缓冲区中移除已处理的VOFA数据
+                uint8_t *remaining_start = vofa_search_ptr + VOFA_DATA_FRAME_SIZE;
+                uint32_t remaining_len = data_end - remaining_start;
+                
+                if (remaining_len > 0) {
+                    memmove(vofa_search_ptr, remaining_start, remaining_len);
                 }
-                sof_address += (data_len + HEADER_SIZE + 2);
+                
+                // 更新数据结束位置
+                data_end -= VOFA_DATA_FRAME_SIZE;
+                len -= VOFA_DATA_FRAME_SIZE;
+                vofa_processed += VOFA_DATA_FRAME_SIZE;
+                
+                // 不增加vofa_search_ptr，因为数据已经前移
             }
+            else
+            {
+                vofa_search_ptr++;
+            }
+        }
+        
+        // 处理原有的通信协议数据包
+        uint8_t *sof_address = USB_RX_BUF;
+        while (sof_address < data_end)
+        { 
+            // 寻找帧头位置
+            while (*(sof_address) != PACKET_VERSION && (sof_address < data_end))
+            {
+                sof_address++;
+            }
+            // 判断是否超出接收数据范围
+            if (sof_address >= data_end)
+            {
+                break; // 退出循环
+            }
+
+            if (*(sof_address) == PACKET_VERSION)
+            {
+                // 检查是否有足够的数据进行CRC校验
+                if (sof_address + HEADER_SIZE > data_end) {
+                    break; // 数据不完整，退出
+                }
+                
+                // 检查CRC8校验
+                bool crc8_ok = verify_CRC8_check_sum(sof_address, HEADER_SIZE);
+                if (crc8_ok)
+                {
+                    uint8_t data_len = sof_address[1];
+                    uint8_t data_id = sof_address[2];
+                    uint16_t total_packet_len = HEADER_SIZE + data_len + 2; // 包括CRC16
+                    
+                    // 检查是否有完整的数据包
+                    if (sof_address + total_packet_len > data_end) {
+                        break; // 数据包不完整，退出
+                    }
+                    
+                    // 检查整包CRC16校验
+                    bool crc16_ok = verify_CRC16_check_sum(sof_address, total_packet_len);
+                    if (crc16_ok)
+                    {
+                        switch (data_id)
+                        {
+                        case ROBOT_CMD_DATA_RECEIVE_ID:
+                        {
+                            memcpy(&RECEIVE_ROBOT_CMD_DATA, sof_address, sizeof(ReceiveDataRobotCmd_s));
+                            RECEIVE_TIME = HAL_GetTick(); // 更新接收时间
+                        }
+                        break;
+                        default:
+                            break;
+                        }
+                    }
+                    sof_address += total_packet_len;
+                }
+                else
+                {
+                    sof_address++;
+                }
+            }
+            else
+            {
+                sof_address++;
+            }
+        }
+        
+        // 更新接收时间
+        RECEIVE_TIME = HAL_GetTick();
+        
+        // 处理剩余数据
+        uint32_t remaining_data_len = data_end - sof_address;
+        if (remaining_data_len > 0 && remaining_data_len < USB_RECEIVE_LEN)
+        {
+            // 将剩余数据移到缓冲区的起始位置
+            memmove(USB_RX_BUF, sof_address, remaining_data_len);
+            rx_data_start_address = USB_RX_BUF + remaining_data_len;
         }
         else
         {
-            sof_address++;
+            // 没有剩余数据或数据异常，重置起始位置
+            rx_data_start_address = USB_RX_BUF;
         }
     }
-    // 更新下一次接收数据的起始位置
-    if (sof_address > rx_data_start_address + USB_RECEIVE_LEN)
-    {
-        // 缓冲区中没有剩余数据，下次接收数据的起始位置为缓冲区的起始位置
-        rx_data_start_address = USB_RX_BUF;
-    }
-    else
-    {
-        uint16_t remaining_data_len = USB_RECEIVE_LEN - (sof_address - rx_data_start_address);
-        // 缓冲区中有剩余数据，下次接收数据的起始位置为缓冲区中剩余数据的起始位置
-        rx_data_start_address = USB_RX_BUF + remaining_data_len;
-        // 将剩余数据移到缓冲区的起始位置
-        memcpy(USB_RX_BUF, sof_address, remaining_data_len);
-    }
+    
+    // 重置len为下次接收准备
+    len = USB_RECEIVE_LEN - (rx_data_start_address - USB_RX_BUF);
 }
 
 /*******************************************************************************/
@@ -275,19 +371,131 @@ static void UsbReceiveData(void)
  * @brief 发送机器人信息数据
  * @param duration 发送周期
  */
-static void UsbSendRobotStateInfoData(void)
+// static void UsbSendRobotStateInfoData(void)
+// {
+//     SEND_DATA_ROBOT_STATE_INFO.data.roll = IMU->roll;
+//     SEND_DATA_ROBOT_STATE_INFO.data.pitch = IMU->pitch;
+//     SEND_DATA_ROBOT_STATE_INFO.data.yaw = IMU->yaw;
+
+//     SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work = 0;
+//     SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage = 0;
+//     SEND_DATA_ROBOT_STATE_INFO.data.encoder_up = 0;
+//     SEND_DATA_ROBOT_STATE_INFO.data.encoder_down = 0;
+
+//     append_CRC16_check_sum((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
+//     USB_Transmit((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
+// }
+
+/**
+ * @brief 发送PID调节数据
+ * @param duration 发送周期
+ */
+static void UsbSendPidtoVofaData(void)
 {
-    SEND_DATA_ROBOT_STATE_INFO.data.roll = IMU->roll;
-    SEND_DATA_ROBOT_STATE_INFO.data.pitch = IMU->pitch;
-    SEND_DATA_ROBOT_STATE_INFO.data.yaw = IMU->yaw;
+    SEND_DATA_PID_TUNING.data[0] = PID_TO_VOFA->angle_set;
+    SEND_DATA_PID_TUNING.data[1] = PID_TO_VOFA->angle_fdb;
 
-    SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.encoder_up = 0;
-    SEND_DATA_ROBOT_STATE_INFO.data.encoder_down = 0;
+    SEND_DATA_PID_TUNING.data[2] = PID_TO_VOFA->angle_out;
+    SEND_DATA_PID_TUNING.data[3] = PID_TO_VOFA->angle_Pout;
+    SEND_DATA_PID_TUNING.data[4] = PID_TO_VOFA->angle_Iout;
+    SEND_DATA_PID_TUNING.data[5] = PID_TO_VOFA->angle_Dout;
 
-    append_CRC16_check_sum((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
-    USB_Transmit((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
+    SEND_DATA_PID_TUNING.data[6] = PID_TO_VOFA->speed_set;
+    SEND_DATA_PID_TUNING.data[7] = PID_TO_VOFA->speed_fdb;
+
+    SEND_DATA_PID_TUNING.data[8] = PID_TO_VOFA->speed_out;
+    SEND_DATA_PID_TUNING.data[9] = PID_TO_VOFA->speed_Pout;
+    SEND_DATA_PID_TUNING.data[10] = PID_TO_VOFA->speed_Iout;
+    SEND_DATA_PID_TUNING.data[11] = PID_TO_VOFA->speed_Dout;
+
+    USB_Transmit((uint8_t *)&SEND_DATA_PID_TUNING, sizeof(SendDataPidTuning_s));
 }
+
+
+/*******************************************************************************/
+/* Receive Function                                                            */
+/*******************************************************************************/
+
+/**
+ * @brief      处理VOFA数据
+ * @param[in]  vofa_data: VOFA数据结构体指针
+ * @retval     None
+ */
+static void ProcessVofaData(ReceiveDataVofa_s *vofa_data)
+{
+    switch (vofa_data->data_id)
+    {
+    case PID_VOFA_ANGLE_KP:
+        RECEIVE_PID_GET_VOFA.angle_kp = vofa_data->value;
+        break;
+    case PID_VOFA_ANGLE_KI:
+        RECEIVE_PID_GET_VOFA.angle_ki = vofa_data->value;
+        break;
+    case PID_VOFA_ANGLE_KD:
+        RECEIVE_PID_GET_VOFA.angle_kd = vofa_data->value;
+        break;
+    case PID_VOFA_ANGLE_MAX_OUT:
+        RECEIVE_PID_GET_VOFA.angle_max_out = vofa_data->value;
+        break;
+    case PID_VOFA_ANGLE_MAX_IOUT:
+        RECEIVE_PID_GET_VOFA.angle_max_iout = vofa_data->value;
+        break;
+    case PID_VOFA_SPEED_KP:
+        RECEIVE_PID_GET_VOFA.speed_kp = vofa_data->value;
+        break;
+    case PID_VOFA_SPEED_KI:
+        RECEIVE_PID_GET_VOFA.speed_ki = vofa_data->value;
+        break;
+    case PID_VOFA_SPEED_KD:
+        RECEIVE_PID_GET_VOFA.speed_kd = vofa_data->value;
+        break;
+    case PID_VOFA_SPEED_MAX_OUT:
+        RECEIVE_PID_GET_VOFA.speed_max_out = vofa_data->value;
+        break;
+    case PID_VOFA_SPEED_MAX_IOUT:
+        RECEIVE_PID_GET_VOFA.speed_max_iout = vofa_data->value;
+        break;
+    default:
+        // 未知数据ID，忽略
+        break;
+    }
+}
+
+/**
+ * @brief      查找并解析VOFA数据帧
+ * @param[in]  buffer: 数据缓冲区
+ * @param[in]  buffer_size: 缓冲区大小
+ * @retval     处理的字节数
+ */
+// static uint16_t ParseVofaFrame(uint8_t *buffer, uint16_t buffer_size)
+// {
+//     uint8_t *search_ptr = buffer;
+//     uint16_t processed_bytes = 0;
+    
+//     while (search_ptr <= buffer + buffer_size - VOFA_DATA_FRAME_SIZE)
+//     {
+//         // 查找VOFA帧头 FA FA
+//         if (search_ptr[0] == VOFA_FRAME_HEADER_1 && search_ptr[1] == VOFA_FRAME_HEADER_2)
+//         {
+//             // 找到VOFA帧头，复制完整帧数据
+//             memcpy(&RECEIVE_VOFA_DATA, search_ptr, sizeof(ReceiveDataVofa_s));
+            
+//             // 处理VOFA数据
+//             ProcessVofaData(&RECEIVE_VOFA_DATA);
+            
+//             // 移动指针到下一个可能的帧位置
+//             search_ptr += VOFA_DATA_FRAME_SIZE;
+//             processed_bytes += VOFA_DATA_FRAME_SIZE;
+//         }
+//         else
+//         {
+//             search_ptr++;
+//             processed_bytes++;
+//         }
+//     }
+    
+//     return processed_bytes;
+// }
+
 
 /*------------------------------ End of File ------------------------------*/

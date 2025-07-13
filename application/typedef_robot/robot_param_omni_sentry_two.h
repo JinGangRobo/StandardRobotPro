@@ -209,7 +209,7 @@
 #define FRIC_MOTOR_U_ID 3
 
 // 电机can口
-#define TRIGGER_MOTOR_CAN 1
+#define TRIGGER_MOTOR_CAN 2
 #define FRIC_MOTOR_R_CAN 1
 #define FRIC_MOTOR_L_CAN 1
 #define FRIC_MOTOR_U_CAN 1

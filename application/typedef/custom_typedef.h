@@ -10,6 +10,8 @@
 #define ROBOT_CMD_DATA_NAME "ROBOT_CMD_DATA"
 #define USB_OFFLINE_NAME "usb_offline"
 #define CALI_BUZZER_STATE_NAME "CaliBuzzerState"
+#define PID_TO_VOFA_NAME "PID_TO_VOFA"
+#define PID_GET_VOFA_NAME "PID_GET_VOFA"
 
 typedef enum
 {
@@ -61,5 +63,42 @@ typedef struct
     } shoot;
 
 } RobotCmdData_t;
+
+// 需要调节的pid输出
+typedef struct
+{
+    float angle_set;
+    float angle_fdb;
+
+    float angle_out;
+    float angle_Pout;
+    float angle_Iout;
+    float angle_Dout;
+
+    float speed_set;
+    float speed_fdb;
+
+    float speed_out;
+    float speed_Pout;
+    float speed_Iout;
+    float speed_Dout;
+} PidToVofa_t;
+
+// pid参数设定值
+typedef struct
+{
+    float angle_kp;                   // 比例增益
+    float angle_ki;                   // 积分增益  
+    float angle_kd;                   // 微分增益
+    float angle_max_out;              // 最大输出限制
+    float angle_max_iout;             // 最大积分输出限制
+    
+    float speed_kp;                   // 比例增益
+    float speed_ki;                   // 积分增益
+    float speed_kd;                   // 微分增益
+    float speed_max_out;              // 最大输出限制
+    float speed_max_iout;             // 最大积分输出限制
+    
+} PidGetVofa_t;
 
 #endif  // __CUSTOM_TYPEDEF_H
