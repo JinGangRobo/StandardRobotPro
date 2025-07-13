@@ -9,33 +9,11 @@
 
 // usb通讯版本号
 #define PACKET_VERSION                  ((uint8_t)0x31)
-// debug 专用版本号
-#define PACKET_DEBUG_VERSION            ((uint8_t)0x21)
 
 #define DEBUG_DATA_SEND_ID              ((uint8_t)0x01)
-#define IMU_DATA_SEND_ID                ((uint8_t)0x02)
-#define PID_DEBUG_DATA_SEND_ID          ((uint8_t)0x03)
 #define ROBOT_STATE_DATA_INFO_SEND_ID   ((uint8_t)0x3B)
 
-#define PID_DEBUG_DATA_RECEIVE_ID       ((uint8_t)0x01)
-#define VIRTUAL_RC_DATA_RECEIVE_ID      ((uint8_t)0x02)
 #define ROBOT_CMD_DATA_RECEIVE_ID       ((uint8_t)0x3A)
-
-/*-------------------- 下面定义 vofa 的命令接收参数 ID --------------------*/
-// 电机pid参数
-#define VOFA_ABS_KP_ID                              ((uint8_t)0x11)
-#define VOFA_ABS_KI_ID                              ((uint8_t)0x12)
-#define VOFA_ABS_KD_ID                              ((uint8_t)0x13)
-#define VOFA_SPE_KP_ID                              ((uint8_t)0x14)
-#define VOFA_SPE_KI_ID                              ((uint8_t)0x15)
-#define VOFA_SPE_KD_ID                              ((uint8_t)0x16)
-//调试电机id
-#define VOFA_GIMBAL_PITCH_MOTOR_ID                  ((uint8_t)0x17)
-#define VOFA_GIMBAL_YAW_MOTOR_ID                    ((uint8_t)0x18)
-#define VOFA_SHOOT_TRIGGER_MOTOR_ID                 ((uint8_t)0x19)
-#define VOFA_SHOOT_L_MOTOR_ID                       ((uint8_t)0x1A)
-#define VOFA_SHOOT_R_MOTOR_ID                       ((uint8_t)0x1B)
-
 
 typedef struct
 {
@@ -44,48 +22,15 @@ typedef struct
     uint8_t id;   // 数据段id
     uint8_t crc;  // 数据帧头的 CRC8 校验
 } __packed__ FrameHeader_t;
+
 /*-------------------- Send --------------------*/
 
-// 串口调试数据包
+// PID调节数据发送结构体(vofa justfloat协议)
 typedef struct
 {
-    float data[DEBUG_PACKAGE_NUM];          // 小端浮点数组
-    unsigned char tail[4];          // 帧尾固定值
-} __packed__ SendDataDebug_s;
-
-// IMU 数据包
-typedef struct
-{
-    FrameHeader_t frame_header; // 数据段id = 0x02
-    struct
-    {
-        float yaw;   // rad
-        float pitch; // rad
-        float roll;  // rad
-
-        float yaw_vel;   // rad/s
-        float pitch_vel; // rad/s
-        float roll_vel;  // rad/s
-
-        float x_accel; // m/s^2
-        float y_accel; // m/s^2
-        float z_accel; // m/s^2
-    } __packed__ data;
-    uint16_t crc;
-} __packed__ SendDataImu_s;
-
-// PID调参数据包
-typedef struct
-{
-    FrameHeader_t frame_header; // 数据段id = 0x05
-    struct
-    {
-        float fdb;
-        float ref;
-        float pid_out;
-    } __packed__ data;
-    uint16_t crc;
-} __packed__ SendDataPidDebug_s;
+    float data[DEBUG_PACKAGE_NUM];  // 浮点数据数组
+    unsigned char tail[4];          // 帧尾固定值{0x00, 0x00, 0x80, 0x7f}
+} __packed__ SendDataPidTuning_s;
 
 // 机器人信息数据包
 typedef struct
@@ -122,25 +67,26 @@ typedef struct RobotCmdData
     uint16_t checksum;
 } __packed__ ReceiveDataRobotCmd_s;
 
-// PID调参数据包
+// PID参数设置接收结构体
 typedef struct
 {
-    uint8_t motor_id;
-
-    uint8_t abs_kp;
-    uint8_t abs_ki;
-    uint8_t abs_kd;
-
-    uint8_t spe_kp;
-    uint8_t spe_ki;
-    uint8_t spe_kd;
-} __packed__ ReceiveDataPidDebug_s;
-
-// 虚拟遥控器数据包
-typedef struct
-{
-    FrameHeader_t frame_header; // 数据段id = 0x03
-    RC_ctrl_t data;
+    FrameHeader_t frame_header;     // 数据段id = 0x05
+    struct
+    {
+        uint8_t pid_type;           // PID类型(PidTuningType_e)
+        uint8_t motor_id;           // 电机ID(当pid_type为电机类型时使用)
+        uint8_t loop_type;          // 环路类型(PidLoopType_e，双环时使用)
+        
+        float kp;                   // 比例增益
+        float ki;                   // 积分增益  
+        float kd;                   // 微分增益
+        float max_out;              // 最大输出限制
+        float max_iout;             // 最大积分输出限制
+        
+        float target;               // 目标值设定
+        uint8_t enable;             // PID使能标志
+    } __packed__ data;
     uint16_t crc;
-} __packed__ ReceiveDataVirtualRc_s;
+} __packed__ ReceiveDataPidParam_s;
+
 #endif // USB_TYPEDEF_H

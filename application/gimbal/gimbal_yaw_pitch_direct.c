@@ -370,6 +370,7 @@ void GimbalConsole(void)
                     gimbal_direct.feedback_vel.pitch,  // 当前IMU角速度
                     gimbal_direct.pitch.set.vel);      // 目标角速度
 
+        // YAW轴双环控制
         fp32 delta_yaw = loop_fp32_constrain(
             gimbal_direct.reference.yaw - gimbal_direct.feedback_pos.yaw, 
             -M_PI, M_PI);   // 处理±180°跨越
