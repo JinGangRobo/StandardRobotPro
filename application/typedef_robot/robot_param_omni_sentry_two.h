@@ -188,9 +188,13 @@
 /*-------------------- Shoot --------------------*/
 // physical parameters ---------------------
 #define FRIC_RADIUS 0.03f // (m)摩擦轮半径
+#define ECD_RANGE 8192      // 电机反馈码盘值范围
 #define BULLET_NUM 8      // 定义拨弹盘容纳弹丸个数
+#define TRIGGER_REDUCTION_RATIO 58/42   // 定义电机到拨弹盘的齿轮减速比
+#define dianji_Transmission_ratio  36.0f //电机的传动比
+#define all_Transmission_ratio dianji_Transmission_ratio*TRIGGER_REDUCTION_RATIO //电机到拨弹盘的总传动比
+#define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
 #define GUN_NUM 1         // 定义枪管个数
-#define TRIGGER_REDUCTION_RATIO 1.0f  // 定义电机到拨弹盘的齿轮减速比
 
 /*MOTOR paramters --------------------*/
 
@@ -223,7 +227,6 @@
 /*ECD parameters------------*/
 // 电机反馈码盘值范围
 #define HALF_ECD_RANGE 4096
-#define ECD_RANGE 8191
 
 // 电机rpm 变化成 旋转速度的比例
 #define MOTOR_RPM_TO_SPEED 0.00290888208665721596153948461415f
