@@ -21,6 +21,7 @@
 
 #include "shoot_fric_trigger.h"
 #include "data_exchange.h"
+#include "communication.h"
 
 #if (SHOOT_TYPE == SHOOT_FRIC_TRIGGER)
 
@@ -44,7 +45,7 @@ int COUNT;                    // 拨弹盘转半圈所需的电机圈数的整�
 int COUNT_error;              // 误差
 
 // ---------测试---------
-#if(aaa1==1)
+#if (aaa1 == 1)
 static const PidGetVofa_t *PID_GET_VOFA_DATA; // PID调节数据指针
 static PidToVofa_t PID_TO_VOFA_DATA = {0};
 #endif
@@ -57,11 +58,11 @@ static PidToVofa_t PID_TO_VOFA_DATA = {0};
  * @param[in]      none
  * @retval         none
  */
-#if(aaa1==1)
+#if (aaa1 == 1)
 void ShootPublish(void)
 {
-    // 发布PID调试数据到VOFA
-    Publish(&PID_TO_VOFA_DATA, PID_TO_VOFA_NAME);
+  // 发布PID调试数据到VOFA
+  Publish(&PID_TO_VOFA_DATA, PID_TO_VOFA_NAME);
 }
 #endif
 /*-------------------- Init --------------------*/
@@ -73,7 +74,7 @@ void ShootPublish(void)
  */
 void ShootInit(void)
 {
-#if(aaa1==1)
+#if (aaa1 == 1)
   PID_GET_VOFA_DATA = Subscribe(PID_GET_VOFA_NAME);
 #endif
   // 获取遥控器指针
@@ -346,7 +347,7 @@ void ShootSetMode(void)
  */
 void ShootObserver(void)
 {
-#if(aaa1==1)
+#if (aaa1 == 1)
   //---------测试代码---------
   PID_TO_VOFA_DATA.angle_set = SHOOT.trigger_angel_pid.set;
   PID_TO_VOFA_DATA.angle_fdb = SHOOT.trigger_angel_pid.fdb;
@@ -657,7 +658,6 @@ void ShootConsole(void)
 
   //-------------------------
 
-
   SHOOT.fric_motor[0].set.curr = PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R, SHOOT.REF.fric_speed_ref_R);
   SHOOT.fric_motor[1].set.curr = PID_calc(&SHOOT.fric_pid[1], SHOOT.FDB.fric_speed_fdb_L, SHOOT.REF.fric_speed_ref_L);
   SHOOT.fric_motor[2].set.curr = PID_calc(&SHOOT.fric_pid[2], SHOOT.FDB.fric_speed_fdb_U, SHOOT.REF.fric_speed_ref_U);
@@ -738,111 +738,18 @@ void ShootConsole(void)
  */
 void ShootSendCmd(void)
 {
-  // 为两条CAN总线和两种标准ID创建发送数组
-  int16_t can1_0x200[4] = {0, 0, 0, 0}; // CAN1 ID 1-4
-  int16_t can1_0x1FF[4] = {0, 0, 0, 0}; // CAN1 ID 5-8
-  int16_t can2_0x200[4] = {0, 0, 0, 0}; // CAN2 ID 1-4
-  int16_t can2_0x1FF[4] = {0, 0, 0, 0}; // CAN2 ID 5-8
-
-  bool need_send_can1_0x200 = false;
-  bool need_send_can1_0x1FF = false;
-  bool need_send_can2_0x200 = false;
-  bool need_send_can2_0x1FF = false;
-
-  // 处理三个摩擦轮电机
-  for (int i = 0; i < 3; ++i)
+  //发射机构通信
+  CanManagerAddMotor(SHOOT.fric_motor[0].id, SHOOT.fric_motor[0].can, SHOOT.fric_motor[0].set.curr);
+  CanManagerAddMotor(SHOOT.fric_motor[1].id, SHOOT.fric_motor[1].can, SHOOT.fric_motor[1].set.curr);
+  CanManagerAddMotor(SHOOT.fric_motor[2].id, SHOOT.fric_motor[2].can, SHOOT.fric_motor[2].set.curr);
+  
+  //处理大疆电机
+  if (TRIGGER_MOTOR_TYPE == DJI_M3508 || TRIGGER_MOTOR_TYPE == DJI_M2006)
   {
-    uint8_t motor_id = SHOOT.fric_motor[i].id;
-    uint8_t can_bus = SHOOT.fric_motor[i].can;
-    int16_t current = SHOOT.fric_motor[i].set.curr;
-
-    // 根据CAN总线和ID范围分配
-    if (can_bus == 1)
-    {
-      if (motor_id >= 1 && motor_id <= 4)
-      {
-        can1_0x200[motor_id - 1] = current;
-        need_send_can1_0x200 = true;
-      }
-      else if (motor_id >= 5 && motor_id <= 8)
-      {
-        can1_0x1FF[motor_id - 5] = current;
-        need_send_can1_0x1FF = true;
-      }
-    }
-    else if (can_bus == 2)
-    {
-      if (motor_id >= 1 && motor_id <= 4)
-      {
-        can2_0x200[motor_id - 1] = current;
-        need_send_can2_0x200 = true;
-      }
-      else if (motor_id >= 5 && motor_id <= 8)
-      {
-        can2_0x1FF[motor_id - 5] = current;
-        need_send_can2_0x1FF = true;
-      }
-    }
+    CanManagerAddMotor(SHOOT.trigger_motor.id, SHOOT.trigger_motor.can, SHOOT.trigger_motor.set.curr);
   }
-
-  // 处理拨弹轮电机（仅DJI电机需要CAN发送）
-  if (TRIGGER_MOTOR_TYPE == DJI_M2006 || TRIGGER_MOTOR_TYPE == DJI_M3508)
-  {
-    uint8_t trigger_id = SHOOT.trigger_motor.id;
-    uint8_t trigger_can = SHOOT.trigger_motor.can;
-    int16_t trigger_current = SHOOT.trigger_motor.set.curr;
-
-    if (trigger_can == 1)
-    {
-      if (trigger_id >= 1 && trigger_id <= 4)
-      {
-        can1_0x200[trigger_id - 1] = trigger_current;
-        need_send_can1_0x200 = true;
-      }
-      else if (trigger_id >= 5 && trigger_id <= 8)
-      {
-        can1_0x1FF[trigger_id - 5] = trigger_current;
-        need_send_can1_0x1FF = true;
-      }
-    }
-    else if (trigger_can == 2)
-    {
-      if (trigger_id >= 1 && trigger_id <= 4)
-      {
-        can2_0x200[trigger_id - 1] = trigger_current;
-        need_send_can2_0x200 = true;
-      }
-      else if (trigger_id >= 5 && trigger_id <= 8)
-      {
-        can2_0x1FF[trigger_id - 5] = trigger_current;
-        need_send_can2_0x1FF = true;
-      }
-    }
-  }
-
-  // 发送所有需要的CAN命令
-  if (need_send_can1_0x200)
-  {
-    CanCmdDjiMotor(1, 0x200, can1_0x200[0], can1_0x200[1], can1_0x200[2], can1_0x200[3]);
-  }
-
-  if (need_send_can1_0x1FF)
-  {
-    CanCmdDjiMotor(1, 0x1FF, can1_0x1FF[0], can1_0x1FF[1], can1_0x1FF[2], can1_0x1FF[3]);
-  }
-
-  if (need_send_can2_0x200)
-  {
-    CanCmdDjiMotor(2, 0x200, can2_0x200[0], can2_0x200[1], can2_0x200[2], can2_0x200[3]);
-  }
-
-  if (need_send_can2_0x1FF)
-  {
-    CanCmdDjiMotor(2, 0x1FF, can2_0x1FF[0], can2_0x1FF[1], can2_0x1FF[2], can2_0x1FF[3]);
-  }
-
   // 处理达妙电机（独立发送）
-  if (TRIGGER_MOTOR_TYPE == DM_4310)
+  else if (TRIGGER_MOTOR_TYPE == DM_4310)
   {
     if (SHOOT.trigger_motor.fdb.state == DM_STATE_DISABLE)
     {

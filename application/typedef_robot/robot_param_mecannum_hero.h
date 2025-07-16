@@ -43,6 +43,10 @@
 #define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
 #define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
 
+/*------------------- BOARD -------------------*/
+#define BOARD_CAN (1)
+#define BOARD_DATA_ID (0)
+
 /*-------------------- IMU --------------------*/
 // IMU安装角度参数 (单位：度)
 #define IMU_ROLL_ANGLE (0.0f)    // 绕X轴旋转角度
@@ -157,8 +161,12 @@
 #define GIMBAL_DIRECT_PITCH_MODE (0)
 
 // physical parameters ---------------------
-#define GIMBAL_UPPER_LIMIT_PITCH (0.2f)
-#define GIMBAL_LOWER_LIMIT_PITCH (-0.3f)
+#define GIMBAL_YAW_LIMIT (0) // 云台yaw轴是否有限位 1 - 有限位，0 - 无限位
+
+#define GIMBAL_UPPER_LIMIT_PITCH (0.2f) // 云台上限pitch电机的角度
+#define GIMBAL_LOWER_LIMIT_PITCH (-0.3f) // 云台下限pitch电机的角度
+#define GIMBAL_LOWER_LIMIT_YAW (-M_PI) // 云台下限yaw电机的角度
+#define GIMBAL_UPPER_LIMIT_YAW (M_PI) // 云台上限yaw电机的角度
 
 // 电机角度中值设置
 #define GIMBAL_DIRECT_PITCH_MID (-0.6741f) // 云台初始化正对齐的时候使用的pitch轴正中心量
