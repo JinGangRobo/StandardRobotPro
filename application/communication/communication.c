@@ -32,6 +32,12 @@
 
 // send data
 BoardCommunicateData_s BOARD_TX_DATA;
+// 全局CAN发送缓冲区
+static CanSendBuffer_t can_buffers[2][2] = {0}; // [CAN总线][标准ID类型]
+// can_buffers[0][0] = CAN1 0x200 (ID 1-4)
+// can_buffers[0][1] = CAN1 0x1FF (ID 5-8) 
+// can_buffers[1][0] = CAN2 0x200 (ID 1-4)
+// can_buffers[1][1] = CAN2 0x1FF (ID 5-8)
 
 // receive data
 uint8_t BOARD_RX_DATA[DATA_NUM][DATA_LEN + 1];  //第一位存放数据长度信息
@@ -92,7 +98,88 @@ void SendRC(){
     data_8[7] = 1;
 
     // 通过CAN总线发送遥控器的四个通道数据到指定板子
-    CanSendDataToBoard(2, 0, BOARD_OTHER, data_8);
+    CanSendDataToBoard(BOARD_CAN, BOARD_DATA_ID, BOARD_OTHER, data_8);
+}
+
+/**
+ * @brief          清空CAN发送缓冲区
+ * @param[in]      none
+ * @retval         none
+ */
+void CanManagerClearBuffer(void)
+{
+    for (int can = 0; can < 2; can++) {
+        for (int std_id = 0; std_id < 2; std_id++) {
+            can_buffers[can][std_id].need_send = false;
+            for (int i = 0; i < 4; i++) {
+                can_buffers[can][std_id].data[i] = 0;
+            }
+        }
+    }
+}
+
+/**
+ * @brief          添加电机控制量到发送缓冲区
+ * @param[in]      motor_id: 电机ID (1-8)
+ * @param[in]      can_bus: CAN总线 (1或2)  
+ * @param[in]      current: 控制电流
+ * @retval         bool: 成功返回true，失败返回false
+ */
+bool_t CanManagerAddMotor(uint8_t motor_id, uint8_t can_bus, int16_t current)
+{
+    // 参数检查
+    if (motor_id < 1 || motor_id > 8 || can_bus < 1 || can_bus > 2) {
+        return false;
+    }
+    
+    uint8_t can_index = can_bus - 1;  // 转换为数组索引
+    uint8_t std_id_index, data_index;
+    
+    // 确定标准ID和数据索引
+    if (motor_id >= 1 && motor_id <= 4) {
+        std_id_index = 0;  // 0x200
+        data_index = motor_id - 1;
+    } else {
+        std_id_index = 1;  // 0x1FF
+        data_index = motor_id - 5;
+    }
+    
+    // 检查冲突
+    if (can_buffers[can_index][std_id_index].data[data_index] != 0) {
+        // 发现冲突，可以选择覆盖或报错
+        // 这里选择覆盖，但可以添加日志记录
+    }
+    
+    // 添加到缓冲区
+    can_buffers[can_index][std_id_index].data[data_index] = current;
+    can_buffers[can_index][std_id_index].need_send = true;
+    
+    return true;
+}
+
+/**
+ * @brief          发送所有缓冲区的CAN命令
+ * @param[in]      none
+ * @retval         none
+ */
+void CanManagerSendAll(void)
+{
+    const uint16_t std_ids[2] = {0x200, 0x1FF};
+    
+    for (int can = 0; can < 2; can++) {
+        for (int std_id = 0; std_id < 2; std_id++) {
+            if (can_buffers[can][std_id].need_send) {
+                CanCmdDjiMotor(can + 1, std_ids[std_id],
+                              can_buffers[can][std_id].data[0],
+                              can_buffers[can][std_id].data[1], 
+                              can_buffers[can][std_id].data[2],
+                              can_buffers[can][std_id].data[3]);
+            }
+        }
+    }
+    
+    // 发送完成后清空缓冲区
+    CanManagerClearBuffer();
 }
 
 // 4pin Uart口中断处理函数

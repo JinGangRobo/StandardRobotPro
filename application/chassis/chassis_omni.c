@@ -24,6 +24,7 @@
 #include "detect_task.h"
 #include "gimbal.h"
 #include "usb_debug.h"
+#include "communication.h"
 
 #include <math.h>
 #include <string.h>
@@ -179,19 +180,11 @@ void ChassisConsole(void)
  */
 void ChassisSendCmd(void)
 {
-    float cmd_array[4] = {0, 0, 0, 0};
-    
-    // 根据每个轮子的实际ID设置对应位置的控制量
+    // 添加底盘电机到CAN管理器
     for (int i = 0; i < 4; ++i)
     {
-        uint8_t motor_id = chassis.wheel[i].id;
-        if (motor_id >= 1 && motor_id <= 4)
-        {
-            cmd_array[motor_id - 1] = chassis.wheel[i].set.curr;
-        }
+        CanManagerAddMotor(chassis.wheel[i].id, chassis.wheel[i].can, chassis.wheel[i].set.curr);
     }
-    
-    CanCmdDjiMotor(CHASSIS_CAN, CHASSIS_STDID, cmd_array[0], cmd_array[1], cmd_array[2], cmd_array[3]);
 }
 
 /*------------------------------ Calibrate Function ------------------------------*/

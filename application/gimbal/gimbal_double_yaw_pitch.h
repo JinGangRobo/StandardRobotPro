@@ -18,9 +18,9 @@
 */
 
 #include "robot_param.h"
-#if (GIMBAL_TYPE == GIMBAL_YAW_PITCH_DIRECT)
-#ifndef GIMBAL_YAW_PITCH_H
-#define GIMBAL_YAW_PITCH_H
+#if (GIMBAL_TYPE == GIMBAL_DOUBLE_YAW_PITCH)
+#ifndef GIMBAL_DOUBLE_YAW_PITCH_H
+#define GIMBAL_DOUBLE_YAW_PITCH_H
 #include "IMU.h"//陀螺仪文件
 #include "gimbal.h"
 #include "motor.h"
@@ -58,13 +58,17 @@ typedef enum {
 typedef struct
 {
     float pitch;
-    float yaw;
+    float yaw_ba;
+    float yaw_up;
 } Values_t;
 
 typedef struct
 {
-    pid_type_def yaw_angle;
-    pid_type_def yaw_velocity;  //角速度
+    pid_type_def yaw_ba_angle;
+    pid_type_def yaw_ba_velocity;  //角速度
+
+    pid_type_def yaw_up_angle;
+    pid_type_def yaw_up_velocity;  //角速度
 
     pid_type_def pitch_angle;
     pid_type_def pitch_velocity;
@@ -77,7 +81,7 @@ typedef struct
     BoardMode_e mode,last_mode,mode_before_rc_err;  // 模式
 
     /*-------------------- Motors --------------------*/
-    Motor_s yaw,pitch;
+    Motor_s yaw_ba,yaw_up,pitch;
     /*-------------------- Values --------------------*/
     Values_t reference;    // 期望值
     Values_t feedback_pos,feedback_vel;     // 状态值(目前专供给IMU数据)
@@ -86,8 +90,7 @@ typedef struct
 
     Gimbal_PID_t pid;  // PID控制器
 
-    float pitch_angle_zero_for_imu; //pitch电机处于中值时imu pitch的角度
-    float yaw_angle_zero_for_imu; //yaw电机处于中值时imu yaw的角度
+    float angle_zero_for_imu; //pitch电机处于中值时imu pitch的角度
 
     uint32_t init_start_time,init_timer;
 

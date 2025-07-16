@@ -21,6 +21,9 @@ void communication_task(void const * pvParameters)
         // can发送
         SendRC();
 
+        // 统一发送所有CAN命令
+        CanManagerSendAll();
+
         //uart1发送
         DataPack("Hello World", 13, 0);
         UartSendTxMessage(&huart1, (uint8_t *)(&BOARD_TX_DATA), sizeof(BOARD_TX_DATA), 100);
@@ -42,6 +45,14 @@ __weak void SendInit()
     */
 }
 __weak void SendRC()  
+{
+     /* 
+     NOTE : 在其他文件中定义具体内容
+    */
+}
+
+
+__weak void CanManagerSendAll()
 {
      /* 
      NOTE : 在其他文件中定义具体内容

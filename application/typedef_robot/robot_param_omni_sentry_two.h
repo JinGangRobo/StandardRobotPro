@@ -21,13 +21,13 @@
 
 #elif(BOARD_CURRENT == C_BOARD_UP)
 #define CHASSIS_TYPE CHASSIS_NONE                       // 选择底盘类型
-#define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT             // 选择云台类型
+#define GIMBAL_TYPE GIMBAL_DOUBLE_YAW_PITCH             // 选择云台类型
 #define SHOOT_TYPE SHOOT_FRIC_TRIGGER                   // 选择发射机构类型
 #define BOARD_OTHER C_BOARD_DOWN                        // 选择其他板子类型
 
 #elif(BOARD_CURRENT == C_BOARD_DEFAULT)
 #define CHASSIS_TYPE CHASSIS_OMNI_WHEEL                 // 选择底盘类型
-#define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT             // 选择云台类型
+#define GIMBAL_TYPE GIMBAL_DOUBLE_YAW_PITCH             // 选择云台类型
 #define SHOOT_TYPE SHOOT_FRIC_TRIGGER                   // 选择发射机构类型
 
 #endif
@@ -129,48 +129,70 @@
 #define REMOTE_CONTROLLER_MIN_DEADLINE (-10.0f)
 // motor parameters ---------------------
 // 电机id
-#define GIMBAL_DIRECT_YAW_ID ((uint8_t)1)
-#define GIMBAL_DIRECT_PITCH_ID ((uint8_t)2)
+#define GIMBAL_DIRECT_YAW_BA_ID ((uint8_t)1)
+#define GIMBAL_DIRECT_YAW_UP_ID ((uint8_t)3)
+#define GIMBAL_DIRECT_PITCH_ID  ((uint8_t)2)
 
 // 电机种类
-#define GIMBAL_DIRECT_YAW_MOTOR_TYPE ((MotorType_e)DJI_M6020)
-#define GIMBAL_DIRECT_PITCH_MOTOR_TYPE ((MotorType_e)DJI_M6020)
+#define GIMBAL_DIRECT_YAW_MOTOR_TYPE    ((MotorType_e)DJI_M6020)
+#define GIMBAL_DIRECT_YAW_BA_MOTOR_TYPE ((MotorType_e)DJI_M6020)
+#define GIMBAL_DIRECT_YAW_UP_MOTOR_TYPE ((MotorType_e)DJI_M6020)
+#define GIMBAL_DIRECT_PITCH_MOTOR_TYPE  ((MotorType_e)DJI_M6020)
 
 // 旋转方向
-#define GIMBAL_DIRECT_YAW_DIRECTION (1)
-#define GIMBAL_DIRECT_PITCH_DIRECTION (1)
+#define GIMBAL_DIRECT_YAW_BA_DIRECTION (1)
+#define GIMBAL_DIRECT_YAW_UP_DIRECTION (1)
+#define GIMBAL_DIRECT_PITCH_DIRECTION  (1)
 
 // 减速比
-#define GIMBAL_DIRECT_YAW_REDUCTION_RATIO (1)
-#define GIMBAL_DIRECT_PITCH_REDUCTION_RATIO (1)
+#define GIMBAL_DIRECT_YAW_BA_REDUCTION_RATIO (1)
+#define GIMBAL_DIRECT_YAW_UP_REDUCTION_RATIO (1)
+#define GIMBAL_DIRECT_PITCH_REDUCTION_RATIO  (1)
 
 // 电机运行模式
-#define GIMBAL_DIRECT_YAW_MODE (0)
-#define GIMBAL_DIRECT_PITCH_MODE (0)
+#define GIMBAL_DIRECT_YAW_BA_MODE (0)
+#define GIMBAL_DIRECT_YAW_UP_MODE (0)
+#define GIMBAL_DIRECT_PITCH_MODE  (0)
 
 // physical parameters ---------------------
 #define GIMBAL_UPPER_LIMIT_PITCH (0.2f)
 #define GIMBAL_LOWER_LIMIT_PITCH (-0.3f)
-#define GIMBAL_LOWER_LIMIT_YAW (-M_PI)
-#define GIMBAL_UPPER_LIMIT_YAW (M_PI)
+#define GIMBAL_LOWER_LIMIT_YAW_BA (-M_PI)
+#define GIMBAL_UPPER_LIMIT_YAW_BA (M_PI)
+#define GIMBAL_LOWER_LIMIT_YAW_UP (-M_PI_4)
+#define GIMBAL_UPPER_LIMIT_YAW_UP (M_PI_4)
 
 // 电机角度中值设置
-#define GIMBAL_DIRECT_PITCH_MID (3.0671f) // 云台初始化正对齐的时候使用的pitch轴正中心量
-#define GIMBAL_DIRECT_YAW_MID (1.5393f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
+#define GIMBAL_DIRECT_PITCH_MID  (3.0671f) // 云台初始化正对齐的时候使用的pitch轴正中心量
+#define GIMBAL_DIRECT_YAW_BA_MID (1.5393f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
+#define GIMBAL_DIRECT_YAW_UP_MID (1.5393f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
 
 // PID parameters ---------------------
-// YAW ANGLE
-#define KP_GIMBAL_YAW_ANGLE (20.0f)
-#define KI_GIMBAL_YAW_ANGLE (3.0f)
-#define KD_GIMBAL_YAW_ANGLE (2.5197f)
-#define MAX_OUT_GIMBAL_YAW_ANGLE (27.0f)
-#define MAX_IOUT_GIMBAL_YAW_ANGLE (0.0f)
+// YAW BA ANGLE
+#define KP_GIMBAL_YAW_BA_ANGLE (20.0f)
+#define KI_GIMBAL_YAW_BA_ANGLE (3.0f)
+#define KD_GIMBAL_YAW_BA_ANGLE (2.5197f)
+#define MAX_OUT_GIMBAL_YAW_BA_ANGLE (27.0f)
+#define MAX_IOUT_GIMBAL_YAW_BA_ANGLE (0.0f)
 // VELOCITY:角速度
-#define KP_GIMBAL_YAW_VELOCITY (2080.0f)
-#define KI_GIMBAL_YAW_VELOCITY (12.8047f)
-#define KD_GIMBAL_YAW_VELOCITY (1.0557f)
-#define MAX_OUT_GIMBAL_YAW_VELOCITY (15000.0f)
-#define MAX_IOUT_GIMBAL_YAW_VELOCITY (1300.0f)
+#define KP_GIMBAL_YAW_BA_VELOCITY (2080.0f)
+#define KI_GIMBAL_YAW_BA_VELOCITY (12.8047f)
+#define KD_GIMBAL_YAW_BA_VELOCITY (1.0557f)
+#define MAX_OUT_GIMBAL_YAW_BA_VELOCITY (15000.0f)
+#define MAX_IOUT_GIMBAL_YAW_BA_VELOCITY (1300.0f)
+
+// YAW UP ANGLE
+#define KP_GIMBAL_YAW_UP_ANGLE (20.0f)
+#define KI_GIMBAL_YAW_UP_ANGLE (3.0f)
+#define KD_GIMBAL_YAW_UP_ANGLE (2.5197f)
+#define MAX_OUT_GIMBAL_YAW_UP_ANGLE (27.0f)
+#define MAX_IOUT_GIMBAL_YAW_UP_ANGLE (0.0f)
+// VELOCITY:角速度
+#define KP_GIMBAL_YAW_UP_VELOCITY (2080.0f)
+#define KI_GIMBAL_YAW_UP_VELOCITY (12.8047f)
+#define KD_GIMBAL_YAW_UP_VELOCITY (1.0557f)
+#define MAX_OUT_GIMBAL_YAW_UP_VELOCITY (15000.0f)
+#define MAX_IOUT_GIMBAL_YAW_UP_VELOCITY (1300.0f)
 
 // PITCH ANGLE
 #define KP_GIMBAL_PITCH_ANGLE (5.5f)
