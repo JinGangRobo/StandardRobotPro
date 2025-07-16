@@ -28,6 +28,12 @@ typedef struct
     uint16_t crc;
 } __attribute__((packed)) BoardCommunicateData_s;
 
+// CAN发送缓冲区结构
+typedef struct {
+    int16_t data[4];
+    bool_t need_send;
+} CanSendBuffer_t;
+
 extern BoardCommunicateData_s BOARD_TX_DATA;
 
 void SendRC(void);
@@ -37,5 +43,11 @@ extern void SendInit(void);
 extern void DataPack(uint8_t * data, uint8_t data_lenth, uint8_t data_id);
 
 extern void DataUnpack(void);
+
+void CanManagerClearBuffer(void);
+
+bool_t CanManagerAddMotor(uint8_t motor_id, uint8_t can_bus, int16_t current);
+
+void CanManagerSendAll(void);
 
 #endif  // __COMMUNICATION_H

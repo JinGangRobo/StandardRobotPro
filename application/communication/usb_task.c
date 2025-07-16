@@ -106,7 +106,6 @@ static void UsbSendPidtoVofaData(void);
 /*******************************************************************************/
 
 static void ProcessVofaData(ReceiveDataVofa_s *vofa_data);
-// static uint16_t ParseVofaFrame(uint8_t *buffer, uint16_t buffer_size);
 
 /******************************************************************/
 /* Task                                                           */
@@ -460,42 +459,5 @@ static void ProcessVofaData(ReceiveDataVofa_s *vofa_data)
         break;
     }
 }
-
-/**
- * @brief      查找并解析VOFA数据帧
- * @param[in]  buffer: 数据缓冲区
- * @param[in]  buffer_size: 缓冲区大小
- * @retval     处理的字节数
- */
-// static uint16_t ParseVofaFrame(uint8_t *buffer, uint16_t buffer_size)
-// {
-//     uint8_t *search_ptr = buffer;
-//     uint16_t processed_bytes = 0;
-    
-//     while (search_ptr <= buffer + buffer_size - VOFA_DATA_FRAME_SIZE)
-//     {
-//         // 查找VOFA帧头 FA FA
-//         if (search_ptr[0] == VOFA_FRAME_HEADER_1 && search_ptr[1] == VOFA_FRAME_HEADER_2)
-//         {
-//             // 找到VOFA帧头，复制完整帧数据
-//             memcpy(&RECEIVE_VOFA_DATA, search_ptr, sizeof(ReceiveDataVofa_s));
-            
-//             // 处理VOFA数据
-//             ProcessVofaData(&RECEIVE_VOFA_DATA);
-            
-//             // 移动指针到下一个可能的帧位置
-//             search_ptr += VOFA_DATA_FRAME_SIZE;
-//             processed_bytes += VOFA_DATA_FRAME_SIZE;
-//         }
-//         else
-//         {
-//             search_ptr++;
-//             processed_bytes++;
-//         }
-//     }
-    
-//     return processed_bytes;
-// }
-
 
 /*------------------------------ End of File ------------------------------*/

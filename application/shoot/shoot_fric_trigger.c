@@ -44,7 +44,7 @@ int COUNT;                    // 拨弹盘转半圈所需的电机圈数的整�
 int COUNT_error;              // 误差
 
 // ---------测试---------
-static const PidGetVofa_t *PID_GET_VOFA_DATA; // PID调节数据指针
+// static const PidGetVofa_t *PID_GET_VOFA_DATA; // PID调节数据指针
 static PidToVofa_t PID_TO_VOFA_DATA = {0};
 //-----------------------
 
@@ -71,7 +71,7 @@ void ShootPublish(void)
 void ShootInit(void)
 {
 
-  PID_GET_VOFA_DATA = Subscribe(PID_GET_VOFA_NAME);
+  // PID_GET_VOFA_DATA = Subscribe(PID_GET_VOFA_NAME);
 
   // 获取遥控器指针
   SHOOT.rc = get_remote_control_point();

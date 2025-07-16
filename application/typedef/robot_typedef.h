@@ -10,6 +10,7 @@
 // 可用云台硬件类型
 #define GIMBAL_NONE                0  // 无云台
 #define GIMBAL_YAW_PITCH_DIRECT    1  // yaw-pitch电机直连云台
+#define GIMBAL_DOUBLE_YAW_PITCH    2  // 双yaw-pitch电机直连云台
 
 // 可用的发射机构硬件类型
 #define SHOOT_NONE               0  // 无发射机构

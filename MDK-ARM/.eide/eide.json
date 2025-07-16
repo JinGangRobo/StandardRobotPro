@@ -487,6 +487,9 @@
               },
               {
                 "path": "../application/gimbal/gimbal_virtual.c"
+              },
+              {
+                "path": "../application/gimbal/gimbal_double_yaw_pitch.c"
               }
             ],
             "folders": []
@@ -700,6 +703,9 @@
               },
               {
                 "path": "../application/typedef_robot/robot_param_omni_sentry_two.h"
+              },
+              {
+                "path": "../application/typedef_robot/robot_param_fly.h"
               }
             ],
             "folders": []
