@@ -98,7 +98,7 @@ void SendRC(){
     data_8[7] = 1;
 
     // 通过CAN总线发送遥控器的四个通道数据到指定板子
-    CanSendDataToBoard(2, 0, BOARD_OTHER, data_8);
+    CanSendDataToBoard(BOARD_CAN, BOARD_DATA_ID, BOARD_OTHER, data_8);
 }
 
 /**

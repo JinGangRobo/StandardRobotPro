@@ -13,6 +13,10 @@
 #define GIMBAL_TYPE GIMBAL_YAW_PITCH_DIRECT             // 选择云台类型
 #define SHOOT_TYPE SHOOT_FRIC_TRIGGER                   // 选择发射机构类型
 
+/*------------------- BOARD -------------------*/
+#define BOARD_CAN (2)
+#define BOARD_DATA_ID (0)
+
 /*-------------------- IMU --------------------*/
 // IMU安装角度参数 (单位：度) yaw -> pitvh -> roll
 #define IMU_ROLL_ANGLE (0.0f)    // 绕X轴旋转角度
