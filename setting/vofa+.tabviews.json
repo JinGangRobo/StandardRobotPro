@@ -1,0 +1,1351 @@
+{
+  "type": "tabviews",
+  "vnumber": 100,
+  "ctx": [
+    {
+      "tabs": [
+        {
+          "name": "new tab",
+          "widgets": [
+            {
+              "path": "WaveChart",
+              "type": "inside",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 545.3000000000001,
+                      "height": 292.6,
+                      "x": 704.9000000000001,
+                      "y": 53.2
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "status": {
+                            "mouse": { "mouseX": 1519, "mouseY": 137 },
+                            "target": {
+                              "offset": { "x": 461.98, "y": 89 },
+                              "x": 585.2,
+                              "y": 39.900000000000006,
+                              "width": 545.3000000000001,
+                              "height": 292.6
+                            },
+                            "types": [0]
+                          },
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "font_size": 18,
+                  "xy_mode": false
+                },
+                "axis_x_wave": {
+                  "ctx": {
+                    ".": {
+                      "max_value": 49999,
+                      "min_value": 0,
+                      "left_index": 49885.11061021202,
+                      "right_index": 50084.176210212005,
+                      "unit_text": "ms",
+                      "decimal": 0
+                    },
+                    "container": { "ctx": [] }
+                  }
+                },
+                "axis_x_wave2": {
+                  "ctx": {
+                    ".": {
+                      "max_value": 5,
+                      "min_value": -5,
+                      "left_index": 7.24233221818e-312,
+                      "right_index": 7.24233225138e-312,
+                      "unit_text": ""
+                    },
+                    "container": { "ctx": [] }
+                  }
+                },
+                "axis_x_histog": {
+                  "ctx": {
+                    ".": {
+                      "max_value": 5,
+                      "min_value": -5,
+                      "left_index": 0,
+                      "right_index": 10,
+                      "unit_text": "unit",
+                      "decimal": 3
+                    },
+                    "container": { "ctx": [] }
+                  }
+                },
+                "axis_x_freq": {
+                  "ctx": {
+                    ".": {
+                      "max_value": 5,
+                      "min_value": -5,
+                      "left_index": 0,
+                      "right_index": 257,
+                      "unit_text": "hz",
+                      "decimal": 3
+                    },
+                    "container": { "ctx": [] }
+                  }
+                },
+                "axis_y_wave": {
+                  "ctx": {
+                    ".": {
+                      "top_value": 0.017044231295585632,
+                      "bottom_value": -0.07669904083013535,
+                      "bar_index": 5,
+                      "decimal": 3
+                    }
+                  }
+                },
+                "axis_y_bar": {
+                  "ctx": {
+                    ".": {
+                      "top_value": 0.017044231295585632,
+                      "bottom_value": -0.07669904083013535,
+                      "bar_index": 5,
+                      "decimal": 3
+                    }
+                  }
+                },
+                "wave_check": { "checked": true },
+                "bar_check": { "checked": false },
+                "freq_check": { "checked": false },
+                "histog_check": { "checked": false },
+                "simplify_check": { "checked": false },
+                "all_font_on": { "checked": false },
+                "hide_axis_x_check": { "checked": false },
+                "hide_axis_y_check": { "checked": false },
+                "hide_border_check": { "checked": false },
+                "auto_bt_menu": { "locked": true },
+                "rbw": {
+                  "ctx": {
+                    ".": {
+                      "histog_gap_num": 10,
+                      "freq_gap_num": 257,
+                      "lines": [6, 7],
+                      "fake_continuous": true,
+                      "line_width": 2
+                    }
+                  }
+                },
+                "x_ch_menu": { "indecies": [] },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "lineColor2": "#ff5500",
+                      "lineColor2Follow1": true,
+                      "lineColor2Follow2": false,
+                      "lineColor": "black",
+                      "lineColorFollow1": false,
+                      "lineColorFollow2": true
+                    },
+                    "bgProperties": {
+                      "ctx": {
+                        ".": {
+                          "bgType": 0,
+                          "bgOnTop": true,
+                          "bgOpacity": 1,
+                          "bgRatio": 1,
+                          "bgFillMode": 1,
+                          "bgLR": 0,
+                          "bgLRMargin": 0,
+                          "bgTB": 0,
+                          "bgTBMargin": 0,
+                          "bgSource": "",
+                          "bgColor": "#ffffff",
+                          "bgColorOpacity": 0.6,
+                          "bgSourceFollowed": false,
+                          "bgColorFollowed": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "WaveChart",
+              "type": "inside",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 505.40000000000003,
+                      "height": 305.90000000000003,
+                      "x": 39.900000000000006,
+                      "y": 39.900000000000006
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "status": {
+                            "mouse": { "mouseX": 955, "mouseY": 273 },
+                            "target": {
+                              "offset": { "x": 461.98, "y": 89 },
+                              "x": 39.900000000000006,
+                              "y": 39.900000000000006,
+                              "width": 452.20000000000005,
+                              "height": 305.90000000000003
+                            },
+                            "types": [2]
+                          },
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "font_size": 18,
+                  "xy_mode": false
+                },
+                "axis_x_wave": {
+                  "ctx": {
+                    ".": {
+                      "max_value": 49999,
+                      "min_value": 0,
+                      "left_index": 49885.11061021202,
+                      "right_index": 50084.176210212005,
+                      "unit_text": "ms",
+                      "decimal": 0
+                    },
+                    "container": { "ctx": [] }
+                  }
+                },
+                "axis_x_wave2": {
+                  "ctx": {
+                    ".": {
+                      "max_value": 5,
+                      "min_value": -5,
+                      "left_index": 2.403340523024761e-306,
+                      "right_index": 6.229724670523697e-307,
+                      "unit_text": ""
+                    },
+                    "container": { "ctx": [] }
+                  }
+                },
+                "axis_x_histog": {
+                  "ctx": {
+                    ".": {
+                      "max_value": 5,
+                      "min_value": -5,
+                      "left_index": 0,
+                      "right_index": 10,
+                      "unit_text": "unit",
+                      "decimal": 3
+                    },
+                    "container": { "ctx": [] }
+                  }
+                },
+                "axis_x_freq": {
+                  "ctx": {
+                    ".": {
+                      "max_value": 5,
+                      "min_value": -5,
+                      "left_index": 0,
+                      "right_index": 257,
+                      "unit_text": "hz",
+                      "decimal": 3
+                    },
+                    "container": { "ctx": [] }
+                  }
+                },
+                "axis_y_wave": {
+                  "ctx": {
+                    ".": {
+                      "top_value": 0.9314238131046295,
+                      "bottom_value": -1.3740114867687225,
+                      "bar_index": 5,
+                      "decimal": 3
+                    }
+                  }
+                },
+                "axis_y_bar": {
+                  "ctx": {
+                    ".": {
+                      "top_value": 1,
+                      "bottom_value": -1,
+                      "bar_index": 5,
+                      "decimal": 3
+                    }
+                  }
+                },
+                "wave_check": { "checked": true },
+                "bar_check": { "checked": false },
+                "freq_check": { "checked": false },
+                "histog_check": { "checked": false },
+                "simplify_check": { "checked": false },
+                "all_font_on": { "checked": true },
+                "hide_axis_x_check": { "checked": false },
+                "hide_axis_y_check": { "checked": false },
+                "hide_border_check": { "checked": false },
+                "auto_bt_menu": { "locked": true },
+                "rbw": {
+                  "ctx": {
+                    ".": {
+                      "histog_gap_num": 8,
+                      "freq_gap_num": 257,
+                      "lines": [0, 1],
+                      "fake_continuous": true,
+                      "line_width": 2
+                    }
+                  }
+                },
+                "x_ch_menu": { "indecies": [] },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "lineColor2": "#ff5500",
+                      "lineColor2Follow1": true,
+                      "lineColor2Follow2": false,
+                      "lineColor": "black",
+                      "lineColorFollow1": false,
+                      "lineColorFollow2": true
+                    },
+                    "bgProperties": {
+                      "ctx": {
+                        ".": {
+                          "bgType": 0,
+                          "bgOnTop": true,
+                          "bgOpacity": 1,
+                          "bgRatio": 1,
+                          "bgFillMode": 1,
+                          "bgLR": 0,
+                          "bgLRMargin": 0,
+                          "bgTB": 0,
+                          "bgTBMargin": 0,
+                          "bgSource": "",
+                          "bgColor": "#ffffff",
+                          "bgColorOpacity": 0.6,
+                          "bgSourceFollowed": false,
+                          "bgColorFollowed": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 106,
+                      "x": 39.900000000000006,
+                      "y": 359.1
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "status": {
+                            "mouse": { "mouseX": 1447, "mouseY": 658 },
+                            "target": {
+                              "offset": {
+                                "x": 1256.98,
+                                "y": 253.21000000000004
+                              },
+                              "x": 53.2,
+                              "y": 319.20000000000005,
+                              "width": 271,
+                              "height": 106
+                            },
+                            "types": [0]
+                          },
+                          "full_status": {
+                            "mouse": { "mouseX": 0, "mouseY": 0 },
+                            "target": {
+                              "offset": { "x": 681.98, "y": 273 },
+                              "x": 518.7,
+                              "y": 438.90000000000003,
+                              "width": 271,
+                              "height": 106
+                            },
+                            "types": [0]
+                          },
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 100,
+                  "step_size": 0.01
+                },
+                "slider_inside": { "target_value": 1.02 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 1.02,
+                          "hex_value": "5c 8f 82 3f",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 1.02,
+                          "hex_value": "5c 8f 82 3f",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 1.02,
+                          "hex_value": "5c 8f 82 3f",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 0] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1.2,
+                      "color_": "black",
+                      "decimal": 4,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 319.20000000000005,
+                      "y": 359.1
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "status": {
+                            "mouse": { "mouseX": 923, "mouseY": 527 },
+                            "target": {
+                              "offset": { "x": 450.98, "y": 89 },
+                              "x": 319.20000000000005,
+                              "y": 359.1,
+                              "width": 271,
+                              "height": 100
+                            },
+                            "types": [0]
+                          },
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 10,
+                  "step_size": 0.0001
+                },
+                "slider_inside": { "target_value": 0 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 0,
+                          "hex_value": "00 00 00 00",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 0,
+                          "hex_value": "00 00 00 00",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 0,
+                          "hex_value": "00 00 00 00",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 1] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 611.8000000000001,
+                      "y": 359.1
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "status": {
+                            "mouse": { "mouseX": 1248, "mouseY": 533 },
+                            "target": {
+                              "offset": { "x": 450.98, "y": 89 },
+                              "x": 611.8000000000001,
+                              "y": 359.1,
+                              "width": 271,
+                              "height": 100
+                            },
+                            "types": [0]
+                          },
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 10,
+                  "step_size": 0.0001
+                },
+                "slider_inside": { "target_value": 1.0886 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 1.0886,
+                          "hex_value": "3f 57 8b 3f",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 1.0886,
+                          "hex_value": "3f 57 8b 3f",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 1.0886,
+                          "hex_value": "3f 57 8b 3f",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 2] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 904.4000000000001,
+                      "y": 359.1
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 50,
+                  "step_size": 0.1
+                },
+                "slider_inside": { "target_value": 5 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 5,
+                          "hex_value": "00 00 a0 40",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 5,
+                          "hex_value": "00 00 a0 40",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 5,
+                          "hex_value": "00 00 a0 40",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 4] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 39.900000000000006,
+                      "y": 518.7
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "status": {
+                            "mouse": { "mouseX": 1218, "mouseY": 784 },
+                            "target": {
+                              "offset": {
+                                "x": 934.98,
+                                "y": 259.21000000000004
+                              },
+                              "x": 39.900000000000006,
+                              "y": 505.40000000000003,
+                              "width": 271,
+                              "height": 100
+                            },
+                            "types": [0]
+                          },
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 3000,
+                  "step_size": 0.0001
+                },
+                "slider_inside": { "target_value": 213.29 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 213.29,
+                          "hex_value": "3d 4a 55 43",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 213.29,
+                          "hex_value": "3d 4a 55 43",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 213.29,
+                          "hex_value": "3d 4a 55 43",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 5] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 319.20000000000005,
+                      "y": 518.7
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "status": {
+                            "mouse": { "mouseX": 1912, "mouseY": 465 },
+                            "target": {
+                              "offset": { "x": 450.98, "y": 89 },
+                              "x": 1223.6000000000001,
+                              "y": 359.1,
+                              "width": 271,
+                              "height": 100
+                            },
+                            "types": [0]
+                          },
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 25,
+                  "step_size": 0.0001
+                },
+                "slider_inside": { "target_value": 2 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 6] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 611.8000000000001,
+                      "y": 518.7
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "status": {
+                            "mouse": { "mouseX": 1999, "mouseY": 465 },
+                            "target": {
+                              "offset": { "x": 450.98, "y": 89 },
+                              "x": 1502.9,
+                              "y": 359.1,
+                              "width": 271,
+                              "height": 100
+                            },
+                            "types": [0]
+                          },
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 4,
+                  "step_size": 0.0001
+                },
+                "slider_inside": { "target_value": 1.208 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 1.208,
+                          "hex_value": "be 9f 9a 3f",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 1.208,
+                          "hex_value": "be 9f 9a 3f",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 1.208,
+                          "hex_value": "be 9f 9a 3f",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 7] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 904.4000000000001,
+                      "y": 518.7
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 2000,
+                  "step_size": 1
+                },
+                "slider_inside": { "target_value": 2 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 9] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 1170.4,
+                      "y": 518.7
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 20000,
+                  "step_size": 1
+                },
+                "slider_inside": { "target_value": 2 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 8] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "path": "slider",
+              "ctx": {
+                ".": {
+                  "ctx": {
+                    ".": {
+                      "width": 271,
+                      "height": 100,
+                      "x": 1170.4,
+                      "y": 359.1
+                    },
+                    "resize_border": {
+                      "ctx": {
+                        ".": {
+                          "full_screen": false,
+                          "full_height": false,
+                          "full_width": false
+                        }
+                      }
+                    }
+                  },
+                  "from": 0,
+                  "to": 20,
+                  "step_size": 0.1
+                },
+                "slider_inside": { "target_value": 2 },
+                "argument_menu": {
+                  "ctx": {
+                    ".": {
+                      "hex_on": false,
+                      "model_ctx": [
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": true
+                        },
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": false
+                        },
+                        {
+                          "float_value": 2,
+                          "hex_value": "00 00 00 40",
+                          "enabled": true
+                        }
+                      ]
+                    }
+                  }
+                },
+                "cmd_menu": { "ctx": [1, 3] },
+                "ch_menu": { "ctx": -1 },
+                "value_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "decimal": 5,
+                      "color_link_ch": true,
+                      "color_link_theme": false
+                    }
+                  }
+                },
+                "name_menu": {
+                  "ctx": {
+                    "attr": {
+                      "visible": true,
+                      "font_scale": 1,
+                      "color_": "black",
+                      "color_link_ch": false,
+                      "color_link_theme": true,
+                      "name_": "name",
+                      "name_link_ch": false,
+                      "name_link_cmd": true
+                    }
+                  }
+                },
+                "theme": {
+                  "ctx": {
+                    ".": {
+                      "bgColorFollow": true,
+                      "bgColor": "#ffffff",
+                      "opacity": 1,
+                      "hideBorder": false
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "file_url": "C:/Users/A-bcd/Desktop/new tab.tab.json",
+          "bg": {
+            ".": {
+              "bgType": 1,
+              "bgOnTop": false,
+              "bgOpacity": 1,
+              "bgRatio": 1,
+              "bgFillMode": 1,
+              "bgLR": 0,
+              "bgLRMargin": 0,
+              "bgTB": 0,
+              "bgTBMargin": 0,
+              "bgSource": "",
+              "bgColor": "#ffffff",
+              "bgColorOpacity": 1,
+              "bgSourceFollowed": true,
+              "bgColorFollowed": true
+            }
+          }
+        }
+      ],
+      "is_top": true,
+      "x": 338,
+      "y": 269,
+      "width": 2166,
+      "height": 1020,
+      "currentIndex": 0,
+      "lastIndex": 1,
+      "file_url": ""
+    }
+  ]
+}
