@@ -30,7 +30,8 @@
 #include <string.h>
 
 Chassis_s chassis;
-PID_t chassis_pid;
+Chassis_PID_t chassis_pid;
+static const PidGetVofa_t *pid_get_vofa;
 
 /*-------------------- Publish --------------------*/
 
@@ -53,6 +54,7 @@ void ChassisPublish(void)
  */
 void ChassisInit(void)
 {
+    pid_get_vofa = Subscribe(PID_GET_VOFA_NAME);
     // 获取遥控器指针
     chassis.rc = get_remote_control_point();
 
@@ -90,11 +92,37 @@ void ChassisObserver(void)
     {
         GetMotorMeasure(&chassis.wheel[i]);
         chassis.feedback[i] = chassis.wheel[i].fdb.vel;
-       
     }
     chassis.yaw_delta = GetGimbalDeltaYawMid();
 
-    
+    switch (__TUNING_MODE)
+    {
+    case TUNING_CHASSIS_WHEEL:
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            chassis_pid.wheel_velocity[i].Kp = pid_get_vofa->speed_kp;
+            chassis_pid.wheel_velocity[i].Ki = pid_get_vofa->speed_ki;
+            chassis_pid.wheel_velocity[i].Kd = pid_get_vofa->speed_kd;
+            chassis_pid.wheel_velocity[i].max_iout = pid_get_vofa->speed_max_iout;
+            chassis_pid.wheel_velocity[i].max_out = pid_get_vofa->speed_max_out;
+        }
+        break;
+    }
+
+    case TUNING_CHASSIS_FOLLOW:
+    {
+        chassis_pid.follow.Kp = pid_get_vofa->speed_kp;
+        chassis_pid.follow.Ki = pid_get_vofa->speed_ki;
+        chassis_pid.follow.Kd = pid_get_vofa->speed_kd;
+
+        chassis_pid.follow.max_iout = pid_get_vofa->speed_max_iout;
+        chassis_pid.follow.max_out = pid_get_vofa->speed_max_out;
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 /*-------------------- Reference --------------------*/
@@ -204,11 +232,11 @@ void ChassisSendCmd(void)
 /*------------------------------ Calibrate Function ------------------------------*/
 
 /**
-  * @brief          设置底盘校准值，发送ID为0x700的CAN包,设置3508电机进入快速设置ID模式
-  * @param[in]      motor_middle:电机中值 (此处用作ID设置参数，但当前实现为通用快速ID设置)
-  * @retval         返回空
-  * @note           底盘任务内部调用的函数，用于电机ID快速设置
-  */
+ * @brief          设置底盘校准值，发送ID为0x700的CAN包,设置3508电机进入快速设置ID模式
+ * @param[in]      motor_middle:电机中值 (此处用作ID设置参数，但当前实现为通用快速ID设置)
+ * @retval         返回空
+ * @note           底盘任务内部调用的函数，用于电机ID快速设置
+ */
 void ChassisSetCaliData(const fp32 motor_middle[4])
 {
     CanCmdDjiMotor(1, 0x700, 0, 0, 0, 0); // 发送ID为0x700的CAN包，设置3508电机进入快速设置ID模式
@@ -217,11 +245,11 @@ void ChassisSetCaliData(const fp32 motor_middle[4])
 }
 
 /**
-  * @brief          底盘校准计算，发送快速设置ID命令并等待完成
-  * @param[out]     motor_middle:电机中值 (当前实现中用作状态返回)
-  * @retval         返回1 代表ID设置命令发送完毕， 返回0 代表正在设置中
-  * @note           底盘任务内部调用的函数，用于管理ID设置流程
-  */
+ * @brief          底盘校准计算，发送快速设置ID命令并等待完成
+ * @param[out]     motor_middle:电机中值 (当前实现中用作状态返回)
+ * @retval         返回1 代表ID设置命令发送完毕， 返回0 代表正在设置中
+ * @note           底盘任务内部调用的函数，用于管理ID设置流程
+ */
 bool_t ChassisCmdCali(fp32 motor_middle[4])
 {
     CanCmdDjiMotor(1, 0x700, 0, 0, 0, 0); // 发送ID为0x700的CAN包，设置3508电机进入快速设置ID模式

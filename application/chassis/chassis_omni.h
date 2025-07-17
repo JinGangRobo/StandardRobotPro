@@ -45,7 +45,7 @@ typedef enum {
     pid_type_def wheel_velocity[4];//麦轮速度解算PID
 
     pid_type_def follow; //云台跟随PID
-} PID_t;   
+} Chassis_PID_t;   
 
 /**
  * @brief  底盘数据结构体

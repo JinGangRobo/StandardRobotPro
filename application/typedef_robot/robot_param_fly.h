@@ -107,6 +107,9 @@
 #define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
 #define GUN_NUM 1         // 定义枪管个数
 
+// 遥控器相关宏定义
+#define SHOOT_MODE_CHANNEL 1  // 射击发射开关通道数据
+
 /*MOTOR paramters --------------------*/
 
 // 电机种类

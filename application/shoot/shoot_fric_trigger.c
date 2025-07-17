@@ -44,6 +44,8 @@ int all_Transmission_ratio_z; // 电机到拨弹盘的总传动比的整数
 int COUNT;                    // 拨弹盘转半圈所需的电机圈数的整数
 int COUNT_error;              // 误差
 
+static const PidGetVofa_t *pid_get_vofa;
+
 /*-------------------- Publish --------------------*/
 
 /**
@@ -64,6 +66,10 @@ void ShootPublish(void)
  */
 void ShootInit(void)
 {
+
+  // 获取PID参数
+  pid_get_vofa = Subscribe(PID_GET_VOFA_NAME);
+
   // 获取遥控器指针
   SHOOT.rc = get_remote_control_point();
 
@@ -503,6 +509,40 @@ void ShootObserver(void)
 
   // 记录上一个摩擦轮vel,用于过热保护
   SHOOT.last_fric_vel = SHOOT.fric_motor[0].fdb.vel;
+
+  switch (__TUNING_MODE)
+    {
+    case TUNING_SHOOT_FIRC:
+        for(int i = 0; i < 3; i++)
+        {
+            SHOOT.fric_pid[i].Kp = pid_get_vofa->speed_kp;
+            SHOOT.fric_pid[i].Ki = pid_get_vofa->speed_ki;
+            SHOOT.fric_pid[i].Kd = pid_get_vofa->speed_kd;
+
+            SHOOT.fric_pid[i].max_iout = pid_get_vofa->speed_max_iout;
+            SHOOT.fric_pid[i].max_out = pid_get_vofa->speed_max_out;
+        }
+        break;
+    case TUNING_SHOOT_TRIGGER:
+        SHOOT.trigger_angel_pid.Kp = pid_get_vofa->angle_kp;
+        SHOOT.trigger_angel_pid.Ki = pid_get_vofa->angle_ki;
+        SHOOT.trigger_angel_pid.Kd = pid_get_vofa->angle_kd;
+
+        SHOOT.trigger_angel_pid.max_iout = pid_get_vofa->angle_max_iout;
+        SHOOT.trigger_angel_pid.max_out = pid_get_vofa->angle_max_out;
+
+        SHOOT.trigger_speed_pid.Kp = pid_get_vofa->speed_kp;
+        SHOOT.trigger_speed_pid.Ki = pid_get_vofa->speed_ki;
+        SHOOT.trigger_speed_pid.Kd = pid_get_vofa->speed_kd;
+        
+        SHOOT.trigger_speed_pid.max_iout = pid_get_vofa->speed_max_iout;
+        SHOOT.trigger_speed_pid.max_out = pid_get_vofa->speed_max_out;
+        break;
+    
+    default:
+        break;
+    }
+
 }
 
 /*-------------------- Reference --------------------*/

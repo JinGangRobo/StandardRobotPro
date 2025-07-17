@@ -33,6 +33,10 @@
 #define TUNING_GIMBAL_YAW       5
 #define TUNING_GIMBAL_YAW_BA    6
 #define TUNING_GIMBAL_YAW_UP    7
+#define TUNING_SHOOT_FIRC       8
+#define TUNING_SHOOT_TRIGGER    9
+#define TUNING_CHASSIS_WHEEL   10
+#define TUNING_CHASSIS_FOLLOW  11
 
 // 校准数据来源
 #define CALI_FROM_FLASH 1
