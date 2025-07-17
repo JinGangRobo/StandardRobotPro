@@ -33,6 +33,10 @@
 #include "gimbal.h"
 #include "gimbal_double_yaw_pitch.h"
 #include "gimbal_yaw_pitch_direct.h"
+#include "gimbal_virtual.h"
+#include "shoot.h"
+#include "shoot_fric_trigger.h"
+#include "chassis_omni.h"
 
 #if INCLUDE_uxTaskGetStackHighWaterMark
 uint32_t usb_high_water;
@@ -64,7 +68,9 @@ uint32_t usb_high_water;
 static uint8_t USB_RX_BUF[USB_RX_DATA_SIZE];
 
 static const Imu_t *IMU;
-static const Gimbal_PID_t *GIMBAL_PID;
+static __used const Gimbal_PID_t *GIMBAL_PID;
+static __used const Shoot_s *SHOOT;
+static __used const Chassis_PID_t *CHASSIS_PID;
 
 // 判断USB连接状态用到的一些变量
 static bool USB_OFFLINE = true;
@@ -169,6 +175,8 @@ static void UsbInit(void)
     // 订阅数据
     IMU = Subscribe(IMU_NAME);               // 获取IMU数据指针
     GIMBAL_PID = Subscribe(GIMBAL_PID_NAME); // 获取云台PID数据指针
+    SHOOT = Subscribe(SHOOT_NAME);           // 获取射击数据指针
+    CHASSIS_PID = Subscribe(CHASSIS_PID_NAME);
 
     // 数据置零
     memset(&LAST_SEND_TIME, 0, sizeof(LastSendTime_t));
@@ -402,9 +410,8 @@ static void UsbSendRobotStateInfoData(void)
  */
 static void UsbSendPidtoVofaData(void)
 {
-    switch (__TUNING_MODE)
-    {
-    case TUNING_GIMBAL_PITCH:
+
+#if(__TUNING_MODE == TUNING_GIMBAL_PITCH)
         SEND_DATA_PID_TUNING.data[0] = GIMBAL_PID->pitch_angle.set;
         SEND_DATA_PID_TUNING.data[1] = GIMBAL_PID->pitch_angle.fdb;
 
@@ -420,8 +427,7 @@ static void UsbSendPidtoVofaData(void)
         SEND_DATA_PID_TUNING.data[9] = GIMBAL_PID->pitch_velocity.Pout;
         SEND_DATA_PID_TUNING.data[10] = GIMBAL_PID->pitch_velocity.Iout;
         SEND_DATA_PID_TUNING.data[11] = GIMBAL_PID->pitch_velocity.Dout;
-        break;
-    case TUNING_GIMBAL_YAW:
+#elif(__TUNING_MODE == TUNING_GIMBAL_YAW)
         SEND_DATA_PID_TUNING.data[0] = GIMBAL_PID->yaw_angle.set;
         SEND_DATA_PID_TUNING.data[1] = GIMBAL_PID->yaw_angle.fdb;
 
@@ -437,26 +443,68 @@ static void UsbSendPidtoVofaData(void)
         SEND_DATA_PID_TUNING.data[9] = GIMBAL_PID->yaw_velocity.Pout;
         SEND_DATA_PID_TUNING.data[10] = GIMBAL_PID->yaw_velocity.Iout;
         SEND_DATA_PID_TUNING.data[11] = GIMBAL_PID->yaw_velocity.Dout;
-        break;
+#elif(__TUNING_MODE == TUNING_SHOOT_FIRC)
+        SEND_DATA_PID_TUNING.data[0] = 0;
+        SEND_DATA_PID_TUNING.data[1] = 0;
+        SEND_DATA_PID_TUNING.data[2] = 0;
+        SEND_DATA_PID_TUNING.data[3] = 0;
+        SEND_DATA_PID_TUNING.data[4] = 0;
+        SEND_DATA_PID_TUNING.data[5] = 0;
 
-    default:
-        SEND_DATA_PID_TUNING.data[0] = 0.0f;
-        SEND_DATA_PID_TUNING.data[1] = 0.0f;
+        SEND_DATA_PID_TUNING.data[6] = SHOOT->fric_pid[0].set;
+        SEND_DATA_PID_TUNING.data[7] = SHOOT->fric_pid[0].fdb;
 
-        SEND_DATA_PID_TUNING.data[2] = 0.0f;
-        SEND_DATA_PID_TUNING.data[3] = 0.0f;
-        SEND_DATA_PID_TUNING.data[4] = 0.0f;
-        SEND_DATA_PID_TUNING.data[5] = 0.0f;
+        SEND_DATA_PID_TUNING.data[8] = SHOOT->fric_pid[0].out;
+        SEND_DATA_PID_TUNING.data[9] = SHOOT->fric_pid[0].Pout;
+        SEND_DATA_PID_TUNING.data[10] = SHOOT->fric_pid[0].Iout;
+        SEND_DATA_PID_TUNING.data[11] = SHOOT->fric_pid[0].Dout;
+#elif(__TUNING_MODE == TUNING_SHOOT_TRIGGER)
+        SEND_DATA_PID_TUNING.data[0] = SHOOT->trigger_angel_pid.set;
+        SEND_DATA_PID_TUNING.data[1] = SHOOT->trigger_angel_pid.fdb;
 
-        SEND_DATA_PID_TUNING.data[6] = 0.0f;
-        SEND_DATA_PID_TUNING.data[7] = 0.0f;
+        SEND_DATA_PID_TUNING.data[2] = SHOOT->trigger_angel_pid.out;
+        SEND_DATA_PID_TUNING.data[3] = SHOOT->trigger_angel_pid.Pout;
+        SEND_DATA_PID_TUNING.data[4] = SHOOT->trigger_angel_pid.Iout;
+        SEND_DATA_PID_TUNING.data[5] = SHOOT->trigger_angel_pid.Dout;
 
-        SEND_DATA_PID_TUNING.data[8] = 0.0f;
-        SEND_DATA_PID_TUNING.data[9] = 0.0f;
-        SEND_DATA_PID_TUNING.data[10] = 0.0f;
-        SEND_DATA_PID_TUNING.data[11] = 0.0f;
-        break;
-    }
+        SEND_DATA_PID_TUNING.data[6] = SHOOT->trigger_speed_pid.set;
+        SEND_DATA_PID_TUNING.data[7] = SHOOT->trigger_speed_pid.fdb;
+        SEND_DATA_PID_TUNING.data[8] = SHOOT->trigger_speed_pid.out;
+
+        SEND_DATA_PID_TUNING.data[9] = SHOOT->trigger_speed_pid.Pout;
+        SEND_DATA_PID_TUNING.data[10] = SHOOT->trigger_speed_pid.Iout;
+        SEND_DATA_PID_TUNING.data[11] = SHOOT->trigger_speed_pid.Dout;
+#elif(__TUNING_MODE == TUNING_CHASSIS_WHEEL)
+        SEND_DATA_PID_TUNING.data[0] = 0;
+        SEND_DATA_PID_TUNING.data[1] = 0;
+        SEND_DATA_PID_TUNING.data[2] = 0;
+        SEND_DATA_PID_TUNING.data[3] = 0;
+        SEND_DATA_PID_TUNING.data[4] = 0;
+        SEND_DATA_PID_TUNING.data[5] = 0;
+
+        SEND_DATA_PID_TUNING.data[6] = CHASSIS_PID->wheel_velocity[0].set;
+        SEND_DATA_PID_TUNING.data[7] = CHASSIS_PID->wheel_velocity[0].fdb;
+
+        SEND_DATA_PID_TUNING.data[8] = CHASSIS_PID->wheel_velocity[0].out;
+        SEND_DATA_PID_TUNING.data[9] = CHASSIS_PID->wheel_velocity[0].Pout;
+        SEND_DATA_PID_TUNING.data[10] = CHASSIS_PID->wheel_velocity[0].Iout;
+        SEND_DATA_PID_TUNING.data[11] = CHASSIS_PID->wheel_velocity[0].Dout;
+#elif(__TUNING_MODE == TUNING_CHASSIS_FOLLOW)
+        SEND_DATA_PID_TUNING.data[0] = 0;
+        SEND_DATA_PID_TUNING.data[1] = 0;
+        SEND_DATA_PID_TUNING.data[2] = 0;
+        SEND_DATA_PID_TUNING.data[3] = 0;
+        SEND_DATA_PID_TUNING.data[4] = 0;
+        SEND_DATA_PID_TUNING.data[5] = 0;
+
+        SEND_DATA_PID_TUNING.data[6] = CHASSIS_PID->follow.set;
+        SEND_DATA_PID_TUNING.data[7] = CHASSIS_PID->follow.fdb;
+
+        SEND_DATA_PID_TUNING.data[8] = CHASSIS_PID->follow.out;
+        SEND_DATA_PID_TUNING.data[9] = CHASSIS_PID->follow.Pout;
+        SEND_DATA_PID_TUNING.data[10] = CHASSIS_PID->follow.Iout;
+        SEND_DATA_PID_TUNING.data[11] = CHASSIS_PID->follow.Dout;
+#endif
 
     USB_Transmit((uint8_t *)&SEND_DATA_PID_TUNING, sizeof(SendDataPidTuning_s));
 }

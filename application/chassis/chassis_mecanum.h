@@ -59,7 +59,7 @@ typedef struct
 // {
 //     pid_type_def wheel_pid_speed[4];
 //     pid_type_def gimbal_follow_pid_angle[4];
-// } PID_t;
+// } Chassis_PID_t;
 
 /**
  * @brief  底盘数据结构体

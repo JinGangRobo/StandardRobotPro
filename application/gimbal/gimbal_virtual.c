@@ -29,8 +29,8 @@ Motor_s yaw_motor;
 inline float GetGimbalDeltaYawMid(void)
 {
   yaw_motor.type = GIMBAL_DIRECT_YAW_MOTOR_TYPE;
-  yaw_motor.can = 2;
-  yaw_motor.id = 1;
+  yaw_motor.can = GIMBAL_CAN;
+  yaw_motor.id = GIMBAL_DIRECT_YAW_ID;
   GetMotorMeasure(&yaw_motor);
   return loop_fp32_constrain(yaw_motor.fdb.pos, -M_PI, M_PI);
 }

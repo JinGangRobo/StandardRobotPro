@@ -9,8 +9,8 @@
 
 //快速选择对应的板子
 // #define BOARD_CURRENT C_BOARD_DEFAULT
-// #define BOARD_CURRENT C_BOARD_DOWN
-#define BOARD_CURRENT C_BOARD_UP
+#define BOARD_CURRENT C_BOARD_DOWN
+// #define BOARD_CURRENT C_BOARD_UP
 
 // 快速设置双板的配置
 #if(BOARD_CURRENT == C_BOARD_DOWN)
@@ -129,11 +129,13 @@
 #define REMOTE_CONTROLLER_MIN_DEADLINE (-0.05f)
 // motor parameters ---------------------
 // 电机id
+#define GIMBAL_DIRECT_YAW_ID    ((uint8_t)1)
 #define GIMBAL_DIRECT_YAW_BA_ID ((uint8_t)1)
 #define GIMBAL_DIRECT_YAW_UP_ID ((uint8_t)2)
 #define GIMBAL_DIRECT_PITCH_ID  ((uint8_t)3)
 
 // 电机种类
+#define GIMBAL_DIRECT_YAW_MOTOR_TYPE ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_YAW_BA_MOTOR_TYPE ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_YAW_UP_MOTOR_TYPE ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_PITCH_MOTOR_TYPE  ((MotorType_e)DJI_M6020)

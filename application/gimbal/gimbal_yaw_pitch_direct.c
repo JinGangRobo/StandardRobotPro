@@ -56,7 +56,7 @@ void Angle_solution(void)
     motor_feedback = gimbal_direct.yaw.fdb.pos;    // 当前电机位置
     imu_feedback = gimbal_direct.feedback_pos.yaw; // 当前IMU角度
     motor_mid = GIMBAL_DIRECT_YAW_MID;             // 电机中值位置
-    imu_mid = 0.0;                                   // IMU中值(设为0)
+    imu_mid = 0.0;                                 // IMU中值(设为0)
 
     motor_delta = GIMBAL_DIRECT_YAW_DIRECTION * (motor_feedback - motor_mid);
     imu_delta = imu_feedback - imu_mid;
@@ -274,7 +274,7 @@ void GimbalObserver(void)
     gimbal_direct.feedback_vel.yaw = GetImuVelocity(AX_YAW);
 
     // 坐标系映射更新 (关键!)
-    Angle_solution(); 
+    Angle_solution();
 
     // 初始化计时器管理
     if (gimbal_direct.mode == ROBO_INIT)
@@ -312,11 +312,26 @@ void GimbalObserver(void)
         gimbal_direct_pid.pitch_velocity.Kp = pid_get_vofa->speed_kp;
         gimbal_direct_pid.pitch_velocity.Ki = pid_get_vofa->speed_ki;
         gimbal_direct_pid.pitch_velocity.Kd = pid_get_vofa->speed_kd;
-        
+
         gimbal_direct_pid.pitch_velocity.max_iout = pid_get_vofa->speed_max_iout;
         gimbal_direct_pid.pitch_velocity.max_out = pid_get_vofa->speed_max_out;
         break;
-    
+
+    case TUNING_GIMBAL_YAW:
+        gimbal_direct_pid.yaw_angle.Kp = pid_get_vofa->angle_kp;
+        gimbal_direct_pid.yaw_angle.Ki = pid_get_vofa->angle_ki;
+        gimbal_direct_pid.yaw_angle.Kd = pid_get_vofa->angle_kd;
+
+        gimbal_direct_pid.yaw_angle.max_iout = pid_get_vofa->angle_max_iout;
+        gimbal_direct_pid.yaw_angle.max_out = pid_get_vofa->angle_max_out;
+
+        gimbal_direct_pid.yaw_velocity.Kp = pid_get_vofa->speed_kp;
+        gimbal_direct_pid.yaw_velocity.Ki = pid_get_vofa->speed_ki;
+        gimbal_direct_pid.yaw_velocity.Kd = pid_get_vofa->speed_kd;
+
+        gimbal_direct_pid.yaw_velocity.max_iout = pid_get_vofa->speed_max_iout;
+        gimbal_direct_pid.yaw_velocity.max_out = pid_get_vofa->speed_max_out;
+        break;
     default:
         break;
     }

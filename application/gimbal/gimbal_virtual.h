@@ -22,5 +22,10 @@
 #include "gimbal.h"
 #include  "user_lib.h"
 
+typedef struct
+{
+  int temp;
+} Gimbal_PID_t;
+
 #endif
 #endif
