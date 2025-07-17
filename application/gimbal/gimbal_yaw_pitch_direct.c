@@ -364,7 +364,7 @@ void GimbalReference(void)
                     fp32_deadline(GetDt7RcCh(3),
                                   REMOTE_CONTROLLER_MIN_DEADLINE,
                                   REMOTE_CONTROLLER_MAX_DEADLINE) /
-                        REMOTE_CONTROLLER_SENSITIVITY,
+                        REMOTE_CONTROLLER_SENSITIVITY_PITCH,
                 GIMBAL_LOWER_LIMIT_PITCH - GIMBAL_DIRECT_PITCH_MID + gimbal_direct.pitch_angle_zero_for_imu,
                 GIMBAL_UPPER_LIMIT_PITCH - GIMBAL_DIRECT_PITCH_MID + gimbal_direct.pitch_angle_zero_for_imu);
 
@@ -376,7 +376,7 @@ void GimbalReference(void)
                         fp32_deadline(GetDt7RcCh(2),
                                       REMOTE_CONTROLLER_MIN_DEADLINE,
                                       REMOTE_CONTROLLER_MAX_DEADLINE) /
-                            REMOTE_CONTROLLER_SENSITIVITY,
+                            REMOTE_CONTROLLER_SENSITIVITY_YAW,
                     -M_PI, M_PI);
             }
             else
@@ -386,7 +386,7 @@ void GimbalReference(void)
                         fp32_deadline(GetDt7RcCh(2),
                                       REMOTE_CONTROLLER_MIN_DEADLINE,
                                       REMOTE_CONTROLLER_MAX_DEADLINE) /
-                            REMOTE_CONTROLLER_SENSITIVITY,
+                            REMOTE_CONTROLLER_SENSITIVITY_YAW,
                 GIMBAL_LOWER_LIMIT_YAW - GIMBAL_DIRECT_YAW_MID + gimbal_direct.yaw_angle_zero_for_imu,
                 GIMBAL_UPPER_LIMIT_YAW - GIMBAL_DIRECT_YAW_MID + gimbal_direct.yaw_angle_zero_for_imu);
             }
@@ -471,7 +471,7 @@ void GimbalSendCmd(void)
 {
     // 添加电机到CAN管理器
     CanManagerAddMotor(gimbal_direct.pitch.id + 4, GIMBAL_CAN, gimbal_direct.pitch.set.curr);
-    CanManagerAddMotor(gimbal_direct.yaw.id + 4, GIMBAL_CAN, -gimbal_direct.yaw.set.curr);
+    CanManagerAddMotor(gimbal_direct.yaw.id + 4, GIMBAL_CAN, gimbal_direct.yaw.set.curr);
 }
 
 #endif // GIMBAL_YAW_PITCH
