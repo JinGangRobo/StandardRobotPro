@@ -31,6 +31,8 @@
 #include "usbd_conf.h"
 #include "supervisory_computer_cmd.h"
 #include "gimbal.h"
+#include "gimbal_double_yaw_pitch.h"
+#include "gimbal_yaw_pitch_direct.h"
 
 #if INCLUDE_uxTaskGetStackHighWaterMark
 uint32_t usb_high_water;
@@ -42,7 +44,7 @@ uint32_t usb_high_water;
 #define USB_CONNECT_CNT 10
 
 #define SEND_DURATION_RobotStateInfo 10 // ms
-#define SEND_DURATION_PidtoVofa 10 // ms
+#define SEND_DURATION_PidtoVofa 10      // ms
 
 #define USB_RX_DATA_SIZE 256 // byte
 #define USB_RECEIVE_LEN 150  // byte
@@ -61,8 +63,8 @@ uint32_t usb_high_water;
 // Variable Declarations
 static uint8_t USB_RX_BUF[USB_RX_DATA_SIZE];
 
-// static const Imu_t *IMU;
-static const PidToVofa_t *PID_TO_VOFA;
+static const Imu_t *IMU;
+static const Gimbal_PID_t *GIMBAL_PID;
 
 // 判断USB连接状态用到的一些变量
 static bool USB_OFFLINE = true;
@@ -98,7 +100,7 @@ static void UsbInit(void);
 /* Send Function                                                               */
 /*******************************************************************************/
 
-// static void UsbSendRobotStateInfoData(void);
+static void UsbSendRobotStateInfoData(void);
 static void UsbSendPidtoVofaData(void);
 
 /*******************************************************************************/
@@ -122,7 +124,7 @@ void usb_task(void const *argument)
     Publish(&RECEIVE_PID_GET_VOFA, PID_GET_VOFA_NAME);
 
     MX_USB_DEVICE_Init();
-    
+
     vTaskDelay(10); // 等待USB设备初始化完成
     UsbInit();
 
@@ -165,8 +167,8 @@ void usb_task(void const *argument)
 static void UsbInit(void)
 {
     // 订阅数据
-    // IMU = Subscribe(IMU_NAME); // 获取IMU数据指针
-    PID_TO_VOFA = Subscribe(PID_TO_VOFA_NAME); // 获取PID调节数据指针
+    IMU = Subscribe(IMU_NAME);               // 获取IMU数据指针
+    GIMBAL_PID = Subscribe(GIMBAL_PID_NAME); // 获取云台PID数据指针
 
     // 数据置零
     memset(&LAST_SEND_TIME, 0, sizeof(LastSendTime_t));
@@ -195,7 +197,7 @@ static void UsbInit(void)
     SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage = 0;
 
     // 2.初始化PID调节数据包
-    //帧尾部分
+    // 帧尾部分
     uint8_t tail_data[] = {0x00, 0x00, 0x80, 0x7f};
     memcpy(SEND_DATA_PID_TUNING.tail, tail_data, sizeof(tail_data));
     // 数据部分
@@ -212,10 +214,16 @@ static void UsbInit(void)
  */
 static void UsbSendData(void)
 {
-    // 发送RobotStateInfo数据
-    // CheckDurationAndSend(RobotStateInfo);
-    // 发送PID调节数据
-    CheckDurationAndSend(PidtoVofa);
+    if (__TUNING)
+    {
+        // 发送PID调节数据
+        CheckDurationAndSend(PidtoVofa);
+    }
+    else
+    {
+        // 发送机器人状态信息
+        CheckDurationAndSend(RobotStateInfo);
+    }
 }
 
 /**
@@ -237,13 +245,13 @@ static void UsbReceiveData(void)
     // 如果接收到数据，处理VOFA协议和原有协议
     if (len > 0)
     {
-        uint8_t *current_ptr = USB_RX_BUF; // 当前处理位置指针
+        uint8_t *current_ptr = USB_RX_BUF;    // 当前处理位置指针
         uint8_t *data_end = USB_RX_BUF + len; // 实际数据结束位置
-        
+
         // 首先处理VOFA数据帧
         uint16_t vofa_processed = 0;
         uint8_t *vofa_search_ptr = current_ptr;
-        
+
         while (vofa_search_ptr <= data_end - VOFA_DATA_FRAME_SIZE)
         {
             // 查找VOFA帧头 FA FA
@@ -251,23 +259,24 @@ static void UsbReceiveData(void)
             {
                 // 找到VOFA帧头，复制完整帧数据
                 memcpy(&RECEIVE_VOFA_DATA, vofa_search_ptr, sizeof(ReceiveDataVofa_s));
-                
+
                 // 处理VOFA数据
                 ProcessVofaData(&RECEIVE_VOFA_DATA);
-                
+
                 // 从缓冲区中移除已处理的VOFA数据
                 uint8_t *remaining_start = vofa_search_ptr + VOFA_DATA_FRAME_SIZE;
                 uint32_t remaining_len = data_end - remaining_start;
-                
-                if (remaining_len > 0) {
+
+                if (remaining_len > 0)
+                {
                     memmove(vofa_search_ptr, remaining_start, remaining_len);
                 }
-                
+
                 // 更新数据结束位置
                 data_end -= VOFA_DATA_FRAME_SIZE;
                 len -= VOFA_DATA_FRAME_SIZE;
                 vofa_processed += VOFA_DATA_FRAME_SIZE;
-                
+
                 // 不增加vofa_search_ptr，因为数据已经前移
             }
             else
@@ -275,11 +284,11 @@ static void UsbReceiveData(void)
                 vofa_search_ptr++;
             }
         }
-        
+
         // 处理原有的通信协议数据包
         uint8_t *sof_address = USB_RX_BUF;
         while (sof_address < data_end)
-        { 
+        {
             // 寻找帧头位置
             while (*(sof_address) != PACKET_VERSION && (sof_address < data_end))
             {
@@ -294,10 +303,11 @@ static void UsbReceiveData(void)
             if (*(sof_address) == PACKET_VERSION)
             {
                 // 检查是否有足够的数据进行CRC校验
-                if (sof_address + HEADER_SIZE > data_end) {
+                if (sof_address + HEADER_SIZE > data_end)
+                {
                     break; // 数据不完整，退出
                 }
-                
+
                 // 检查CRC8校验
                 bool crc8_ok = verify_CRC8_check_sum(sof_address, HEADER_SIZE);
                 if (crc8_ok)
@@ -305,12 +315,13 @@ static void UsbReceiveData(void)
                     uint8_t data_len = sof_address[1];
                     uint8_t data_id = sof_address[2];
                     uint16_t total_packet_len = HEADER_SIZE + data_len + 2; // 包括CRC16
-                    
+
                     // 检查是否有完整的数据包
-                    if (sof_address + total_packet_len > data_end) {
+                    if (sof_address + total_packet_len > data_end)
+                    {
                         break; // 数据包不完整，退出
                     }
-                    
+
                     // 检查整包CRC16校验
                     bool crc16_ok = verify_CRC16_check_sum(sof_address, total_packet_len);
                     if (crc16_ok)
@@ -339,10 +350,10 @@ static void UsbReceiveData(void)
                 sof_address++;
             }
         }
-        
+
         // 更新接收时间
         RECEIVE_TIME = HAL_GetTick();
-        
+
         // 处理剩余数据
         uint32_t remaining_data_len = data_end - sof_address;
         if (remaining_data_len > 0 && remaining_data_len < USB_RECEIVE_LEN)
@@ -357,7 +368,7 @@ static void UsbReceiveData(void)
             rx_data_start_address = USB_RX_BUF;
         }
     }
-    
+
     // 重置len为下次接收准备
     len = USB_RECEIVE_LEN - (rx_data_start_address - USB_RX_BUF);
 }
@@ -370,20 +381,20 @@ static void UsbReceiveData(void)
  * @brief 发送机器人信息数据
  * @param duration 发送周期
  */
-// static void UsbSendRobotStateInfoData(void)
-// {
-//     SEND_DATA_ROBOT_STATE_INFO.data.roll = IMU->roll;
-//     SEND_DATA_ROBOT_STATE_INFO.data.pitch = IMU->pitch;
-//     SEND_DATA_ROBOT_STATE_INFO.data.yaw = IMU->yaw;
+static void UsbSendRobotStateInfoData(void)
+{
+    SEND_DATA_ROBOT_STATE_INFO.data.roll = IMU->roll;
+    SEND_DATA_ROBOT_STATE_INFO.data.pitch = IMU->pitch;
+    SEND_DATA_ROBOT_STATE_INFO.data.yaw = IMU->yaw;
 
-//     SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work = 0;
-//     SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage = 0;
-//     SEND_DATA_ROBOT_STATE_INFO.data.encoder_up = 0;
-//     SEND_DATA_ROBOT_STATE_INFO.data.encoder_down = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.is_super_cap_work = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.super_cap_voltage = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.encoder_up = 0;
+    SEND_DATA_ROBOT_STATE_INFO.data.encoder_down = 0;
 
-//     append_CRC16_check_sum((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
-//     USB_Transmit((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
-// }
+    append_CRC16_check_sum((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
+    USB_Transmit((uint8_t *)&SEND_DATA_ROBOT_STATE_INFO, sizeof(SendDataRobotStateInfo_s));
+}
 
 /**
  * @brief 发送PID调节数据
@@ -391,25 +402,64 @@ static void UsbReceiveData(void)
  */
 static void UsbSendPidtoVofaData(void)
 {
-    SEND_DATA_PID_TUNING.data[0] = PID_TO_VOFA->angle_set;
-    SEND_DATA_PID_TUNING.data[1] = PID_TO_VOFA->angle_fdb;
+    switch (__TUNING_MODE)
+    {
+    case TUNING_GIMBAL_PITCH:
+        SEND_DATA_PID_TUNING.data[0] = GIMBAL_PID->pitch_angle.set;
+        SEND_DATA_PID_TUNING.data[1] = GIMBAL_PID->pitch_angle.fdb;
 
-    SEND_DATA_PID_TUNING.data[2] = PID_TO_VOFA->angle_out;
-    SEND_DATA_PID_TUNING.data[3] = PID_TO_VOFA->angle_Pout;
-    SEND_DATA_PID_TUNING.data[4] = PID_TO_VOFA->angle_Iout;
-    SEND_DATA_PID_TUNING.data[5] = PID_TO_VOFA->angle_Dout;
+        SEND_DATA_PID_TUNING.data[2] = GIMBAL_PID->pitch_angle.out;
+        SEND_DATA_PID_TUNING.data[3] = GIMBAL_PID->pitch_angle.Pout;
+        SEND_DATA_PID_TUNING.data[4] = GIMBAL_PID->pitch_angle.Iout;
+        SEND_DATA_PID_TUNING.data[5] = GIMBAL_PID->pitch_angle.Dout;
 
-    SEND_DATA_PID_TUNING.data[6] = PID_TO_VOFA->speed_set;
-    SEND_DATA_PID_TUNING.data[7] = PID_TO_VOFA->speed_fdb;
+        SEND_DATA_PID_TUNING.data[6] = GIMBAL_PID->pitch_velocity.set;
+        SEND_DATA_PID_TUNING.data[7] = GIMBAL_PID->pitch_velocity.fdb;
 
-    SEND_DATA_PID_TUNING.data[8] = PID_TO_VOFA->speed_out;
-    SEND_DATA_PID_TUNING.data[9] = PID_TO_VOFA->speed_Pout;
-    SEND_DATA_PID_TUNING.data[10] = PID_TO_VOFA->speed_Iout;
-    SEND_DATA_PID_TUNING.data[11] = PID_TO_VOFA->speed_Dout;
+        SEND_DATA_PID_TUNING.data[8] = GIMBAL_PID->pitch_velocity.out;
+        SEND_DATA_PID_TUNING.data[9] = GIMBAL_PID->pitch_velocity.Pout;
+        SEND_DATA_PID_TUNING.data[10] = GIMBAL_PID->pitch_velocity.Iout;
+        SEND_DATA_PID_TUNING.data[11] = GIMBAL_PID->pitch_velocity.Dout;
+        break;
+    case TUNING_GIMBAL_YAW:
+        SEND_DATA_PID_TUNING.data[0] = GIMBAL_PID->yaw_angle.set;
+        SEND_DATA_PID_TUNING.data[1] = GIMBAL_PID->yaw_angle.fdb;
+
+        SEND_DATA_PID_TUNING.data[2] = GIMBAL_PID->yaw_angle.out;
+        SEND_DATA_PID_TUNING.data[3] = GIMBAL_PID->yaw_angle.Pout;
+        SEND_DATA_PID_TUNING.data[4] = GIMBAL_PID->yaw_angle.Iout;
+        SEND_DATA_PID_TUNING.data[5] = GIMBAL_PID->yaw_angle.Dout;
+
+        SEND_DATA_PID_TUNING.data[6] = GIMBAL_PID->yaw_velocity.set;
+        SEND_DATA_PID_TUNING.data[7] = GIMBAL_PID->yaw_velocity.fdb;
+
+        SEND_DATA_PID_TUNING.data[8] = GIMBAL_PID->yaw_velocity.out;
+        SEND_DATA_PID_TUNING.data[9] = GIMBAL_PID->yaw_velocity.Pout;
+        SEND_DATA_PID_TUNING.data[10] = GIMBAL_PID->yaw_velocity.Iout;
+        SEND_DATA_PID_TUNING.data[11] = GIMBAL_PID->yaw_velocity.Dout;
+        break;
+
+    default:
+        SEND_DATA_PID_TUNING.data[0] = 0.0f;
+        SEND_DATA_PID_TUNING.data[1] = 0.0f;
+
+        SEND_DATA_PID_TUNING.data[2] = 0.0f;
+        SEND_DATA_PID_TUNING.data[3] = 0.0f;
+        SEND_DATA_PID_TUNING.data[4] = 0.0f;
+        SEND_DATA_PID_TUNING.data[5] = 0.0f;
+
+        SEND_DATA_PID_TUNING.data[6] = 0.0f;
+        SEND_DATA_PID_TUNING.data[7] = 0.0f;
+
+        SEND_DATA_PID_TUNING.data[8] = 0.0f;
+        SEND_DATA_PID_TUNING.data[9] = 0.0f;
+        SEND_DATA_PID_TUNING.data[10] = 0.0f;
+        SEND_DATA_PID_TUNING.data[11] = 0.0f;
+        break;
+    }
 
     USB_Transmit((uint8_t *)&SEND_DATA_PID_TUNING, sizeof(SendDataPidTuning_s));
 }
-
 
 /*******************************************************************************/
 /* Receive Function                                                            */

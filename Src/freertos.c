@@ -58,9 +58,7 @@ osThreadId communication_handle;
 osThreadId chassisTaskHandle;
 #endif
 
-// #if (GIMBAL_TYPE != GIMBAL_NONE)
 osThreadId gimbalTaskHandle;
-// #endif
 
 #if (SHOOT_TYPE != SHOOT_NONE)
 osThreadId shootTaskHandle;
@@ -74,7 +72,9 @@ osThreadId mechanical_armTaskHandle;
 osThreadId customControllerTaskHandle;
 #endif
 
+#if (__MUSIC_ON)
 osThreadId musicTaskHandle;
+#endif
 
 osThreadId imuTaskHandle;
 
@@ -198,10 +198,8 @@ void MX_FREERTOS_Init(void) {
     chassisTaskHandle = osThreadCreate(osThread(ChassisTask), NULL);
 #endif
 
-// #if (GIMBAL_TYPE != GIMBAL_NONE)
     osThreadDef(gimbalTask, gimbal_task, osPriorityHigh, 0, 512);
     gimbalTaskHandle = osThreadCreate(osThread(gimbalTask), NULL);
-// #endif
 
 #if (SHOOT_TYPE != SHOOT_NONE)
     osThreadDef(shootTask, shoot_task, osPriorityHigh, 0, 512);
@@ -218,8 +216,10 @@ void MX_FREERTOS_Init(void) {
     customControllerTaskHandle = osThreadCreate(osThread(customControllerTask), NULL);
 #endif
 
+#if (__MUSIC_ON)
     osThreadDef(musicTask, music_task, osPriorityNormal, 0, 256);
     musicTaskHandle = osThreadCreate(osThread(musicTask), NULL);
+#endif
 
     osThreadDef(imuTask, IMU_task, osPriorityRealtime, 0, 1024);
     imuTaskHandle = osThreadCreate(osThread(imuTask), NULL);

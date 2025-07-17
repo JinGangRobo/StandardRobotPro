@@ -5,13 +5,13 @@
 
 // 数据名称宏
 #define IMU_NAME "imu_data"
-#define CHASSIS_FDB_SPEED_NAME "chassis_fdb_speed"
-#define CHASSIS_REF_NAME "chassis_ref"
 #define ROBOT_CMD_DATA_NAME "ROBOT_CMD_DATA"
 #define USB_OFFLINE_NAME "usb_offline"
 #define CALI_BUZZER_STATE_NAME "CaliBuzzerState"
-#define PID_TO_VOFA_NAME "PID_TO_VOFA"
 #define PID_GET_VOFA_NAME "PID_GET_VOFA"
+#define CHASSIS_PID_NAME "Chassis_PID"
+#define GIMBAL_PID_NAME "Gimbal_PID"
+#define SHOOT_NAME "Shoot"
 
 typedef enum
 {

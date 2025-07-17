@@ -32,15 +32,15 @@
 
 #endif
 
-//通用配置
-#define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
-#define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
+/*------------------- BOARD -------------------*/
+#define BOARD_CAN (2)
+#define BOARD_DATA_ID (0)
 
 /*-------------------- IMU --------------------*/
-// IMU安装角度参数 (单位：度)
+// IMU安装角度参数 (单位：度) yaw -> pitvh -> roll
 #define IMU_ROLL_ANGLE (0.0f)    // 绕X轴旋转角度
 #define IMU_PITCH_ANGLE (0.0f)   // 绕Y轴旋转角度 
-#define IMU_YAW_ANGLE (90.0f)    // 绕Z轴旋转角度
+#define IMU_YAW_ANGLE (0.0f)    // 绕Z轴旋转角度
 
 /*-------------------- Chassis --------------------*/
 
@@ -116,7 +116,7 @@
 
 /*-------------------- Gimbal --------------------*/
 // 云台电流发送参数
-#define GIMBAL_CAN (2)
+#define GIMBAL_CAN (1)
 #define GIMBAL_STDID (0x1FF) //电压控制1-4(0x1FF)5-7(0x2FF)
 
 // gimbal_init-------------------------------
@@ -124,17 +124,16 @@
 
 // remote controller sensitivity ---------------------
 #define RC_TO_VECTOR_SCALE (0.006f)
-#define REMOTE_CONTROLLER_SENSITIVITY (-150000.0f)
-#define REMOTE_CONTROLLER_MAX_DEADLINE (10.0f)
-#define REMOTE_CONTROLLER_MIN_DEADLINE (-10.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY (-10000.0f)
+#define REMOTE_CONTROLLER_MAX_DEADLINE (0.05f)
+#define REMOTE_CONTROLLER_MIN_DEADLINE (-0.05f)
 // motor parameters ---------------------
 // 电机id
 #define GIMBAL_DIRECT_YAW_BA_ID ((uint8_t)1)
-#define GIMBAL_DIRECT_YAW_UP_ID ((uint8_t)3)
-#define GIMBAL_DIRECT_PITCH_ID  ((uint8_t)2)
+#define GIMBAL_DIRECT_YAW_UP_ID ((uint8_t)2)
+#define GIMBAL_DIRECT_PITCH_ID  ((uint8_t)3)
 
 // 电机种类
-#define GIMBAL_DIRECT_YAW_MOTOR_TYPE    ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_YAW_BA_MOTOR_TYPE ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_YAW_UP_MOTOR_TYPE ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_PITCH_MOTOR_TYPE  ((MotorType_e)DJI_M6020)
@@ -142,7 +141,7 @@
 // 旋转方向
 #define GIMBAL_DIRECT_YAW_BA_DIRECTION (1)
 #define GIMBAL_DIRECT_YAW_UP_DIRECTION (1)
-#define GIMBAL_DIRECT_PITCH_DIRECTION  (1)
+#define GIMBAL_DIRECT_PITCH_DIRECTION  (-1)
 
 // 减速比
 #define GIMBAL_DIRECT_YAW_BA_REDUCTION_RATIO (1)
@@ -155,15 +154,15 @@
 #define GIMBAL_DIRECT_PITCH_MODE  (0)
 
 // physical parameters ---------------------
-#define GIMBAL_UPPER_LIMIT_PITCH (0.2f)
-#define GIMBAL_LOWER_LIMIT_PITCH (-0.3f)
+#define GIMBAL_UPPER_LIMIT_PITCH (1.9f)
+#define GIMBAL_LOWER_LIMIT_PITCH (0.95f)
 #define GIMBAL_LOWER_LIMIT_YAW_BA (-M_PI)
 #define GIMBAL_UPPER_LIMIT_YAW_BA (M_PI)
 #define GIMBAL_LOWER_LIMIT_YAW_UP (-M_PI_4)
 #define GIMBAL_UPPER_LIMIT_YAW_UP (M_PI_4)
 
 // 电机角度中值设置
-#define GIMBAL_DIRECT_PITCH_MID  (3.0671f) // 云台初始化正对齐的时候使用的pitch轴正中心量
+#define GIMBAL_DIRECT_PITCH_MID  (1.6988f) // 云台初始化正对齐的时候使用的pitch轴正中心量
 #define GIMBAL_DIRECT_YAW_BA_MID (1.5393f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
 #define GIMBAL_DIRECT_YAW_UP_MID (1.5393f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
 

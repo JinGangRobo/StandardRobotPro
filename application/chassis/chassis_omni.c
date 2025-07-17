@@ -32,6 +32,18 @@
 Chassis_s chassis;
 PID_t chassis_pid;
 
+/*-------------------- Publish --------------------*/
+
+/**
+ * @brief          发布底盘状态
+ * @param[in]      none
+ * @retval         none
+ */
+void ChassisPublish(void)
+{
+    Publish(&chassis_pid, CHASSIS_PID_NAME);
+}
+
 /*-------------------- Init --------------------*/
 
 /**
@@ -81,6 +93,8 @@ void ChassisObserver(void)
        
     }
     chassis.yaw_delta = GetGimbalDeltaYawMid();
+
+    
 }
 
 /*-------------------- Reference --------------------*/

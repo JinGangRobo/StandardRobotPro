@@ -44,13 +44,6 @@ int all_Transmission_ratio_z; // 电机到拨弹盘的总传动比的整数
 int COUNT;                    // 拨弹盘转半圈所需的电机圈数的整数
 int COUNT_error;              // 误差
 
-// ---------测试---------
-#if (aaa1 == 1)
-static const PidGetVofa_t *PID_GET_VOFA_DATA; // PID调节数据指针
-static PidToVofa_t PID_TO_VOFA_DATA = {0};
-#endif
-//-----------------------
-
 /*-------------------- Publish --------------------*/
 
 /**
@@ -58,13 +51,10 @@ static PidToVofa_t PID_TO_VOFA_DATA = {0};
  * @param[in]      none
  * @retval         none
  */
-#if (aaa1 == 1)
 void ShootPublish(void)
 {
-  // 发布PID调试数据到VOFA
-  Publish(&PID_TO_VOFA_DATA, PID_TO_VOFA_NAME);
+  Publish(&SHOOT, SHOOT_NAME);
 }
-#endif
 /*-------------------- Init --------------------*/
 
 /**
@@ -74,9 +64,6 @@ void ShootPublish(void)
  */
 void ShootInit(void)
 {
-#if (aaa1 == 1)
-  PID_GET_VOFA_DATA = Subscribe(PID_GET_VOFA_NAME);
-#endif
   // 获取遥控器指针
   SHOOT.rc = get_remote_control_point();
 
@@ -347,23 +334,6 @@ void ShootSetMode(void)
  */
 void ShootObserver(void)
 {
-#if (aaa1 == 1)
-  //---------测试代码---------
-  PID_TO_VOFA_DATA.angle_set = SHOOT.trigger_angel_pid.set;
-  PID_TO_VOFA_DATA.angle_fdb = SHOOT.trigger_angel_pid.fdb;
-  PID_TO_VOFA_DATA.angle_out = SHOOT.trigger_angel_pid.out;
-  PID_TO_VOFA_DATA.angle_Pout = SHOOT.trigger_angel_pid.Pout;
-  PID_TO_VOFA_DATA.angle_Iout = SHOOT.trigger_angel_pid.Iout;
-  PID_TO_VOFA_DATA.angle_Dout = SHOOT.trigger_angel_pid.Dout;
-  PID_TO_VOFA_DATA.speed_set = SHOOT.trigger_speed_pid.set;
-  PID_TO_VOFA_DATA.speed_fdb = SHOOT.trigger_speed_pid.fdb;
-  PID_TO_VOFA_DATA.speed_out = SHOOT.trigger_speed_pid.out;
-  PID_TO_VOFA_DATA.speed_Pout = SHOOT.trigger_speed_pid.Pout;
-  PID_TO_VOFA_DATA.speed_Iout = SHOOT.trigger_speed_pid.Iout;
-  PID_TO_VOFA_DATA.speed_Dout = SHOOT.trigger_speed_pid.Dout;
-  // ----------------------------
-#endif
-
   GetMotorMeasure(&SHOOT.trigger_motor);
   GetMotorMeasure(&SHOOT.fric_motor[0]);
   GetMotorMeasure(&SHOOT.fric_motor[1]);
@@ -653,10 +623,6 @@ void ShootReference(void)
  */
 void ShootConsole(void)
 {
-
-  // ----------测试----------
-
-  //-------------------------
 
   SHOOT.fric_motor[0].set.curr = PID_calc(&SHOOT.fric_pid[0], SHOOT.FDB.fric_speed_fdb_R, SHOOT.REF.fric_speed_ref_R);
   SHOOT.fric_motor[1].set.curr = PID_calc(&SHOOT.fric_pid[1], SHOOT.FDB.fric_speed_fdb_L, SHOOT.REF.fric_speed_ref_L);

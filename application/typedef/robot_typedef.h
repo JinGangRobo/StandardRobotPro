@@ -25,10 +25,14 @@
 #define CUSTOM_CONTROLLER_ENGINEER     1  // 工程用的自定义控制器
 
 // 可用调参模式
-#define TUNING_NONE     0
-#define TUNING_CHASSIS  1
-#define TUNING_GIMBAL   2
-#define TUNING_SHOOT    3
+#define TUNING_NONE             0
+#define TUNING_CHASSIS          1
+#define TUNING_GIMBAL           2
+#define TUNING_SHOOT            3
+#define TUNING_GIMBAL_PITCH     4
+#define TUNING_GIMBAL_YAW       5
+#define TUNING_GIMBAL_YAW_BA    6
+#define TUNING_GIMBAL_YAW_UP    7
 
 // 校准数据来源
 #define CALI_FROM_FLASH 1

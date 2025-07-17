@@ -23,27 +23,16 @@
 **/
 #include "CAN_receive.h"
 #include "gimbal_yaw_pitch_direct.h"
+#include "data_exchange.h"
 #include "communication.h"
 
 #if (GIMBAL_TYPE == GIMBAL_YAW_PITCH_DIRECT)
 Gimbal_s gimbal_direct;
 Gimbal_PID_t gimbal_direct_pid;
-// ---------测试---------
-#if(aaa1==2)
-static const PidGetVofa_t *PID_GET_VOFA_DATA; // PID调节数据指针
-static PidToVofa_t PID_TO_VOFA_DATA = {0};
-#endif
-//-----------------------
+static const PidGetVofa_t *pid_get_vofa;
 #define ROBO_INIT_TIME 10 // (秒)云台初始化时间
 /*--------------------------------Internal functions---------------------------------------*/
 /**以下函数均不会被外部调用，请注意！**/
-#if(aaa1==2)
-void ShootPublish(void)
-{
-    // 发布PID调试数据到VOFA
-    Publish(&PID_TO_VOFA_DATA, PID_TO_VOFA_NAME);
-}
-#endif
 /*----------------angle_solution--------------------*/
 
 /**
@@ -144,6 +133,19 @@ inline float CmdGimbalJointState(uint8_t axis)
     }
 }
 
+/*-------------------- Public --------------------*/
+
+/**
+ * @brief          发布数据
+ * @param[in]      none
+ * @retval         none
+ */
+void GimbalPublish(void)
+{
+    // 发布PID调试数据
+    Publish(&gimbal_direct_pid, GIMBAL_PID_NAME);
+}
+
 /*-------------------- Init --------------------*/
 
 /**
@@ -153,9 +155,9 @@ inline float CmdGimbalJointState(uint8_t axis)
  */
 void GimbalInit(void)
 {
-#if(aaa1==2)
-  PID_GET_VOFA_DATA = Subscribe(PID_GET_VOFA_NAME);
-#endif
+    // 获取PID参数指针
+    pid_get_vofa = Subscribe(PID_GET_VOFA_NAME);
+
     // step1 获取所有所需变量指针
     gimbal_direct.rc = get_remote_control_point();
     // step2 置零所有值
@@ -260,25 +262,6 @@ void GimbalSetMode(void)
  */
 void GimbalObserver(void)
 {
-#if(aaa1==2)
-  //---------测试代码---------
-  PID_TO_VOFA_DATA.angle_set = SHOOT.trigger_angel_pid.set;
-  PID_TO_VOFA_DATA.angle_fdb = SHOOT.trigger_angel_pid.fdb;
-  PID_TO_VOFA_DATA.angle_out = SHOOT.trigger_angel_pid.out;
-  PID_TO_VOFA_DATA.angle_Pout = SHOOT.trigger_angel_pid.Pout;
-  PID_TO_VOFA_DATA.angle_Iout = SHOOT.trigger_angel_pid.Iout;
-  PID_TO_VOFA_DATA.angle_Dout = SHOOT.trigger_angel_pid.Dout;
-  PID_TO_VOFA_DATA.speed_set = SHOOT.trigger_speed_pid.set;
-  PID_TO_VOFA_DATA.speed_fdb = SHOOT.trigger_speed_pid.fdb;
-  PID_TO_VOFA_DATA.speed_out = SHOOT.trigger_speed_pid.out;
-  PID_TO_VOFA_DATA.speed_Pout = SHOOT.trigger_speed_pid.Pout;
-  PID_TO_VOFA_DATA.speed_Iout = SHOOT.trigger_speed_pid.Iout;
-  PID_TO_VOFA_DATA.speed_Dout = SHOOT.trigger_speed_pid.Dout;
-  const fp32 pid_angel_trigger[3] = {PID_GET_VOFA_DATA->angle_kp, PID_GET_VOFA_DATA->angle_ki, PID_GET_VOFA_DATA->angle_kd}; // 拨弹盘角度环
-  const fp32 pid_speed_trigger[3] = {PID_GET_VOFA_DATA->speed_kp, PID_GET_VOFA_DATA->speed_ki, PID_GET_VOFA_DATA->speed_kd}; // 拨弹盘速度环
-  PID_init(&gimbal_direct_pid.yaw_angle, PID_POSITION, pid_angel_trigger, PID_GET_VOFA_DATA->angle_max_out, PID_GET_VOFA_DATA->angle_max_iout);
-  PID_init(&gimbal_direct_pid.yaw_velocity, PID_POSITION, pid_speed_trigger, PID_GET_VOFA_DATA->speed_max_out, PID_GET_VOFA_DATA->speed_max_iout); // 拨弹盘初始化pid
-#endif
     // 电机相关数据更新
     GetMotorMeasure(&gimbal_direct.yaw);
     GetMotorMeasure(&gimbal_direct.pitch);
@@ -315,6 +298,28 @@ void GimbalObserver(void)
     }
 
     gimbal_direct.last_mode = gimbal_direct.mode; // 上一运行模式更新
+
+    switch (__TUNING_MODE)
+    {
+    case TUNING_GIMBAL_PITCH:
+        gimbal_direct_pid.pitch_angle.Kp = pid_get_vofa->angle_kp;
+        gimbal_direct_pid.pitch_angle.Ki = pid_get_vofa->angle_ki;
+        gimbal_direct_pid.pitch_angle.Kd = pid_get_vofa->angle_kd;
+
+        gimbal_direct_pid.pitch_angle.max_iout = pid_get_vofa->angle_max_iout;
+        gimbal_direct_pid.pitch_angle.max_out = pid_get_vofa->angle_max_out;
+
+        gimbal_direct_pid.pitch_velocity.Kp = pid_get_vofa->speed_kp;
+        gimbal_direct_pid.pitch_velocity.Ki = pid_get_vofa->speed_ki;
+        gimbal_direct_pid.pitch_velocity.Kd = pid_get_vofa->speed_kd;
+        
+        gimbal_direct_pid.pitch_velocity.max_iout = pid_get_vofa->speed_max_iout;
+        gimbal_direct_pid.pitch_velocity.max_out = pid_get_vofa->speed_max_out;
+        break;
+    
+    default:
+        break;
+    }
 }
 
 /*-------------------- Reference --------------------*/
