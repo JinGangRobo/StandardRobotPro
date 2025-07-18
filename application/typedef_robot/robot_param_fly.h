@@ -33,7 +33,8 @@
 
 // remote controller sensitivity ---------------------
 #define RC_TO_VECTOR_SCALE (0.006f)
-#define REMOTE_CONTROLLER_SENSITIVITY (-10000.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY_PITCH (-10000.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY_YAW   (-10000.0f)
 #define REMOTE_CONTROLLER_MAX_DEADLINE (0.005f)
 #define REMOTE_CONTROLLER_MIN_DEADLINE (-0.005f)
 // motor parameters ---------------------

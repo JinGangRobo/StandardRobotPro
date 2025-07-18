@@ -37,6 +37,7 @@
 #include "shoot.h"
 #include "shoot_fric_trigger.h"
 #include "chassis_omni.h"
+#include "chassis.h"
 
 #if INCLUDE_uxTaskGetStackHighWaterMark
 uint32_t usb_high_water;

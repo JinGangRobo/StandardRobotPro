@@ -19,6 +19,13 @@
 
 #include "robot_param.h"
 
+#if (CHASSIS_TYPE == CHASSIS_NONE)
+ typedef struct
+{
+    int temp; // 占位
+} Chassis_PID_t;   
+#endif
+
 #if CHASSIS_TYPE != CHASSIS_NONE
 
 // inline void ChassisSetCali(void);
