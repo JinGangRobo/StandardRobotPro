@@ -69,14 +69,26 @@ typedef struct reference
   fp32 fric_speed_ref_U;
 } Ref;
 
+typedef struct trigger_error
+{
+  fp32 delta;
+  int date;
+  fp32 all_error;               // 总误差
+  int all_Transmission_ratio_z; // 电机到拨弹盘的总传动比的整数
+  int COUNT;                    // 拨弹盘转半圈所需的电机圈数的整数
+  int COUNT_error;              // 误差
+} error;
+
 typedef struct
 {
+
   const RC_ctrl_t * rc;  // 射击使用的遥控器指针
   LoadMode_e mode;       // 射击模式
   FricState_e state;     // 摩擦轮状态
 
   Motor_s fric_motor[3];  // 摩擦轮电机
   Motor_s trigger_motor;  // 拨弹盘电机
+  error trigger_error;
 
     //pid
   pid_type_def trigger_angel_pid;

@@ -26,7 +26,7 @@
 // #include "robot_param_omni_sentry_two.h"
 // #include "robot_param_omni_sentry.h"
 // #include "robot_param_omni_mini.h"
-#include "robot_param_mecannum_hero.h"
+// #include "robot_param_mecannum_hero.h"
 // #include "robot_param_fly.h"
 #include "robot_param_omni_mini.h"
 // #include "robot_param_mecannum_hero.h"

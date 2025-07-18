@@ -203,7 +203,7 @@
 #define GUN_NUM 1         // 定义枪管个数
 #define TRIGGER_REDUCTION_RATIO 1.0f  // 定义电机到拨弹盘的齿轮减速比
 #define all_Transmission_ratio dianji_Transmission_ratio*TRIGGER_REDUCTION_RATIO //电机到拨弹盘的总传动比
-#define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
+#define error1 (all_Transmission_ratio-SHOOT.trigger_error.all_Transmission_ratio_z)/SHOOT.trigger_error.all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
 #define dianji_Transmission_ratio  19.0f //电机的传动比
 
 // 遥控器相关宏定义

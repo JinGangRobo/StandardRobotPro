@@ -35,12 +35,12 @@ static Shoot_s SHOOT = {
     .heat = 0,
     .heat_limit = 0,
 };
-fp32 delta;
-int date;
-fp32 all_error;               // 总误差
-int all_Transmission_ratio_z; // 电机到拨弹盘的总传动比的整数
-int COUNT;                    // 拨弹盘转半圈所需的电机圈数的整数
-int COUNT_error;              // 误差
+// fp32 delta;
+// int date;
+// fp32 all_error;               // 总误差
+// int all_Transmission_ratio_z; // 电机到拨弹盘的总传动比的整数
+// int COUNT;                    // 拨弹盘转半圈所需的电机圈数的整数
+// int COUNT_error;              // 误差
 
 static const PidGetVofa_t *pid_get_vofa;
 
@@ -107,18 +107,18 @@ void ShootInit(void)
     PID_init(&SHOOT.trigger_angel_pid, PID_POSITION, pid_angel_trigger, TRIGGER_ANGEL_PID_MAX_OUT, TRIGGER_ANGEL_PID_MAX_IOUT); // 拨弹盘初始化pid
   }
 
-  all_Transmission_ratio_z = all_Transmission_ratio;
-  COUNT = all_Transmission_ratio_z / 2.0f;
-  if (all_Transmission_ratio_z / 2.0f == COUNT)
+  SHOOT.trigger_error.all_Transmission_ratio_z = all_Transmission_ratio;
+  SHOOT.trigger_error.COUNT = SHOOT.trigger_error.all_Transmission_ratio_z / 2.0f;
+  if (SHOOT.trigger_error.all_Transmission_ratio_z / 2.0f == SHOOT.trigger_error.COUNT)
   {
-    COUNT_error = 1;
+    SHOOT.trigger_error.COUNT_error = 1;
   }
   else
   {
-    COUNT_error = 0;
+    SHOOT.trigger_error.COUNT_error = 0;
   }
 
-  COUNT++;
+  SHOOT.trigger_error.COUNT++;
 }
 
 /*-------------------- Set mode --------------------*/
@@ -356,25 +356,25 @@ void ShootObserver(void)
     if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd > HALF_ECD_RANGE)
     {
       SHOOT.ecd_count--;
-      all_error += error1;
+      SHOOT.trigger_error.all_error += error1;
     }
     else if (SHOOT.trigger_motor.fdb.ecd - SHOOT.last_ecd < -HALF_ECD_RANGE)
     {
       SHOOT.ecd_count++;
-      all_error -= error1;
+      SHOOT.trigger_error.all_error -= error1;
     }
 
-    if (SHOOT.ecd_count == COUNT)
+    if (SHOOT.ecd_count == SHOOT.trigger_error.COUNT)
     {
-      SHOOT.ecd_count = -COUNT + COUNT_error+1;
+      SHOOT.ecd_count = -SHOOT.trigger_error.COUNT + SHOOT.trigger_error.COUNT_error+1;
     }
-    else if (SHOOT.ecd_count == -COUNT + COUNT_error)
+    else if (SHOOT.ecd_count == -SHOOT.trigger_error.COUNT + SHOOT.trigger_error.COUNT_error)
     {
-      SHOOT.ecd_count = COUNT-1;
+      SHOOT.ecd_count = SHOOT.trigger_error.COUNT-1;
     }
 
     // 计算输出轴角度
-    SHOOT.FDB.trigger_angel_fdb = (SHOOT.ecd_count * ECD_RANGE + SHOOT.trigger_motor.fdb.ecd + all_error) * 2 * PI / (all_Transmission_ratio * ECD_RANGE);
+    SHOOT.FDB.trigger_angel_fdb = (SHOOT.ecd_count * ECD_RANGE + SHOOT.trigger_motor.fdb.ecd + SHOOT.trigger_error.all_error) * 2 * PI / (all_Transmission_ratio * ECD_RANGE);
     SHOOT.FDB.trigger_angel_fdb = theta_format(SHOOT.FDB.trigger_angel_fdb);
     // 记录上一个ecd值
     SHOOT.last_ecd = SHOOT.trigger_motor.fdb.ecd;
@@ -583,10 +583,10 @@ void ShootReference(void)
     if (TRIGGER_MOTOR_TYPE == DJI_M2006)
     {
      
-      if (SHOOT.move_flag == 0 && date==1)
+      if (SHOOT.move_flag == 0 && SHOOT.trigger_error.date==1)
       {
         SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.REF.trigger_angel_ref - 2 * PI / BULLET_NUM);
-        date = 0;
+        SHOOT.trigger_error.date = 0;
       }
       // if (SHOOT.move_flag == 0)
       // {
@@ -603,7 +603,7 @@ void ShootReference(void)
         SHOOT.move_flag = 0;
          if(SHOOT.rc->mouse.press_l==1)
       {
-        date=1;
+        SHOOT.trigger_error.date=1;
       }
       }
     }
@@ -683,9 +683,9 @@ void ShootConsole(void)
     }
     else if (SHOOT.mode == LAOD_BULLET)
     {
-      delta = theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb);
+      SHOOT.trigger_error.delta = theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb);
 
-      SHOOT.REF.trigger_speed_ref = PID_calc(&SHOOT.trigger_angel_pid, 0, delta);
+      SHOOT.REF.trigger_speed_ref = PID_calc(&SHOOT.trigger_angel_pid, 0, SHOOT.trigger_error.delta);
       SHOOT.trigger_motor.set.curr = PID_calc(&SHOOT.trigger_speed_pid, SHOOT.FDB.trigger_speed_fdb, SHOOT.REF.trigger_speed_ref);
     }
     else if (SHOOT.mode == LOAD_BLOCK)
@@ -705,9 +705,9 @@ void ShootConsole(void)
     }
     else if (SHOOT.mode == LAOD_BULLET)
     {
-      delta = theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb);
+      SHOOT.trigger_error.delta = theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb);
 
-      SHOOT.REF.trigger_speed_ref = PID_calc(&SHOOT.trigger_angel_pid, 0, delta);
+      SHOOT.REF.trigger_speed_ref = PID_calc(&SHOOT.trigger_angel_pid, 0, SHOOT.trigger_error.delta);
       SHOOT.trigger_motor.set.curr = PID_calc(&SHOOT.trigger_speed_pid, SHOOT.FDB.trigger_speed_fdb, SHOOT.REF.trigger_speed_ref);
     }
     else if (SHOOT.mode == LOAD_BLOCK)
@@ -727,8 +727,8 @@ void ShootConsole(void)
     }
     else if (SHOOT.mode == LAOD_BULLET)
     {
-      delta = theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb);
-      SHOOT.trigger_motor.set.vel = PID_calc(&SHOOT.trigger_angel_pid, 0, delta);
+      SHOOT.trigger_error.delta = theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb);
+      SHOOT.trigger_motor.set.vel = PID_calc(&SHOOT.trigger_angel_pid, 0, SHOOT.trigger_error.delta);
     }
     else if (SHOOT.mode == LOAD_BLOCK)
     {
