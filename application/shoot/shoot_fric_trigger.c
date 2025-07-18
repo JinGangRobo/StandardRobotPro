@@ -42,6 +42,8 @@ int all_Transmission_ratio_z; // 电机到拨弹盘的总传动比的整数
 int COUNT;                    // 拨弹盘转半圈所需的电机圈数的整数
 int COUNT_error;              // 误差
 
+static const PidGetVofa_t *pid_get_vofa;
+
 /*-------------------- Publish --------------------*/
 
 /**
@@ -62,13 +64,17 @@ void ShootPublish(void)
  */
 void ShootInit(void)
 {
+
+  // 获取PID参数
+  pid_get_vofa = Subscribe(PID_GET_VOFA_NAME);
+
   // 获取遥控器指针
   SHOOT.rc = get_remote_control_point();
 
   // 摩擦轮相关
-  MotorInit(&SHOOT.fric_motor[0], FRIC_MOTOR_R_ID, FRIC_MOTOR_R_CAN, FRIC_MOTOR_TYPE, 1, 1.0f, 0);  // 初始化R摩擦轮电机结构体
-  MotorInit(&SHOOT.fric_motor[1], FRIC_MOTOR_L_ID, FRIC_MOTOR_L_CAN, FRIC_MOTOR_TYPE, -1, 1.0f, 0); // 初始化L摩擦轮电机结构体
-  MotorInit(&SHOOT.fric_motor[2], FRIC_MOTOR_U_ID, FRIC_MOTOR_U_CAN, FRIC_MOTOR_TYPE, 1, 1.0f, 0);  // 初始化U摩擦轮电机结构体
+  MotorInit(&SHOOT.fric_motor[0], FRIC_MOTOR_R_ID, FRIC_MOTOR_R_CAN, FRIC_MOTOR_TYPE, FRIC_MOTOR_R_DIRECTION, 1.0f, 0);  // 初始化R摩擦轮电机结构体
+  MotorInit(&SHOOT.fric_motor[1], FRIC_MOTOR_L_ID, FRIC_MOTOR_L_CAN, FRIC_MOTOR_TYPE, FRIC_MOTOR_L_DIRECTION, 1.0f, 0); // 初始化L摩擦轮电机结构体
+  MotorInit(&SHOOT.fric_motor[2], FRIC_MOTOR_U_ID, FRIC_MOTOR_U_CAN, FRIC_MOTOR_TYPE, FRIC_MOTOR_U_DIRECTION, 1.0f, 0);  // 初始化U摩擦轮电机结构体
 
   const fp32 pid_fric[3] = {FRIC_SPEED_PID_KP, FIRC_SPEED_PID_KI, FRIC_SPEED_PID_KD}; // 摩擦轮速度环
 
@@ -77,7 +83,7 @@ void ShootInit(void)
   PID_init(&SHOOT.fric_pid[2], PID_POSITION, pid_fric, FRIC_PID_MAX_OUT, FRIC_PID_MAX_IOUT); // 摩擦轮初始化pid
 
   // 拨弹盘相关
-  MotorInit(&SHOOT.trigger_motor, TRIGGER_MOTOR_ID, TRIGGER_MOTOR_CAN, TRIGGER_MOTOR_TYPE, 1, 1.0f, 0); // 初始化拨弹盘电机结构体
+  MotorInit(&SHOOT.trigger_motor, TRIGGER_MOTOR_ID, TRIGGER_MOTOR_CAN, TRIGGER_MOTOR_TYPE, TRIGGER_MOTOR_DIRECTION, 1.0f, 0); // 初始化拨弹盘电机结构体
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
   {
     const fp32 pid_angel_trigger[3] = {TRIGGER_ANGEL_PID_KP, TRIGGER_ANGEL_PID_KI, TRIGGER_ANGEL_PID_KD}; // 拨弹盘角度环
@@ -501,6 +507,40 @@ void ShootObserver(void)
 
   // 记录上一个摩擦轮vel,用于过热保护
   SHOOT.last_fric_vel = SHOOT.fric_motor[0].fdb.vel;
+
+  switch (__TUNING_MODE)
+    {
+    case TUNING_SHOOT_FIRC:
+        for(int i = 0; i < 3; i++)
+        {
+            SHOOT.fric_pid[i].Kp = pid_get_vofa->speed_kp;
+            SHOOT.fric_pid[i].Ki = pid_get_vofa->speed_ki;
+            SHOOT.fric_pid[i].Kd = pid_get_vofa->speed_kd;
+
+            SHOOT.fric_pid[i].max_iout = pid_get_vofa->speed_max_iout;
+            SHOOT.fric_pid[i].max_out = pid_get_vofa->speed_max_out;
+        }
+        break;
+    case TUNING_SHOOT_TRIGGER:
+        SHOOT.trigger_angel_pid.Kp = pid_get_vofa->angle_kp;
+        SHOOT.trigger_angel_pid.Ki = pid_get_vofa->angle_ki;
+        SHOOT.trigger_angel_pid.Kd = pid_get_vofa->angle_kd;
+
+        SHOOT.trigger_angel_pid.max_iout = pid_get_vofa->angle_max_iout;
+        SHOOT.trigger_angel_pid.max_out = pid_get_vofa->angle_max_out;
+
+        SHOOT.trigger_speed_pid.Kp = pid_get_vofa->speed_kp;
+        SHOOT.trigger_speed_pid.Ki = pid_get_vofa->speed_ki;
+        SHOOT.trigger_speed_pid.Kd = pid_get_vofa->speed_kd;
+        
+        SHOOT.trigger_speed_pid.max_iout = pid_get_vofa->speed_max_iout;
+        SHOOT.trigger_speed_pid.max_out = pid_get_vofa->speed_max_out;
+        break;
+    
+    default:
+        break;
+    }
+
 }
 
 /*-------------------- Reference --------------------*/
@@ -523,9 +563,9 @@ void ShootReference(void)
     break;
 
   case FRIC_READY:
-    SHOOT.REF.fric_speed_ref_R = FRIC_R_SPEED;
-    SHOOT.REF.fric_speed_ref_L = FRIC_L_SPEED;
-    SHOOT.REF.fric_speed_ref_U = FRIC_U_SPEED;
+    SHOOT.REF.fric_speed_ref_R = FRIC_R_SPEED * FRIC_MOTOR_R_DIRECTION;
+    SHOOT.REF.fric_speed_ref_L = FRIC_L_SPEED * FRIC_MOTOR_L_DIRECTION;
+    SHOOT.REF.fric_speed_ref_U = FRIC_U_SPEED * FRIC_MOTOR_U_DIRECTION;
     break;
 
   default:

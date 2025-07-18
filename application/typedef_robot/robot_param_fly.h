@@ -33,7 +33,8 @@
 
 // remote controller sensitivity ---------------------
 #define RC_TO_VECTOR_SCALE (0.006f)
-#define REMOTE_CONTROLLER_SENSITIVITY (-10000.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY_PITCH (-10000.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY_YAW   (-10000.0f)
 #define REMOTE_CONTROLLER_MAX_DEADLINE (0.005f)
 #define REMOTE_CONTROLLER_MIN_DEADLINE (-0.005f)
 // motor parameters ---------------------
@@ -106,6 +107,9 @@
 #define all_Transmission_ratio dianji_Transmission_ratio*TRIGGER_REDUCTION_RATIO //电机到拨弹盘的总传动比
 #define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
 #define GUN_NUM 1         // 定义枪管个数
+
+// 遥控器相关宏定义
+#define SHOOT_MODE_CHANNEL 1  // 射击发射开关通道数据
 
 /*MOTOR paramters --------------------*/
 

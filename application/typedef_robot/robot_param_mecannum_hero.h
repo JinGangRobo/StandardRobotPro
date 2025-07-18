@@ -39,12 +39,8 @@
 
 #endif
 
-//通用配置
-#define MECHANICAL_ARM_TYPE MECHANICAL_ARM_NONE       // 选择机械臂类型
-#define CUSTOM_CONTROLLER_TYPE CUSTOM_CONTROLLER_NONE // 选择自定义控制器类型
-
 /*------------------- BOARD -------------------*/
-#define BOARD_CAN (1)
+#define BOARD_CAN (2)
 #define BOARD_DATA_ID (0)
 
 /*-------------------- IMU --------------------*/
@@ -136,9 +132,10 @@
 
 // remote controller sensitivity ---------------------
 #define RC_TO_VECTOR_SCALE (0.006f)
-#define REMOTE_CONTROLLER_SENSITIVITY (-150000.0f)
-#define REMOTE_CONTROLLER_MAX_DEADLINE (10.0f)
-#define REMOTE_CONTROLLER_MIN_DEADLINE (-10.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY_YAW (1000.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY_PITCH (-300.0f)
+#define REMOTE_CONTROLLER_MAX_DEADLINE (0.015f)
+#define REMOTE_CONTROLLER_MIN_DEADLINE (-0.015f)
 // motor parameters ---------------------
 // 电机id
 #define GIMBAL_DIRECT_YAW_ID ((uint8_t)1)
@@ -163,14 +160,14 @@
 // physical parameters ---------------------
 #define GIMBAL_YAW_LIMIT (0) // 云台yaw轴是否有限位 1 - 有限位，0 - 无限位
 
-#define GIMBAL_UPPER_LIMIT_PITCH (0.2f) // 云台上限pitch电机的角度
-#define GIMBAL_LOWER_LIMIT_PITCH (-0.3f) // 云台下限pitch电机的角度
+#define GIMBAL_UPPER_LIMIT_PITCH (1.5f) // 云台上限pitch电机的角度
+#define GIMBAL_LOWER_LIMIT_PITCH (-1.6f) // 云台下限pitch电机的角度
 #define GIMBAL_LOWER_LIMIT_YAW (-M_PI) // 云台下限yaw电机的角度
 #define GIMBAL_UPPER_LIMIT_YAW (M_PI) // 云台上限yaw电机的角度
 
 // 电机角度中值设置
 #define GIMBAL_DIRECT_PITCH_MID (-0.6741f) // 云台初始化正对齐的时候使用的pitch轴正中心量
-#define GIMBAL_DIRECT_YAW_MID (-2.0754f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
+#define GIMBAL_DIRECT_YAW_MID (-1.0754f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
 
 // PID parameters ---------------------
 // YAW ANGLE
@@ -207,7 +204,10 @@
 #define TRIGGER_REDUCTION_RATIO 1.0f  // 定义电机到拨弹盘的齿轮减速比
 #define all_Transmission_ratio dianji_Transmission_ratio*TRIGGER_REDUCTION_RATIO //电机到拨弹盘的总传动比
 #define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
-#define dianji_Transmission_ratio  1.0f //电机的传动比
+#define dianji_Transmission_ratio  19.0f //电机的传动比
+
+// 遥控器相关宏定义
+#define SHOOT_MODE_CHANNEL 1  // 射击发射开关通道数据
 
 
 /*MOTOR paramters --------------------*/
@@ -228,14 +228,20 @@
 #define FRIC_MOTOR_L_CAN 1
 #define FRIC_MOTOR_U_CAN 1
 
+// 旋转方向
+#define TRIGGER_MOTOR_DIRECTION (1)
+#define FRIC_MOTOR_R_DIRECTION  (-1)
+#define FRIC_MOTOR_L_DIRECTION  (1)
+#define FRIC_MOTOR_U_DIRECTION  (-1)
+
 // 电机std_id
 #define STD_ID 0x200
 // 单环拨弹速度
 #define TRIGGER_SPEED (300.0f)
 // 摩擦轮速度
 #define FRIC_R_SPEED (330.0f)//660
-#define FRIC_L_SPEED (-330.0f)
-#define FRIC_U_SPEED (-330.0f)
+#define FRIC_L_SPEED (330.0f)
+#define FRIC_U_SPEED (330.0f)
 #define FRIC_SPEED_LIMIT (150.0f)//600
 
 /*ECD parameters------------*/
@@ -263,30 +269,30 @@
 /*PID parameters ---------------------*/
 
 // 拨弹轮电机PID速度环
-#define TRIGGER_SPEED_PID_KP (20.0f)//100
-#define TRIGGER_SPEED_PID_KI (1.0f)
-#define TRIGGER_SPEED_PID_KD (3.0f)//0.1
+#define TRIGGER_SPEED_PID_KP (200.0f)//100
+#define TRIGGER_SPEED_PID_KI (0.0f)
+#define TRIGGER_SPEED_PID_KD (0.0f)//0.1
 
-#define TRIGGER_SPEED_PID_MAX_OUT (100.0f)
-#define TRIGGER_SPEED_PID_MAX_IOUT (10.0f)
+#define TRIGGER_SPEED_PID_MAX_OUT (10000.0f)
+#define TRIGGER_SPEED_PID_MAX_IOUT (7000.0f)
 
 // 拨弹轮电机PID角度环
-#define TRIGGER_ANGEL_PID_KP (25.0f)
-#define TRIGGER_ANGEL_PID_KI (1.05f)
-#define TRIGGER_ANGEL_PID_KD (2.05f)
+#define TRIGGER_ANGEL_PID_KP (6.0f)
+#define TRIGGER_ANGEL_PID_KI (0.0f)
+#define TRIGGER_ANGEL_PID_KD (0.0f)
 
-#define TRIGGER_ANGEL_PID_MAX_OUT (30.0f)
-#define TRIGGER_ANGEL_PID_MAX_IOUT (30.0f)
+#define TRIGGER_ANGEL_PID_MAX_OUT (10000.0f)
+#define TRIGGER_ANGEL_PID_MAX_IOUT (7000.0f)
 
 // 摩擦轮电机PID
-#define FRIC_SPEED_PID_KP (666.0f)
+#define FRIC_SPEED_PID_KP (66.0f)
 #define FIRC_SPEED_PID_KI (0.6f)
 #define FRIC_SPEED_PID_KD (0.0f)
 
-#define FRIC_PID_MAX_OUT (16000.0f)
+#define FRIC_PID_MAX_OUT (15000.0f)
 #define FRIC_PID_MAX_IOUT (1000.0f)
 
 // 当未连接裁判系统设置负值方便调试
-#define SHOOT_HEAT_REMAIN_VALUE 80 // 89
+#define SHOOT_HEAT_REMAIN_VALUE -80 // 89
 
 #endif /* INCLUDED_ROBOT_PARAM_H */

@@ -116,7 +116,9 @@
 
 /*-------------------- Gimbal --------------------*/
 // 云台电流发送参数
-#define GIMBAL_CAN (1)
+#define GIMBAL_YAW_BA_CAN (1)
+#define GIMBAL_YAW_UP_CAN (2)
+#define GIMBAL_PITCH_CAN  (1)
 #define GIMBAL_STDID (0x1FF) //电压控制1-4(0x1FF)5-7(0x2FF)
 
 // gimbal_init-------------------------------
@@ -124,16 +126,19 @@
 
 // remote controller sensitivity ---------------------
 #define RC_TO_VECTOR_SCALE (0.006f)
-#define REMOTE_CONTROLLER_SENSITIVITY (-10000.0f)
+#define REMOTE_CONTROLLER_SENSITIVITY_YAW (-10000.0f) // 云台遥控器灵敏度
+#define REMOTE_CONTROLLER_SENSITIVITY_PITCH (-10000.0f) // 云台遥控器灵敏度
 #define REMOTE_CONTROLLER_MAX_DEADLINE (0.05f)
 #define REMOTE_CONTROLLER_MIN_DEADLINE (-0.05f)
 // motor parameters ---------------------
 // 电机id
+#define GIMBAL_DIRECT_YAW_ID    ((uint8_t)1)
 #define GIMBAL_DIRECT_YAW_BA_ID ((uint8_t)1)
 #define GIMBAL_DIRECT_YAW_UP_ID ((uint8_t)2)
 #define GIMBAL_DIRECT_PITCH_ID  ((uint8_t)3)
 
 // 电机种类
+#define GIMBAL_DIRECT_YAW_MOTOR_TYPE ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_YAW_BA_MOTOR_TYPE ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_YAW_UP_MOTOR_TYPE ((MotorType_e)DJI_M6020)
 #define GIMBAL_DIRECT_PITCH_MOTOR_TYPE  ((MotorType_e)DJI_M6020)
@@ -163,8 +168,8 @@
 
 // 电机角度中值设置
 #define GIMBAL_DIRECT_PITCH_MID  (1.6988f) // 云台初始化正对齐的时候使用的pitch轴正中心量
-#define GIMBAL_DIRECT_YAW_BA_MID (1.5393f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
-#define GIMBAL_DIRECT_YAW_UP_MID (1.5393f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
+#define GIMBAL_DIRECT_YAW_BA_MID (-2.7626f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
+#define GIMBAL_DIRECT_YAW_UP_MID (1.8377)   // 云台初始化正对齐的时候使用的yaw轴正中心量
 
 // PID parameters ---------------------
 // YAW BA ANGLE
@@ -209,13 +214,15 @@
 /*-------------------- Shoot --------------------*/
 // physical parameters ---------------------
 #define FRIC_RADIUS 0.03f // (m)摩擦轮半径
-#define ECD_RANGE 8192      // 电机反馈码盘值范围
+#define ECD_RANGE 8191      // 电机反馈码盘值范围
 #define BULLET_NUM 8      // 定义拨弹盘容纳弹丸个数
 #define TRIGGER_REDUCTION_RATIO 58/42   // 定义电机到拨弹盘的齿轮减速比
 #define dianji_Transmission_ratio  36.0f //电机的传动比
 #define all_Transmission_ratio dianji_Transmission_ratio*TRIGGER_REDUCTION_RATIO //电机到拨弹盘的总传动比
 #define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
-#define GUN_NUM 1         // 定义枪管个数
+
+// 遥控器相关宏定义
+#define SHOOT_MODE_CHANNEL 1  // 射击发射开关通道数据
 
 /*MOTOR paramters --------------------*/
 
