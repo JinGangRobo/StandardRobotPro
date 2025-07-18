@@ -78,7 +78,7 @@ static SendDataPidTuning_s SEND_DATA_PID_TUNING;
 // 数据接收结构体
 static ReceiveDataRobotCmd_s RECEIVE_ROBOT_CMD_DATA;
 static ReceiveDataVofa_s RECEIVE_VOFA_DATA;
-static PidGetVofa_t RECEIVE_PID_GET_VOFA;
+ PidGetVofa_t RECEIVE_PID_GET_VOFA;
 // 发送数据间隔时间
 typedef struct
 {

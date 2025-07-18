@@ -7,6 +7,12 @@
 #define INCLUDED_ROBOT_PARAM_H
 #include "robot_typedef.h"
 
+
+#define BOARD_CAN 1
+#define BOARD_DATA_ID 1
+#define GIMBAL_YAW_LIMIT 1
+
+
 #define board_type 1   //0代表底盘板，1代表云台板
 
 #if (board_type == 1)
@@ -197,9 +203,9 @@
 
 /*-------------------- Shoot --------------------*/
 // physical parameters ---------------------
-#define BULLET_NUM 8      // 定义拨弹盘容纳弹丸个数
+#define BULLET_NUM 9      // 定义拨弹盘容纳弹丸个数
 #define ECD_RANGE 8192      // 电机反馈码盘值范围
-#define TRIGGER_REDUCTION_RATIO 58/42   // 定义电机到拨弹盘的齿轮减速比
+#define TRIGGER_REDUCTION_RATIO 1   // 定义电机到拨弹盘的齿轮减速比
 #define dianji_Transmission_ratio  36.0f //电机的传动比
 #define all_Transmission_ratio dianji_Transmission_ratio*TRIGGER_REDUCTION_RATIO //电机到拨弹盘的总传动比
 #define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
@@ -267,11 +273,11 @@
 #define TRIGGER_SPEED_PID_MAX_IOUT (100.0f)
 
 // 拨弹轮电机PID角度环
-#define TRIGGER_ANGEL_PID_KP (25.0f)
+#define TRIGGER_ANGEL_PID_KP (200.0f)
 #define TRIGGER_ANGEL_PID_KI (0.05f)
 #define TRIGGER_ANGEL_PID_KD (0.05f)
 
-#define TRIGGER_ANGEL_PID_MAX_OUT (300.0f)
+#define TRIGGER_ANGEL_PID_MAX_OUT (500.0f)
 #define TRIGGER_ANGEL_PID_MAX_IOUT (30.0f)
 
 // 摩擦轮电机PID

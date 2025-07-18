@@ -35,8 +35,6 @@ static Shoot_s SHOOT = {
     .heat = 0,
     .heat_limit = 0,
 };
-
-uint8_t fric_ui;
 fp32 delta;
 int date;
 fp32 all_error;               // 总误差
@@ -137,7 +135,7 @@ void ShootSetMode(void)
   {
     // 测试使用
     SHOOT.state = FRIC_READY;
-    SHOOT.mode = LOAD_STOP;
+    SHOOT.mode = LAOD_BULLET;
     // // 设置摩擦轮状态位
     // // if(SHOOT.rc->key.v & KEY_PRESSED_OFFSET_Q || GetScCmdFricOn())//Q启动摩擦轮
     // // {
@@ -255,7 +253,7 @@ void ShootSetMode(void)
   }
 
   // 防堵转
-  if (SHOOT.mode == LOAD_BURSTFIRE || SHOOT.mode == LAOD_BULLET)
+  if (SHOOT.mode == LOAD_BURSTFIRE)
   {
     if (SHOOT.block_time >= BLOCK_TIME)
     {
@@ -362,16 +360,16 @@ void ShootObserver(void)
 
     if (SHOOT.ecd_count == COUNT)
     {
-      SHOOT.ecd_count = -COUNT + COUNT_error;
+      SHOOT.ecd_count = -COUNT + COUNT_error+1;
     }
     else if (SHOOT.ecd_count == -COUNT + COUNT_error)
     {
-      SHOOT.ecd_count = COUNT;
+      SHOOT.ecd_count = COUNT-1;
     }
 
     // 计算输出轴角度
     SHOOT.FDB.trigger_angel_fdb = (SHOOT.ecd_count * ECD_RANGE + SHOOT.trigger_motor.fdb.ecd + all_error) * 2 * PI / (all_Transmission_ratio * ECD_RANGE);
-    SHOOT.FDB.trigger_angel_fdb = theta_format(SHOOT.trigger_motor.fdb.pos);
+    SHOOT.FDB.trigger_angel_fdb = theta_format(SHOOT.FDB.trigger_angel_fdb);
     // 记录上一个ecd值
     SHOOT.last_ecd = SHOOT.trigger_motor.fdb.ecd;
 
@@ -544,8 +542,8 @@ void ShootReference(void)
   case LAOD_BULLET:
     if (TRIGGER_MOTOR_TYPE == DJI_M2006)
     {
-      date++;
-      if (SHOOT.move_flag == 0 && date > 1600)
+     
+      if (SHOOT.move_flag == 0 && date==1)
       {
         SHOOT.REF.trigger_angel_ref = theta_format(SHOOT.REF.trigger_angel_ref - 2 * PI / BULLET_NUM);
         date = 0;
@@ -556,13 +554,17 @@ void ShootReference(void)
       // }
 
       // if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) > 0.01f)
-      if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) < -0.01f)
+      if (theta_format(SHOOT.REF.trigger_angel_ref - SHOOT.FDB.trigger_angel_fdb) < -0.005f)
       {
         SHOOT.move_flag = 1;
       }
       else
       {
         SHOOT.move_flag = 0;
+         if(SHOOT.rc->mouse.press_l==1)
+      {
+        date=1;
+      }
       }
     }
     else if (TRIGGER_MOTOR_TYPE == DJI_M3508)
