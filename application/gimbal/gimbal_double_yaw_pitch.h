@@ -91,7 +91,8 @@ typedef struct
     Gimbal_PID_t pid;  // PID控制器
 
     float pitch_angle_zero_for_imu; //pitch电机处于中值时imu pitch的角度
-    float yaw_angle_zero_for_imu; //yaw电机处于中值时imu yaw的角度
+    float yaw_up_angle_zero_for_imu; //yaw-up电机处于中值时imu yaw的角度
+    float yaw_ba_angle_zero_for_imu; //yaw-ba电机处于中值时imu yaw的角度
 
     uint32_t init_start_time,init_timer;
 

@@ -119,6 +119,7 @@
 #define GIMBAL_YAW_BA_CAN (1)
 #define GIMBAL_YAW_UP_CAN (2)
 #define GIMBAL_PITCH_CAN  (1)
+#define GIMBAL_YAW_CAN GIMBAL_YAW_BA_CAN
 #define GIMBAL_STDID (0x1FF) //电压控制1-4(0x1FF)5-7(0x2FF)
 
 // gimbal_init-------------------------------
@@ -169,7 +170,7 @@
 // 电机角度中值设置
 #define GIMBAL_DIRECT_PITCH_MID  (1.6988f) // 云台初始化正对齐的时候使用的pitch轴正中心量
 #define GIMBAL_DIRECT_YAW_BA_MID (-2.7626f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
-#define GIMBAL_DIRECT_YAW_UP_MID (1.8377)   // 云台初始化正对齐的时候使用的yaw轴正中心量
+#define GIMBAL_DIRECT_YAW_UP_MID (1.8377f)   // 云台初始化正对齐的时候使用的yaw轴正中心量
 
 // PID parameters ---------------------
 // YAW BA ANGLE
@@ -219,7 +220,7 @@
 #define TRIGGER_REDUCTION_RATIO 58/42   // 定义电机到拨弹盘的齿轮减速比
 #define dianji_Transmission_ratio  36.0f //电机的传动比
 #define all_Transmission_ratio dianji_Transmission_ratio*TRIGGER_REDUCTION_RATIO //电机到拨弹盘的总传动比
-#define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
+#define error1 (all_Transmission_ratio-SHOOT.trigger_error.all_Transmission_ratio_z)/SHOOT.trigger_error.all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
 
 // 遥控器相关宏定义
 #define SHOOT_MODE_CHANNEL 1  // 射击发射开关通道数据
@@ -242,14 +243,20 @@
 #define FRIC_MOTOR_L_CAN 1
 #define FRIC_MOTOR_U_CAN 1
 
+// 旋转方向
+#define TRIGGER_MOTOR_DIRECTION (1)
+#define FRIC_MOTOR_R_DIRECTION  (-1)
+#define FRIC_MOTOR_L_DIRECTION  (1)
+#define FRIC_MOTOR_U_DIRECTION  (1)
+
 // 电机std_id
 #define STD_ID 0x200
 // 单环拨弹速度
 #define TRIGGER_SPEED (300.0f)
 // 摩擦轮速度
 #define FRIC_R_SPEED (330.0f)//660
-#define FRIC_L_SPEED (-330.0f)
-#define FRIC_U_SPEED (-330.0f)
+#define FRIC_L_SPEED (330.0f)
+#define FRIC_U_SPEED (0.0f)
 #define FRIC_SPEED_LIMIT (150.0f)//600
 
 /*ECD parameters------------*/

@@ -43,27 +43,40 @@ static const PidGetVofa_t *pid_get_vofa;
  */
 void Angle_solution(void)
 {
-    float motor_feedback = gimbal_direct.pitch.fdb.pos;     // 当前电机位置
-    float imu_feedback = gimbal_direct.feedback_pos.pitch;  // 当前IMU角度
-    float motor_mid = GIMBAL_DIRECT_PITCH_MID;              // 电机中值位置
-    float imu_mid = 0.0;                                    // IMU中值(设为0)
+    // PITCH轴角度解算 (不变)
+    float motor_feedback_pitch = gimbal_direct.pitch.fdb.pos;
+    float imu_feedback_pitch = gimbal_direct.feedback_pos.pitch;
+    float motor_mid_pitch = GIMBAL_DIRECT_PITCH_MID;
+    float imu_mid_pitch = 0.0;
 
-    float motor_delta = GIMBAL_DIRECT_PITCH_DIRECTION * (motor_feedback - motor_mid);
-    float imu_delta = imu_feedback - imu_mid;
+    float motor_delta_pitch = GIMBAL_DIRECT_PITCH_DIRECTION * (motor_feedback_pitch - motor_mid_pitch);
+    float imu_delta_pitch = imu_feedback_pitch - imu_mid_pitch;
+    // 当电机在中值时，IMU的弧度
+    gimbal_direct.pitch_angle_zero_for_imu = imu_delta_pitch - motor_delta_pitch;
     
-    // 当电机在中值时，IMU的弧度
-    gimbal_direct.pitch_angle_zero_for_imu = imu_delta - motor_delta;
+    // YAW_BA轴角度解算
+    float motor_feedback_yaw_ba = gimbal_direct.yaw_ba.fdb.pos;
+    float imu_feedback_yaw_ba = gimbal_direct.feedback_pos.yaw_ba;
+    float motor_mid_yaw_ba = GIMBAL_DIRECT_YAW_BA_MID;
+    float imu_mid_yaw_ba = 0.0;
 
-    motor_feedback = gimbal_direct.yaw_up.fdb.pos;    // 当前电机位置
-    imu_feedback = gimbal_direct.feedback_pos.yaw_up; // 当前IMU角度
-    motor_mid = GIMBAL_DIRECT_YAW_UP_MID;             // 电机中值位置
-    imu_mid = 0.0;                                 // IMU中值(设为0)
+    float motor_delta_yaw_ba = GIMBAL_DIRECT_YAW_BA_DIRECTION * (motor_feedback_yaw_ba - motor_mid_yaw_ba);
+    float imu_delta_yaw_ba = imu_feedback_yaw_ba - imu_mid_yaw_ba;
+    
+    gimbal_direct.yaw_ba_angle_zero_for_imu = imu_delta_yaw_ba - motor_delta_yaw_ba;
+    
+    // YAW_UP轴角度解算 (小yaw，改用普通限幅)
+    float motor_feedback_yaw_up = gimbal_direct.yaw_up.fdb.pos;
+    float imu_feedback_yaw_up = gimbal_direct.feedback_pos.yaw_up;
+    float motor_mid_yaw_up = GIMBAL_DIRECT_YAW_UP_MID;
+    float imu_mid_yaw_up = 0.0;
 
-    motor_delta = GIMBAL_DIRECT_YAW_UP_DIRECTION * (motor_feedback - motor_mid);
-    imu_delta = imu_feedback - imu_mid;
-
-    // 当电机在中值时，IMU的弧度
-    gimbal_direct.yaw_angle_zero_for_imu = imu_delta - motor_delta;
+    float motor_delta_yaw_up = GIMBAL_DIRECT_YAW_UP_DIRECTION * (motor_feedback_yaw_up - motor_mid_yaw_up);
+    // 使用普通限幅，不使用循环限幅
+    float imu_delta_yaw_up = imu_feedback_yaw_up - imu_mid_yaw_up;
+    
+    // 当yaw_up电机在中值时，IMU的yaw弧度 (使用普通限幅)
+    gimbal_direct.yaw_up_angle_zero_for_imu = imu_delta_yaw_up - motor_delta_yaw_up;
 }
 
 /*----------------Gimbal_direct_init_judge--------------------*/
@@ -287,9 +300,17 @@ void GimbalObserver(void)
     // IMU相关数据更新
     gimbal_direct.feedback_pos.pitch = GetImuAngle(AX_PITCH);
     gimbal_direct.feedback_pos.yaw_up = GetImuAngle(AX_YAW);
+    // 计算底盘的yaw角度
+    gimbal_direct.feedback_pos.yaw_ba = loop_fp32_constrain(
+        gimbal_direct.feedback_pos.yaw_up - 
+        GIMBAL_DIRECT_YAW_UP_DIRECTION * (gimbal_direct.yaw_up.fdb.pos - GIMBAL_DIRECT_YAW_UP_MID),
+        -M_PI, M_PI);
+
 
     gimbal_direct.feedback_vel.pitch = GetImuVelocity(AX_PITCH);
     gimbal_direct.feedback_vel.yaw_up = GetImuVelocity(AX_YAW);
+    gimbal_direct.feedback_vel.yaw_ba = gimbal_direct.feedback_vel.yaw_up - 
+        GIMBAL_DIRECT_YAW_UP_DIRECTION * gimbal_direct.yaw_up.fdb.vel;
 
     // 坐标系映射更新 (关键!)
     Angle_solution();
