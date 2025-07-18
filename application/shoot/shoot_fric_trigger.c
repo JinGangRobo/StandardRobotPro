@@ -74,9 +74,9 @@ void ShootInit(void)
   SHOOT.rc = get_remote_control_point();
 
   // 摩擦轮相关
-  MotorInit(&SHOOT.fric_motor[0], FRIC_MOTOR_R_ID, FRIC_MOTOR_R_CAN, FRIC_MOTOR_TYPE, 1, 1.0f, 0);  // 初始化R摩擦轮电机结构体
-  MotorInit(&SHOOT.fric_motor[1], FRIC_MOTOR_L_ID, FRIC_MOTOR_L_CAN, FRIC_MOTOR_TYPE, -1, 1.0f, 0); // 初始化L摩擦轮电机结构体
-  MotorInit(&SHOOT.fric_motor[2], FRIC_MOTOR_U_ID, FRIC_MOTOR_U_CAN, FRIC_MOTOR_TYPE, 1, 1.0f, 0);  // 初始化U摩擦轮电机结构体
+  MotorInit(&SHOOT.fric_motor[0], FRIC_MOTOR_R_ID, FRIC_MOTOR_R_CAN, FRIC_MOTOR_TYPE, FRIC_MOTOR_R_DIRECTION, 1.0f, 0);  // 初始化R摩擦轮电机结构体
+  MotorInit(&SHOOT.fric_motor[1], FRIC_MOTOR_L_ID, FRIC_MOTOR_L_CAN, FRIC_MOTOR_TYPE, FRIC_MOTOR_L_DIRECTION, 1.0f, 0); // 初始化L摩擦轮电机结构体
+  MotorInit(&SHOOT.fric_motor[2], FRIC_MOTOR_U_ID, FRIC_MOTOR_U_CAN, FRIC_MOTOR_TYPE, FRIC_MOTOR_U_DIRECTION, 1.0f, 0);  // 初始化U摩擦轮电机结构体
 
   const fp32 pid_fric[3] = {FRIC_SPEED_PID_KP, FIRC_SPEED_PID_KI, FRIC_SPEED_PID_KD}; // 摩擦轮速度环
 
@@ -85,7 +85,7 @@ void ShootInit(void)
   PID_init(&SHOOT.fric_pid[2], PID_POSITION, pid_fric, FRIC_PID_MAX_OUT, FRIC_PID_MAX_IOUT); // 摩擦轮初始化pid
 
   // 拨弹盘相关
-  MotorInit(&SHOOT.trigger_motor, TRIGGER_MOTOR_ID, TRIGGER_MOTOR_CAN, TRIGGER_MOTOR_TYPE, 1, 1.0f, 0); // 初始化拨弹盘电机结构体
+  MotorInit(&SHOOT.trigger_motor, TRIGGER_MOTOR_ID, TRIGGER_MOTOR_CAN, TRIGGER_MOTOR_TYPE, TRIGGER_MOTOR_DIRECTION, 1.0f, 0); // 初始化拨弹盘电机结构体
   if (TRIGGER_MOTOR_TYPE == DJI_M2006)
   {
     const fp32 pid_angel_trigger[3] = {TRIGGER_ANGEL_PID_KP, TRIGGER_ANGEL_PID_KI, TRIGGER_ANGEL_PID_KD}; // 拨弹盘角度环
@@ -565,9 +565,9 @@ void ShootReference(void)
     break;
 
   case FRIC_READY:
-    SHOOT.REF.fric_speed_ref_R = FRIC_R_SPEED;
-    SHOOT.REF.fric_speed_ref_L = FRIC_L_SPEED;
-    SHOOT.REF.fric_speed_ref_U = FRIC_U_SPEED;
+    SHOOT.REF.fric_speed_ref_R = FRIC_R_SPEED * FRIC_MOTOR_R_DIRECTION;
+    SHOOT.REF.fric_speed_ref_L = FRIC_L_SPEED * FRIC_MOTOR_L_DIRECTION;
+    SHOOT.REF.fric_speed_ref_U = FRIC_U_SPEED * FRIC_MOTOR_U_DIRECTION;
     break;
 
   default:

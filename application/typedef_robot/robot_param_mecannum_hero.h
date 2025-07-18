@@ -206,6 +206,9 @@
 #define error1 (all_Transmission_ratio-all_Transmission_ratio_z)/all_Transmission_ratio_z*ECD_RANGE//电机转一圈产生的误差
 #define dianji_Transmission_ratio  19.0f //电机的传动比
 
+// 遥控器相关宏定义
+#define SHOOT_MODE_CHANNEL 1  // 射击发射开关通道数据
+
 
 /*MOTOR paramters --------------------*/
 
@@ -225,14 +228,20 @@
 #define FRIC_MOTOR_L_CAN 1
 #define FRIC_MOTOR_U_CAN 1
 
+// 旋转方向
+#define TRIGGER_MOTOR_DIRECTION (1)
+#define FRIC_MOTOR_R_DIRECTION  (-1)
+#define FRIC_MOTOR_L_DIRECTION  (1)
+#define FRIC_MOTOR_U_DIRECTION  (-1)
+
 // 电机std_id
 #define STD_ID 0x200
 // 单环拨弹速度
 #define TRIGGER_SPEED (300.0f)
 // 摩擦轮速度
 #define FRIC_R_SPEED (330.0f)//660
-#define FRIC_L_SPEED (-330.0f)
-#define FRIC_U_SPEED (-330.0f)
+#define FRIC_L_SPEED (330.0f)
+#define FRIC_U_SPEED (330.0f)
 #define FRIC_SPEED_LIMIT (150.0f)//600
 
 /*ECD parameters------------*/
@@ -260,27 +269,27 @@
 /*PID parameters ---------------------*/
 
 // 拨弹轮电机PID速度环
-#define TRIGGER_SPEED_PID_KP (2000.0f)//100
-#define TRIGGER_SPEED_PID_KI (1.0f)
-#define TRIGGER_SPEED_PID_KD (3.0f)//0.1
+#define TRIGGER_SPEED_PID_KP (200.0f)//100
+#define TRIGGER_SPEED_PID_KI (0.0f)
+#define TRIGGER_SPEED_PID_KD (0.0f)//0.1
 
-#define TRIGGER_SPEED_PID_MAX_OUT (100.0f)
-#define TRIGGER_SPEED_PID_MAX_IOUT (10.0f)
+#define TRIGGER_SPEED_PID_MAX_OUT (10000.0f)
+#define TRIGGER_SPEED_PID_MAX_IOUT (7000.0f)
 
 // 拨弹轮电机PID角度环
-#define TRIGGER_ANGEL_PID_KP (1000.0f)
-#define TRIGGER_ANGEL_PID_KI (1.05f)
-#define TRIGGER_ANGEL_PID_KD (2.05f)
+#define TRIGGER_ANGEL_PID_KP (6.0f)
+#define TRIGGER_ANGEL_PID_KI (0.0f)
+#define TRIGGER_ANGEL_PID_KD (0.0f)
 
-#define TRIGGER_ANGEL_PID_MAX_OUT (30.0f)
-#define TRIGGER_ANGEL_PID_MAX_IOUT (30.0f)
+#define TRIGGER_ANGEL_PID_MAX_OUT (10000.0f)
+#define TRIGGER_ANGEL_PID_MAX_IOUT (7000.0f)
 
 // 摩擦轮电机PID
 #define FRIC_SPEED_PID_KP (66.0f)
 #define FIRC_SPEED_PID_KI (0.6f)
 #define FRIC_SPEED_PID_KD (0.0f)
 
-#define FRIC_PID_MAX_OUT (16000.0f)
+#define FRIC_PID_MAX_OUT (15000.0f)
 #define FRIC_PID_MAX_IOUT (1000.0f)
 
 // 当未连接裁判系统设置负值方便调试

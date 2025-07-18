@@ -445,20 +445,20 @@ static void UsbSendPidtoVofaData(void)
         SEND_DATA_PID_TUNING.data[10] = GIMBAL_PID->yaw_velocity.Iout;
         SEND_DATA_PID_TUNING.data[11] = GIMBAL_PID->yaw_velocity.Dout;
 #elif(__TUNING_MODE == TUNING_SHOOT_FIRC)
-        SEND_DATA_PID_TUNING.data[0] = 0;
-        SEND_DATA_PID_TUNING.data[1] = 0;
-        SEND_DATA_PID_TUNING.data[2] = 0;
-        SEND_DATA_PID_TUNING.data[3] = 0;
-        SEND_DATA_PID_TUNING.data[4] = 0;
-        SEND_DATA_PID_TUNING.data[5] = 0;
+        SEND_DATA_PID_TUNING.data[0] = SHOOT->fric_pid[0].fdb * FRIC_MOTOR_R_DIRECTION;
+        SEND_DATA_PID_TUNING.data[1] = SHOOT->fric_pid[1].fdb * FRIC_MOTOR_L_DIRECTION;
+        SEND_DATA_PID_TUNING.data[2] = SHOOT->fric_pid[2].fdb * FRIC_MOTOR_U_DIRECTION;
+        
+        SEND_DATA_PID_TUNING.data[3] = SHOOT->fric_pid[0].set * FRIC_MOTOR_R_DIRECTION;
+        SEND_DATA_PID_TUNING.data[4] = SHOOT->fric_pid[1].set * FRIC_MOTOR_L_DIRECTION;
+        SEND_DATA_PID_TUNING.data[5] = SHOOT->fric_pid[2].set * FRIC_MOTOR_U_DIRECTION;
 
-        SEND_DATA_PID_TUNING.data[6] = SHOOT->fric_pid[0].set;
-        SEND_DATA_PID_TUNING.data[7] = SHOOT->fric_pid[0].fdb;
-
-        SEND_DATA_PID_TUNING.data[8] = SHOOT->fric_pid[0].out;
-        SEND_DATA_PID_TUNING.data[9] = SHOOT->fric_pid[0].Pout;
-        SEND_DATA_PID_TUNING.data[10] = SHOOT->fric_pid[0].Iout;
-        SEND_DATA_PID_TUNING.data[11] = SHOOT->fric_pid[0].Dout;
+        SEND_DATA_PID_TUNING.data[6] = 0;
+        SEND_DATA_PID_TUNING.data[7] = 0;
+        SEND_DATA_PID_TUNING.data[8] = 0;
+        SEND_DATA_PID_TUNING.data[9] = 0;
+        SEND_DATA_PID_TUNING.data[10] = 0;
+        SEND_DATA_PID_TUNING.data[11] = 0;
 #elif(__TUNING_MODE == TUNING_SHOOT_TRIGGER)
         SEND_DATA_PID_TUNING.data[0] = SHOOT->trigger_angel_pid.set;
         SEND_DATA_PID_TUNING.data[1] = SHOOT->trigger_angel_pid.fdb;
