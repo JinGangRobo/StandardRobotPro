@@ -444,6 +444,38 @@ static void UsbSendPidtoVofaData(void)
         SEND_DATA_PID_TUNING.data[9] = GIMBAL_PID->yaw_velocity.Pout;
         SEND_DATA_PID_TUNING.data[10] = GIMBAL_PID->yaw_velocity.Iout;
         SEND_DATA_PID_TUNING.data[11] = GIMBAL_PID->yaw_velocity.Dout;
+#elif(__TUNING_MODE == TUNING_GIMBAL_YAW_BA)
+        SEND_DATA_PID_TUNING.data[0] = GIMBAL_PID->yaw_ba_angle.set;
+        SEND_DATA_PID_TUNING.data[1] = GIMBAL_PID->yaw_ba_angle.fdb;
+
+        SEND_DATA_PID_TUNING.data[2] = GIMBAL_PID->yaw_ba_angle.out;
+        SEND_DATA_PID_TUNING.data[3] = GIMBAL_PID->yaw_ba_angle.Pout;
+        SEND_DATA_PID_TUNING.data[4] = GIMBAL_PID->yaw_ba_angle.Iout;
+        SEND_DATA_PID_TUNING.data[5] = GIMBAL_PID->yaw_ba_angle.Dout;
+
+        SEND_DATA_PID_TUNING.data[6] = GIMBAL_PID->yaw_ba_velocity.set;
+        SEND_DATA_PID_TUNING.data[7] = GIMBAL_PID->yaw_ba_velocity.fdb;
+
+        SEND_DATA_PID_TUNING.data[8] = GIMBAL_PID->yaw_ba_velocity.out;
+        SEND_DATA_PID_TUNING.data[9] = GIMBAL_PID->yaw_ba_velocity.Pout;
+        SEND_DATA_PID_TUNING.data[10] = GIMBAL_PID->yaw_ba_velocity.Iout;
+        SEND_DATA_PID_TUNING.data[11] = GIMBAL_PID->yaw_ba_velocity.Dout;
+#elif(__TUNING_MODE == TUNING_GIMBAL_YAW_UP)
+        SEND_DATA_PID_TUNING.data[0] = GIMBAL_PID->yaw_up_angle.set;
+        SEND_DATA_PID_TUNING.data[1] = GIMBAL_PID->yaw_up_angle.fdb;
+
+        SEND_DATA_PID_TUNING.data[2] = GIMBAL_PID->yaw_up_angle.out;
+        SEND_DATA_PID_TUNING.data[3] = GIMBAL_PID->yaw_up_angle.Pout;
+        SEND_DATA_PID_TUNING.data[4] = GIMBAL_PID->yaw_up_angle.Iout;
+        SEND_DATA_PID_TUNING.data[5] = GIMBAL_PID->yaw_up_angle.Dout;
+
+        SEND_DATA_PID_TUNING.data[6] = GIMBAL_PID->yaw_up_velocity.set;
+        SEND_DATA_PID_TUNING.data[7] = GIMBAL_PID->yaw_up_velocity.fdb;
+
+        SEND_DATA_PID_TUNING.data[8] = GIMBAL_PID->yaw_up_velocity.out;
+        SEND_DATA_PID_TUNING.data[9] = GIMBAL_PID->yaw_up_velocity.Pout;
+        SEND_DATA_PID_TUNING.data[10] = GIMBAL_PID->yaw_up_velocity.Iout;
+        SEND_DATA_PID_TUNING.data[11] = GIMBAL_PID->yaw_up_velocity.Dout;
 #elif(__TUNING_MODE == TUNING_SHOOT_FIRC)
         SEND_DATA_PID_TUNING.data[0] = SHOOT->fric_pid[0].fdb * FRIC_MOTOR_R_DIRECTION;
         SEND_DATA_PID_TUNING.data[1] = SHOOT->fric_pid[1].fdb * FRIC_MOTOR_L_DIRECTION;

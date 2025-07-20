@@ -29,7 +29,7 @@
 #if (GIMBAL_TYPE == GIMBAL_DOUBLE_YAW_PITCH)
 static Gimbal_s gimbal_direct;
 static Gimbal_PID_t gimbal_direct_pid;
-static const PidGetVofa_t *pid_get_vofa;
+const PidGetVofa_t *pid_get_vofa;
 #define ROBO_INIT_TIME 10 // (秒)云台初始化时间
 /*--------------------------------Internal functions---------------------------------------*/
 /**以下函数均不会被外部调用，请注意！**/
@@ -47,7 +47,7 @@ void Angle_solution(void)
     float motor_feedback_pitch = gimbal_direct.pitch.fdb.pos;
     float imu_feedback_pitch = gimbal_direct.feedback_pos.pitch;
     float motor_mid_pitch = GIMBAL_DIRECT_PITCH_MID;
-    float imu_mid_pitch = 0.0;
+    float imu_mid_pitch = 0.0f;
 
     float motor_delta_pitch = GIMBAL_DIRECT_PITCH_DIRECTION * (motor_feedback_pitch - motor_mid_pitch);
     float imu_delta_pitch = imu_feedback_pitch - imu_mid_pitch;
@@ -58,7 +58,7 @@ void Angle_solution(void)
     float motor_feedback_yaw_ba = gimbal_direct.yaw_ba.fdb.pos;
     float imu_feedback_yaw_ba = gimbal_direct.feedback_pos.yaw_ba;
     float motor_mid_yaw_ba = GIMBAL_DIRECT_YAW_BA_MID;
-    float imu_mid_yaw_ba = 0.0;
+    float imu_mid_yaw_ba = 0.0f;
 
     float motor_delta_yaw_ba = GIMBAL_DIRECT_YAW_BA_DIRECTION * (motor_feedback_yaw_ba - motor_mid_yaw_ba);
     float imu_delta_yaw_ba = imu_feedback_yaw_ba - imu_mid_yaw_ba;
@@ -69,7 +69,8 @@ void Angle_solution(void)
     float motor_feedback_yaw_up = gimbal_direct.yaw_up.fdb.pos;
     float imu_feedback_yaw_up = gimbal_direct.feedback_pos.yaw_up;
     float motor_mid_yaw_up = GIMBAL_DIRECT_YAW_UP_MID;
-    float imu_mid_yaw_up = 0.0;
+    // 计算小yaw对应的IMU零点 = IMU零点 - 大yaw电机角度
+    float imu_mid_yaw_up = 0.0f - GIMBAL_DIRECT_YAW_BA_DIRECTION * (gimbal_direct.yaw_ba.fdb.pos - GIMBAL_DIRECT_YAW_BA_MID);
 
     float motor_delta_yaw_up = GIMBAL_DIRECT_YAW_UP_DIRECTION * (motor_feedback_yaw_up - motor_mid_yaw_up);
     // 使用普通限幅，不使用循环限幅
@@ -97,6 +98,103 @@ bool Gimbal_direct_init_judge(void)
     bool timeout_reached = (gimbal_direct.init_timer >= ROBO_INIT_TIME);
     
     return position_reached || timeout_reached;
+}
+
+/**
+ * @brief          双yaw角度分配算法 - 修正版
+ * @param[in]      target_yaw_total 总的目标yaw角度(IMU坐标系)
+ * @retval         none
+ */
+void GimbalDualYawAllocation(float target_yaw_total)
+{
+    // 定义小yaw的舒适工作区间(相对于中值的角度)
+    const float YAW_UP_COMFORT_RANGE = M_PI_4 / 2;       // ±45度舒适区
+    const float YAW_UP_LIMIT_BUFFER = 0.2f;          // 限位缓冲区(约11.5度)
+    const float YAW_UP_MAX_RANGE = M_PI_4;           // ±90度最大范围
+    
+    // 计算当前总yaw角度（IMU测量的原始角度）
+    float current_total_yaw = gimbal_direct.feedback_pos.yaw;
+    
+    // 计算总的yaw变化量
+    float total_yaw_change = loop_fp32_constrain(target_yaw_total - current_total_yaw, -M_PI, M_PI);
+    
+    // 计算当前小yaw相对其中值的位置
+    float current_yaw_up_relative = GIMBAL_DIRECT_YAW_UP_DIRECTION * 
+                                   (gimbal_direct.yaw_up.fdb.pos - GIMBAL_DIRECT_YAW_UP_MID);
+    
+    // 计算预期的小yaw变化后的位置
+    float predicted_yaw_up_relative = current_yaw_up_relative + total_yaw_change;
+    
+    // 策略1: 小yaw优先 - 在舒适区间内且不超出限位
+    if (fabs(predicted_yaw_up_relative) <= YAW_UP_COMFORT_RANGE && 
+        fabs(predicted_yaw_up_relative) < (YAW_UP_MAX_RANGE - YAW_UP_LIMIT_BUFFER))
+    {
+        // 小yaw独立完成，大yaw保持不动
+        float target_yaw_up_motor = GIMBAL_DIRECT_YAW_UP_MID + 
+                                   GIMBAL_DIRECT_YAW_UP_DIRECTION * total_yaw_change;
+        
+        gimbal_direct.reference.yaw_up = current_total_yaw + total_yaw_change;
+        gimbal_direct.reference.yaw_ba = gimbal_direct.feedback_pos.yaw_ba;
+        
+    }
+    // 策略2: 协调控制 - 小yaw接近限位时自动回中
+    else if (fabs(current_yaw_up_relative) > (YAW_UP_MAX_RANGE - YAW_UP_LIMIT_BUFFER))
+    {
+        // // 小yaw回到中心位置，大yaw承担所有旋转
+        // float yaw_up_return_to_center = -current_yaw_up_relative;  // 回中需要的变化量
+        // float yaw_ba_compensation = total_yaw_change - yaw_up_return_to_center;
+        
+        // gimbal_direct.reference.yaw_up = gimbal_direct.feedback_pos.yaw_up + yaw_up_return_to_center;
+        // gimbal_direct.reference.yaw_ba = loop_fp32_constrain(
+        //     gimbal_direct.feedback_pos.yaw_ba + yaw_ba_compensation, -M_PI, M_PI);
+    }
+    // 策略3: 混合控制 - 优化分配
+    else
+    {
+        // // 计算小yaw的可用范围
+        // float yaw_up_available_positive = (YAW_UP_COMFORT_RANGE - current_yaw_up_relative);
+        // float yaw_up_available_negative = (-YAW_UP_COMFORT_RANGE - current_yaw_up_relative);
+        
+        // float yaw_up_change = 0.0f;
+        
+        // if (total_yaw_change > 0)
+        // {
+        //     // 正向变化
+        //     yaw_up_change = fminf(total_yaw_change, yaw_up_available_positive);
+        // }
+        // else
+        // {
+        //     // 负向变化
+        //     yaw_up_change = fmaxf(total_yaw_change, yaw_up_available_negative);
+        // }
+        
+        // // 限制小yaw变化量不超出物理限位
+        // float target_yaw_up_motor = GIMBAL_DIRECT_YAW_UP_MID + 
+        //                            GIMBAL_DIRECT_YAW_UP_DIRECTION * (current_yaw_up_relative + yaw_up_change);
+        
+        // if (target_yaw_up_motor < GIMBAL_LOWER_LIMIT_YAW_UP)
+        // {
+        //     yaw_up_change = GIMBAL_DIRECT_YAW_UP_DIRECTION * 
+        //                    (GIMBAL_LOWER_LIMIT_YAW_UP - GIMBAL_DIRECT_YAW_UP_MID) - current_yaw_up_relative;
+        // }
+        // else if (target_yaw_up_motor > GIMBAL_UPPER_LIMIT_YAW_UP)
+        // {
+        //     yaw_up_change = GIMBAL_DIRECT_YAW_UP_DIRECTION * 
+        //                    (GIMBAL_UPPER_LIMIT_YAW_UP - GIMBAL_DIRECT_YAW_UP_MID) - current_yaw_up_relative;
+        // }
+        
+        // float yaw_ba_change = total_yaw_change - yaw_up_change;
+        
+        // gimbal_direct.reference.yaw_up = gimbal_direct.feedback_pos.yaw_up + yaw_up_change;
+        // gimbal_direct.reference.yaw_ba = loop_fp32_constrain(
+        //     gimbal_direct.feedback_pos.yaw_ba + yaw_ba_change, -M_PI, M_PI);
+    }
+    
+    // 最终安全限制（基于IMU角度）
+    gimbal_direct.reference.yaw_up = fp32_constrain(
+        gimbal_direct.reference.yaw_up,
+        current_total_yaw - (YAW_UP_MAX_RANGE - YAW_UP_LIMIT_BUFFER),
+        current_total_yaw + (YAW_UP_MAX_RANGE - YAW_UP_LIMIT_BUFFER));
 }
 
 /*-------------------------The end of internal functions--------------------------------------*/
@@ -179,14 +277,17 @@ void GimbalInit(void)
     gimbal_direct.reference.pitch = 0;
     gimbal_direct.reference.yaw_ba = 0;
     gimbal_direct.reference.yaw_up = 0;
+    gimbal_direct.reference.yaw = 0;
 
     gimbal_direct.feedback_pos.pitch = 0;
     gimbal_direct.feedback_pos.yaw_ba = 0;
     gimbal_direct.feedback_pos.yaw_up = 0;
+    gimbal_direct.feedback_pos.yaw = 0;
 
     gimbal_direct.feedback_vel.pitch = 0;
     gimbal_direct.feedback_vel.yaw_ba = 0;
     gimbal_direct.feedback_vel.yaw_up = 0;
+    gimbal_direct.feedback_vel.yaw = 0;
 
     gimbal_direct.upper_limit.pitch = GIMBAL_UPPER_LIMIT_PITCH;
     gimbal_direct.lower_limit.pitch = GIMBAL_LOWER_LIMIT_PITCH;
@@ -195,6 +296,9 @@ void GimbalInit(void)
     gimbal_direct.lower_limit.yaw_ba = GIMBAL_LOWER_LIMIT_YAW_BA;
     gimbal_direct.upper_limit.yaw_up = GIMBAL_UPPER_LIMIT_YAW_UP;
     gimbal_direct.lower_limit.yaw_up = GIMBAL_LOWER_LIMIT_YAW_UP;
+
+    gimbal_direct.upper_limit.yaw = GIMBAL_UPPER_LIMIT_YAW;
+    gimbal_direct.lower_limit.yaw = GIMBAL_LOWER_LIMIT_YAW;
 
     // step3 PID数据清零，设置PID参数
     const static fp32 gimbal_yaw_ba_angle[3] = {KP_GIMBAL_YAW_BA_ANGLE, KI_GIMBAL_YAW_BA_ANGLE, KD_GIMBAL_YAW_BA_ANGLE};
@@ -299,16 +403,24 @@ void GimbalObserver(void)
 
     // IMU相关数据更新
     gimbal_direct.feedback_pos.pitch = GetImuAngle(AX_PITCH);
-    gimbal_direct.feedback_pos.yaw_up = GetImuAngle(AX_YAW);
+    gimbal_direct.feedback_pos.yaw = GetImuAngle(AX_YAW);
+
+    gimbal_direct.feedback_pos.yaw_up = loop_fp32_constrain(
+        gimbal_direct.feedback_pos.yaw - 
+        GIMBAL_DIRECT_YAW_BA_DIRECTION * (gimbal_direct.yaw_ba.fdb.pos - GIMBAL_DIRECT_YAW_BA_MID),
+        -M_PI, M_PI);
+
     // 计算底盘的yaw角度
     gimbal_direct.feedback_pos.yaw_ba = loop_fp32_constrain(
-        gimbal_direct.feedback_pos.yaw_up - 
+        gimbal_direct.feedback_pos.yaw - 
         GIMBAL_DIRECT_YAW_UP_DIRECTION * (gimbal_direct.yaw_up.fdb.pos - GIMBAL_DIRECT_YAW_UP_MID),
         -M_PI, M_PI);
 
 
     gimbal_direct.feedback_vel.pitch = GetImuVelocity(AX_PITCH);
-    gimbal_direct.feedback_vel.yaw_up = GetImuVelocity(AX_YAW);
+    gimbal_direct.feedback_vel.yaw = GetImuVelocity(AX_YAW);
+    gimbal_direct.feedback_vel.yaw_up = gimbal_direct.feedback_vel.yaw_ba - 
+        GIMBAL_DIRECT_YAW_BA_DIRECTION * gimbal_direct.yaw_ba.fdb.vel;
     gimbal_direct.feedback_vel.yaw_ba = gimbal_direct.feedback_vel.yaw_up - 
         GIMBAL_DIRECT_YAW_UP_DIRECTION * gimbal_direct.yaw_up.fdb.vel;
 
@@ -356,7 +468,38 @@ void GimbalObserver(void)
         gimbal_direct_pid.pitch_velocity.max_iout = pid_get_vofa->speed_max_iout;
         gimbal_direct_pid.pitch_velocity.max_out = pid_get_vofa->speed_max_out;
         break;
+
+    case TUNING_GIMBAL_YAW_BA:
+        gimbal_direct_pid.yaw_ba_angle.Kp = pid_get_vofa->angle_kp;
+        gimbal_direct_pid.yaw_ba_angle.Ki = pid_get_vofa->angle_ki;
+        gimbal_direct_pid.yaw_ba_angle.Kd = pid_get_vofa->angle_kd;
+
+        gimbal_direct_pid.yaw_ba_angle.max_iout = pid_get_vofa->angle_max_iout;
+        gimbal_direct_pid.yaw_ba_angle.max_out = pid_get_vofa->angle_max_out;
+
+        gimbal_direct_pid.yaw_ba_velocity.Kp = pid_get_vofa->speed_kp;
+        gimbal_direct_pid.yaw_ba_velocity.Ki = pid_get_vofa->speed_ki;
+        gimbal_direct_pid.yaw_ba_velocity.Kd = pid_get_vofa->speed_kd;
+
+        gimbal_direct_pid.yaw_ba_velocity.max_iout = pid_get_vofa->speed_max_iout;
+        gimbal_direct_pid.yaw_ba_velocity.max_out = pid_get_vofa->speed_max_out;
+        break;
     
+    case TUNING_GIMBAL_YAW_UP:
+        gimbal_direct_pid.yaw_up_angle.Kp = pid_get_vofa->angle_kp;
+        gimbal_direct_pid.yaw_up_angle.Ki = pid_get_vofa->angle_ki;
+        gimbal_direct_pid.yaw_up_angle.Kd = pid_get_vofa->angle_kd;
+
+        gimbal_direct_pid.yaw_up_angle.max_iout = pid_get_vofa->angle_max_iout;
+        gimbal_direct_pid.yaw_up_angle.max_out = pid_get_vofa->angle_max_out;
+
+        gimbal_direct_pid.yaw_up_velocity.Kp = pid_get_vofa->speed_kp;
+        gimbal_direct_pid.yaw_up_velocity.Ki = pid_get_vofa->speed_ki;
+        gimbal_direct_pid.yaw_up_velocity.Kd = pid_get_vofa->speed_kd;
+
+        gimbal_direct_pid.yaw_up_velocity.max_iout = pid_get_vofa->speed_max_iout;
+        gimbal_direct_pid.yaw_up_velocity.max_out = pid_get_vofa->speed_max_out;
+        break;
     default:
         break;
     }
@@ -384,6 +527,8 @@ void GimbalReference(void)
         gimbal_direct.reference.yaw_up = loop_fp32_constrain(
             gimbal_direct.yaw_up.direction * (GIMBAL_DIRECT_YAW_UP_MID - gimbal_direct.yaw_up.fdb.pos)
             + gimbal_direct.feedback_pos.yaw_up, -M_PI, M_PI);
+        gimbal_direct.reference.yaw = loop_fp32_constrain(
+            gimbal_direct.reference.yaw_ba + gimbal_direct.feedback_pos.yaw_up, -M_PI, M_PI);
     }
 
     // 过渡模式保持当前位置不动
@@ -392,6 +537,7 @@ void GimbalReference(void)
         gimbal_direct.reference.pitch = gimbal_direct.feedback_pos.pitch;
         gimbal_direct.reference.yaw_ba = gimbal_direct.feedback_pos.yaw_ba;
         gimbal_direct.reference.yaw_up = gimbal_direct.feedback_pos.yaw_up;
+        gimbal_direct.reference.yaw = gimbal_direct.feedback_pos.yaw;
     }
 
     else if (gimbal_direct.mode == GIMBAL_ABSOLUTE_ANGLE)
@@ -402,6 +548,7 @@ void GimbalReference(void)
             gimbal_direct.reference.pitch = gimbal_direct.feedback_pos.pitch;
             gimbal_direct.reference.yaw_ba = gimbal_direct.feedback_pos.yaw_ba;
             gimbal_direct.reference.yaw_up = gimbal_direct.feedback_pos.yaw_up;
+            gimbal_direct.reference.yaw = gimbal_direct.feedback_pos.yaw;
         }
         else
         {
@@ -414,14 +561,40 @@ void GimbalReference(void)
                 GIMBAL_LOWER_LIMIT_PITCH - GIMBAL_DIRECT_PITCH_MID + gimbal_direct.pitch_angle_zero_for_imu, 
                 GIMBAL_UPPER_LIMIT_PITCH - GIMBAL_DIRECT_PITCH_MID + gimbal_direct.pitch_angle_zero_for_imu);
             
-            // // YAW轴控制 (摇杆CH2)
+            // YAW轴控制 (摇杆CH2) - 添加双yaw协调控制
+            float yaw_input = fp32_deadline(GetDt7RcCh(2), 
+                                          REMOTE_CONTROLLER_MIN_DEADLINE, 
+                                          REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY_YAW;
+            
+            //---------------------PID调试使用-----------------
+
+            gimbal_direct.reference.yaw_up = fp32_constrain(
+                    gimbal_direct.reference.yaw_up -
+                        fp32_deadline(GetDt7RcCh(2),
+                                      REMOTE_CONTROLLER_MIN_DEADLINE,
+                                      REMOTE_CONTROLLER_MAX_DEADLINE) /
+                            REMOTE_CONTROLLER_SENSITIVITY_YAW,
+                GIMBAL_LOWER_LIMIT_YAW_UP - GIMBAL_DIRECT_YAW_UP_MID + gimbal_direct.yaw_up_angle_zero_for_imu,
+                GIMBAL_UPPER_LIMIT_YAW_UP - GIMBAL_DIRECT_YAW_UP_MID + gimbal_direct.yaw_up_angle_zero_for_imu);
+
+            gimbal_direct.reference.yaw_ba = loop_fp32_constrain(
+                    gimbal_direct.reference.yaw_ba -
+                        fp32_deadline(GetDt7RcCh(2),
+                                      REMOTE_CONTROLLER_MIN_DEADLINE,
+                                      REMOTE_CONTROLLER_MAX_DEADLINE) /
+                            REMOTE_CONTROLLER_SENSITIVITY_YAW,
+                    -M_PI, M_PI);
+
+            //------------------------------------------------
+
+                                        
+            // 计算总的yaw期望变化量
             // gimbal_direct.reference.yaw = loop_fp32_constrain(
-            //     gimbal_direct.reference.yaw - 
-            //     fp32_deadline(GetDt7RcCh(2), 
-            //                     REMOTE_CONTROLLER_MIN_DEADLINE, 
-            //                     REMOTE_CONTROLLER_MAX_DEADLINE) / REMOTE_CONTROLLER_SENSITIVITY,
-            //     GIMBAL_LOWER_LIMIT_YAW, 
-            //     GIMBAL_UPPER_LIMIT_YAW);
+            //     gimbal_direct.reference.yaw - yaw_input, -M_PI, M_PI);
+            
+            // 双yaw协调分配
+            // GimbalDualYawAllocation(gimbal_direct.reference.yaw);
+            
         }
     }
 
@@ -431,6 +604,7 @@ void GimbalReference(void)
         gimbal_direct.reference.pitch = gimbal_direct.feedback_pos.pitch;
         gimbal_direct.reference.yaw_ba = gimbal_direct.feedback_pos.yaw_ba;
         gimbal_direct.reference.yaw_up = gimbal_direct.feedback_pos.yaw_up;
+        gimbal_direct.reference.yaw = gimbal_direct.feedback_pos.yaw;
     }
 }
 
@@ -474,7 +648,7 @@ void GimbalConsole(void)
             -M_PI, M_PI);   // 处理±180°跨越
 
         gimbal_direct.yaw_ba.set.vel = PID_calc(
-            &gimbal_direct_pid.yaw_ba_angle, 0, delta_yaw);
+            &gimbal_direct_pid.yaw_ba_angle, delta_yaw, 0);
         gimbal_direct.yaw_ba.set.curr = gimbal_direct.yaw_ba.direction * 
             PID_calc(&gimbal_direct_pid.yaw_ba_velocity, 
                     gimbal_direct.feedback_vel.yaw_ba, 
@@ -505,7 +679,7 @@ void GimbalSendCmd(void)
     // 添加电机到CAN管理器
     CanManagerAddMotor(gimbal_direct.pitch.id + 4, GIMBAL_PITCH_CAN, gimbal_direct.pitch.set.curr);
     CanManagerAddMotor(gimbal_direct.yaw_ba.id + 4, GIMBAL_YAW_BA_CAN, -gimbal_direct.yaw_ba.set.curr);
-    CanManagerAddMotor(gimbal_direct.yaw_up.id + 4, GIMBAL_YAW_UP_CAN, -gimbal_direct.yaw_up.set.curr);
+    // CanManagerAddMotor(gimbal_direct.yaw_up.id + 4, GIMBAL_YAW_UP_CAN, -gimbal_direct.yaw_up.set.curr);
 }
 
 #endif // GIMBAL_YAW_PITCH

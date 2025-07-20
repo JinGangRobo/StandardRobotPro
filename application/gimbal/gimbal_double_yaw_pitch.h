@@ -60,6 +60,7 @@ typedef struct
     float pitch;
     float yaw_ba;
     float yaw_up;
+    float yaw;
 } Values_t;
 
 typedef struct
