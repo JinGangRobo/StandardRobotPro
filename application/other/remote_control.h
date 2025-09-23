@@ -114,7 +114,7 @@ typedef struct __RC_ctrl
         {
                 int16_t ch[5];
                 char s[2];
-        } __packed__ rc;
+        } __attribute__((packed)) rc;
         struct __mouse
         {
                 int16_t x;
@@ -122,12 +122,12 @@ typedef struct __RC_ctrl
                 int16_t z;
                 uint8_t press_l;
                 uint8_t press_r;
-        } __packed__ mouse;
+        } __attribute__((packed)) mouse;
         struct __key
         {
                 uint16_t v;
-        } __packed__ key;
-} __packed__ RC_ctrl_t;
+        } __attribute__((packed)) key;
+} __attribute__((packed)) RC_ctrl_t;
 
 
 /* ----------------------- Internal Data ----------------------------------- */

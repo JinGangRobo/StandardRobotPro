@@ -25,7 +25,7 @@ void communication_task(void const * pvParameters)
         CanManagerSendAll();
 
         //uart1发送
-        DataPack("Hello World", 13, 0);
+        DataPack((uint8_t *)"Hello World", 13, 0);
         UartSendTxMessage(&huart1, (uint8_t *)(&BOARD_TX_DATA), sizeof(BOARD_TX_DATA), 100);
         DataUnpack();
 

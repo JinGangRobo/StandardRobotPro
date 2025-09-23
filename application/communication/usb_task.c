@@ -58,9 +58,9 @@ uint32_t usb_high_water;
 #define CheckDurationAndSend(send_name)                                                \
     do                                                                                 \
     {                                                                                  \
-        if ((HAL_GetTick() - LAST_SEND_TIME.##send_name) >= SEND_DURATION_##send_name) \
+        if ((HAL_GetTick() - LAST_SEND_TIME.send_name) >= SEND_DURATION_##send_name) \
         {                                                                              \
-            LAST_SEND_TIME.##send_name = HAL_GetTick();                                \
+            LAST_SEND_TIME.send_name = HAL_GetTick();                                \
             UsbSend##send_name##Data();                                                \
         }                                                                              \
     } while (0)

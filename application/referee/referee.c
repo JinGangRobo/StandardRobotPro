@@ -334,10 +334,10 @@
    * 此函数根据提供的模式参数，将对应的射击器加热值赋给*value
    * 它支持三种不同口径射击器的加热数据获取，分别是17毫米单管、17毫米双管和42毫米单管
    */
-  void get_robot_info_id(__packed uint8_t* value){
+  void get_robot_info_id(uint8_t* value){
       *value = robot_state.robot_id;
   }
-  void get_robot_info_hp(__packed uint16_t* value){
+  void get_robot_info_hp(uint16_t* value){
       *value = robot_state.current_HP;
   }
   
@@ -358,7 +358,7 @@
    *             3 - 获取42mm炮管的热量数据
    *             4 - 获取17mm炮管1和炮管2中较大的热量数据
    */
-  void get_power_heat_data_mode(__packed uint16_t* value, int mode){
+  void get_power_heat_data_mode(uint16_t* value, int mode){
       if(mode == 1) *value = power_heat_data.shooter_17mm_1_barrel_heat;
       else if(mode == 2) *value = power_heat_data.shooter_17mm_2_barrel_heat;
       else if(mode == 3) *value = power_heat_data.shooter_42mm_barrel_heat;
@@ -378,7 +378,7 @@
       return robot_state.shooter_barrel_heat_limit;
   }
   
-  void get_all_robot_hp_mode(__packed uint16_t* value, int mode){
+  void get_all_robot_hp_mode(uint16_t* value, int mode){
       if(mode == 1) *value = game_robot_HP.red_1_robot_HP;
       else if(mode == 2) *value = game_robot_HP.red_2_robot_HP;
       else if(mode == 3) *value = game_robot_HP.red_3_robot_HP;
@@ -400,11 +400,11 @@
       return game_state.game_progress;
   }
   
-  void get_game_status_time(__packed uint16_t* value){
+  void get_game_status_time(uint16_t* value){
       *value = game_state.stage_remain_time;
   }
   
-  void get_robot_shoot_speed(__packed float* value){
+  void get_robot_shoot_speed(float* value){
       *value = shoot_data.initial_speed;
   }
   

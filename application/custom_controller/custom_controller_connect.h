@@ -34,19 +34,19 @@
 
 #define CONTROLLER_CMD_ID 0x0302  // 自定义控制器命令码
 
-typedef __packed struct
+typedef struct
 {
-    __packed struct
+    struct __attribute__((packed))
     {
         uint8_t sof;               // 起始字节，固定值为0xA5
         uint16_t data_length;      // 数据帧中data的长度
         uint8_t seq;               // 包序号
         uint8_t crc8;              // 帧头CRC8校验
     } frame_header;                // 帧头
-    __packed uint16_t cmd_id;      // 命令码
-    __packed uint8_t data[30];     // 自定义控制器的数据帧
-    __packed uint16_t frame_tail;  // 帧尾CRC16校验
-} Controller_t;                    // 自定义控制器数据包
+    uint16_t cmd_id;               // 命令码
+    uint8_t data[30];              // 自定义控制器的数据帧
+    uint16_t frame_tail;           // 帧尾CRC16校验
+} __attribute__((packed)) Controller_t;                    // 自定义控制器数据包
 
 extern void SendDataToPC(uint8_t * data);
 

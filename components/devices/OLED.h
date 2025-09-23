@@ -42,11 +42,11 @@ typedef enum
 }pen_typedef;
 
 
-typedef  __packed struct  
+typedef struct  
 {
     uint8_t cmd_data;
     uint8_t OLED_GRAM[8][128];
-}OLED_GRAM_strutct_t;
+} __attribute__((packed)) OLED_GRAM_strutct_t;
 
 
 

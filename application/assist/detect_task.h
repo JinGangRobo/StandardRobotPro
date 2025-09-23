@@ -64,7 +64,7 @@ enum errorList
     ERROR_LIST_LENGHT = 15,
 };
 
-typedef __packed struct
+typedef struct
 {
     uint32_t new_time;
     uint32_t last_time;
@@ -82,7 +82,7 @@ typedef __packed struct
     bool_t (*data_is_error_fun)(void);
     void (*solve_lost_fun)(void);
     void (*solve_data_error_fun)(void);
-} error_t;
+} __attribute__((packed)) error_t;
 
 
 /**
