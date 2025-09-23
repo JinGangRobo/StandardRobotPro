@@ -24,6 +24,7 @@
 #include "task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "cmsis_os.h" // Include the header file for FreeRTOS or CMSIS-RTOS
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
