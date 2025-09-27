@@ -26,7 +26,7 @@ Motor_s yaw_motor;
  * @param[in]      none
  * @retval         float
  */
-inline float GetGimbalDeltaYawMid(void)
+float GetGimbalDeltaYawMid(void)
 { 
   yaw_motor.type = GIMBAL_DIRECT_YAW_MOTOR_TYPE;
   yaw_motor.can = GIMBAL_YAW_CAN;
@@ -42,7 +42,7 @@ inline float GetGimbalDeltaYawMid(void)
  * @param[in]      none
  * @retval         bool 解释是否需要继续初始化
  */
-inline bool GetGimbalInitJudgeReturn(void)
+bool GetGimbalInitJudgeReturn(void)
 {
   return false ;
 }
@@ -54,7 +54,7 @@ inline bool GetGimbalInitJudgeReturn(void)
  * @param[in]      uint8_t 轴id
  * @retval         云台的基准值返回 （float)
  */
-inline float CmdGimbalJointState(uint8_t axis)
+float CmdGimbalJointState(uint8_t axis)
 {
   return 0.0f ;
 }

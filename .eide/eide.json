@@ -9,113 +9,15 @@
     "folders": [
       {
         "name": "applications",
-        "files": [],
+        "files": [
+          {
+            "path": "application/robot_param_custom.h"
+          }
+        ],
         "folders": [
-          {
-            "name": "typedef_robot",
-            "files": [
-              {
-                "path": "application/typedef_robot/robot_param.h"
-              },
-              {
-                "path": "application/typedef_robot/robot_param_engineer.h"
-              },
-              {
-                "path": "application/typedef_robot/robot_param_engineer_controller.h"
-              },
-              {
-                "path": "application/typedef_robot/robot_param_mecannum_hero.h"
-              },
-              {
-                "path": "application/typedef_robot/robot_param_omni_infantry.h"
-              },
-              {
-                "path": "application/typedef_robot/robot_param_omni_sentry.h"
-              },
-              {
-                "path": "application/typedef_robot/robot_param_omni_mini.h"
-              },
-              {
-                "path": "application/typedef_robot/robot_param_omni_sentry_two.h"
-              },
-              {
-                "path": "application/typedef_robot/robot_param_fly.h"
-              }
-            ],
-            "folders": []
-          },
-          {
-            "name": "typedef",
-            "files": [
-              {
-                "path": "application/typedef/attribute_typedef.h"
-              },
-              {
-                "path": "application/typedef/custom_typedef.h"
-              },
-              {
-                "path": "application/typedef/macro_typedef.h"
-              },
-              {
-                "path": "application/typedef/robot_typedef.h"
-              },
-              {
-                "path": "application/typedef/struct_typedef.h"
-              },
-              {
-                "path": "application/typedef/usb_typdef.h"
-              }
-            ],
-            "folders": []
-          },
-          {
-            "name": "robot_cmd",
-            "files": [
-              {
-                "path": "application/robot_cmd/CAN_receive.c"
-              },
-              {
-                "path": "application/robot_cmd/CAN_cmd_dji.c"
-              },
-              {
-                "path": "application/robot_cmd/CAN_cmd_cybergear.c"
-              },
-              {
-                "path": "application/robot_cmd/motor.c"
-              },
-              {
-                "path": "application/robot_cmd/CAN_cmd_damiao.c"
-              },
-              {
-                "path": "application/robot_cmd/CAN_cmd_lingkong.c"
-              },
-              {
-                "path": "application/robot_cmd/CAN_communication.c"
-              },
-              {
-                "path": "application/robot_cmd/SupCap.c"
-              },
-              {
-                "path": "application/robot_cmd/CAN_cmd_SupCap.c"
-              },
-              {
-                "path": "application/robot_cmd/PWM_cmd_pump.c"
-              },
-              {
-                "path": "application/robot_cmd/PWM_cmd_servo.c"
-              }
-            ],
-            "folders": []
-          },
           {
             "name": "shoot",
             "files": [
-              {
-                "path": "application/shoot/shoot.c"
-              },
-              {
-                "path": "application/shoot/shoot_task.c"
-              },
               {
                 "path": "application/shoot/shoot_fric_trigger.c"
               }
@@ -123,122 +25,8 @@
             "folders": []
           },
           {
-            "name": "referee",
-            "files": [
-              {
-                "path": "application/referee/referee.c"
-              },
-              {
-                "path": "application/referee/referee_usart_task.c"
-              }
-            ],
-            "folders": []
-          },
-          {
-            "name": "other",
-            "files": [
-              {
-                "path": "application/other/led_flow_task.c"
-              },
-              {
-                "path": "application/other/oled_task.c"
-              },
-              {
-                "path": "application/other/remote_control.c"
-              },
-              {
-                "path": "application/other/test_task.c"
-              },
-              {
-                "path": "application/other/voltage_task.c"
-              }
-            ],
-            "folders": []
-          },
-          {
-            "name": "music",
-            "files": [
-              {
-                "path": "application/music/music_task.c"
-              },
-              {
-                "path": "application/music/music.c"
-              },
-              {
-                "path": "application/music/music_you.c"
-              },
-              {
-                "path": "application/music/music_unity.c"
-              },
-              {
-                "path": "application/music/music_canon.c"
-              },
-              {
-                "path": "application/music/music_castle_in_the_sky.c"
-              },
-              {
-                "path": "application/music/music_start.c"
-              },
-              {
-                "path": "application/music/music_referee.c"
-              },
-              {
-                "path": "application/music/music_error.c"
-              },
-              {
-                "path": "application/music/music_see_you_again.c"
-              },
-              {
-                "path": "application/music/music_hao_yun_lai.c"
-              },
-              {
-                "path": "application/music/music_meow.c"
-              },
-              {
-                "path": "application/music/music_gong_xi_fa_cai.c"
-              },
-              {
-                "path": "application/music/music_deja_vu.c"
-              }
-            ],
-            "folders": []
-          },
-          {
-            "name": "mechanical_arm",
-            "files": [
-              {
-                "path": "application/mechanical_arm/mechanical_arm.c"
-              },
-              {
-                "path": "application/mechanical_arm/mechanical_arm_task.c"
-              },
-              {
-                "path": "application/mechanical_arm/mechanical_arm_engineer.c"
-              }
-            ],
-            "folders": []
-          },
-          {
-            "name": "IMU",
-            "files": [
-              {
-                "path": "application/IMU/IMU_task.c"
-              }
-            ],
-            "folders": []
-          },
-          {
             "name": "gimbal",
             "files": [
-              {
-                "path": "application/gimbal/gimbal.c"
-              },
-              {
-                "path": "application/gimbal/gimbal_task.c"
-              },
-              {
-                "path": "application/gimbal/gimbal_yaw_pitch_direct.c"
-              },
               {
                 "path": "application/gimbal/gimbal_virtual.c"
               },
@@ -249,222 +37,18 @@
             "folders": []
           },
           {
-            "name": "custom_controller",
-            "files": [
-              {
-                "path": "application/custom_controller/custom_controller.c"
-              },
-              {
-                "path": "application/custom_controller/custom_controller_task.c"
-              },
-              {
-                "path": "application/custom_controller/custom_controller_engineer.c"
-              },
-              {
-                "path": "application/custom_controller/custom_controller_connect.c"
-              }
-            ],
-            "folders": []
-          },
-          {
-            "name": "communication",
-            "files": [
-              {
-                "path": "application/communication/communication_task.c"
-              },
-              {
-                "path": "application/communication/communication.c"
-              },
-              {
-                "path": "application/communication/usb_task.c"
-              }
-            ],
-            "folders": []
-          },
-          {
             "name": "chassis",
             "files": [
               {
-                "path": "application/chassis/chassis.c"
-              },
-              {
                 "path": "application/chassis/chassis_power_control.c"
-              },
-              {
-                "path": "application/chassis/chassis_task.c"
-              },
-              {
-                "path": "application/chassis/chassis_mecanum.c"
               },
               {
                 "path": "application/chassis/chassis_omni.c"
               }
             ],
             "folders": []
-          },
-          {
-            "name": "calibrate",
-            "files": [
-              {
-                "path": "application/calibrate/calibrate_task.c"
-              }
-            ],
-            "folders": []
-          },
-          {
-            "name": "assist",
-            "files": [
-              {
-                "path": "application/assist/detect_task.c"
-              },
-              {
-                "path": "application/assist/data_exchange.c"
-              }
-            ],
-            "folders": []
           }
         ]
-      },
-      {
-        "name": "controller",
-        "files": [
-          {
-            "path": "components/controller/pid.c"
-          },
-          {
-            "path": "components/controller/FF_pid.c"
-          },
-          {
-            "path": "components/controller/npid.c"
-          }
-        ],
-        "folders": []
-      },
-      {
-        "name": "support",
-        "files": [
-          {
-            "path": "components/support/CRC8_CRC16.c"
-          },
-          {
-            "path": "components/support/fifo.c"
-          },
-          {
-            "path": "components/support/mem_mang4.c"
-          },
-          {
-            "path": "components/support/kalman_filter.c"
-          },
-          {
-            "path": "components/support/signal_generator.c"
-          },
-          {
-            "path": "components/support/clist.c"
-          },
-          {
-            "path": "components/support/matrix.c"
-          },
-          {
-            "path": "components/support/rls.c"
-          }
-        ],
-        "folders": []
-      },
-      {
-        "name": "algorithm",
-        "files": [
-          {
-            "path": "components/algorithm/AHRS.lib"
-          },
-          {
-            "path": "components/algorithm/AHRS_middleware.c"
-          },
-          {
-            "path": "components/algorithm/arm_cortexM4lf_math.lib"
-          },
-          {
-            "path": "components/algorithm/user_lib.c"
-          }
-        ],
-        "folders": []
-      },
-      {
-        "name": "devices",
-        "files": [
-          {
-            "path": "components/devices/OLED.c"
-          },
-          {
-            "path": "components/devices/BMI088driver.c"
-          },
-          {
-            "path": "components/devices/BMI088Middleware.c"
-          },
-          {
-            "path": "components/devices/ist8310driver.c"
-          },
-          {
-            "path": "components/devices/ist8310driver_middleware.c"
-          }
-        ],
-        "folders": []
-      },
-      {
-        "name": "boards",
-        "files": [
-          {
-            "path": "bsp/boards/bsp_adc.c"
-          },
-          {
-            "path": "bsp/boards/bsp_buzzer.c"
-          },
-          {
-            "path": "bsp/boards/bsp_can.c"
-          },
-          {
-            "path": "bsp/boards/bsp_crc32.c"
-          },
-          {
-            "path": "bsp/boards/bsp_delay.c"
-          },
-          {
-            "path": "bsp/boards/bsp_flash.c"
-          },
-          {
-            "path": "bsp/boards/bsp_fric.c"
-          },
-          {
-            "path": "bsp/boards/bsp_imu_pwm.c"
-          },
-          {
-            "path": "bsp/boards/bsp_i2c.c"
-          },
-          {
-            "path": "bsp/boards/bsp_laser.c"
-          },
-          {
-            "path": "bsp/boards/bsp_led.c"
-          },
-          {
-            "path": "bsp/boards/bsp_rc.c"
-          },
-          {
-            "path": "bsp/boards/bsp_rng.c"
-          },
-          {
-            "path": "bsp/boards/bsp_spi.c"
-          },
-          {
-            "path": "bsp/boards/bsp_usart.c"
-          },
-          {
-            "path": "bsp/boards/bsp_uart.c"
-          },
-          {
-            "path": "bsp/boards/bsp_pwm.c"
-          }
-        ],
-        "folders": []
       },
       {
         "name": "Application",
@@ -719,6 +303,412 @@
         "name": "::CMSIS",
         "files": [],
         "folders": []
+      },
+      {
+        "name": "StdRoboLib",
+        "files": [],
+        "folders": [
+          {
+            "name": "support",
+            "files": [
+              {
+                "path": "StdRoboLib/components/support/clist.c"
+              },
+              {
+                "path": "StdRoboLib/components/support/CRC8_CRC16.c"
+              },
+              {
+                "path": "StdRoboLib/components/support/fifo.c"
+              },
+              {
+                "path": "StdRoboLib/components/support/kalman_filter.c"
+              },
+              {
+                "path": "StdRoboLib/components/support/matrix.c"
+              },
+              {
+                "path": "StdRoboLib/components/support/mem_mang4.c"
+              },
+              {
+                "path": "StdRoboLib/components/support/rls.c"
+              },
+              {
+                "path": "StdRoboLib/components/support/signal_generator.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "devices",
+            "files": [
+              {
+                "path": "StdRoboLib/components/devices/BMI088driver.c"
+              },
+              {
+                "path": "StdRoboLib/components/devices/BMI088Middleware.c"
+              },
+              {
+                "path": "StdRoboLib/components/devices/ist8310driver.c"
+              },
+              {
+                "path": "StdRoboLib/components/devices/ist8310driver_middleware.c"
+              },
+              {
+                "path": "StdRoboLib/components/devices/OLED.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "controller",
+            "files": [
+              {
+                "path": "StdRoboLib/components/controller/FF_pid.c"
+              },
+              {
+                "path": "StdRoboLib/components/controller/npid.c"
+              },
+              {
+                "path": "StdRoboLib/components/controller/pid.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "algorithm",
+            "files": [
+              {
+                "path": "StdRoboLib/components/algorithm/AHRS_middleware.c"
+              },
+              {
+                "path": "StdRoboLib/components/algorithm/user_lib.c"
+              },
+              {
+                "path": "StdRoboLib/components/algorithm/AHRS.lib"
+              },
+              {
+                "path": "StdRoboLib/components/algorithm/arm_cortexM4lf_math.lib"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "boards",
+            "files": [
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_adc.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_buzzer.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_can.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_crc32.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_delay.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_flash.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_fric.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_i2c.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_imu_pwm.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_laser.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_led.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_pwm.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_rc.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_rng.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_spi.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_uart.c"
+              },
+              {
+                "path": "StdRoboLib/bsp/boards/bsp_usart.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "applications",
+            "files": [
+              {
+                "path": "StdRoboLib/application/robot_param.h"
+              }
+            ],
+            "folders": [
+              {
+                "name": "assist",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/assist/data_exchange.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/assist/detect_task.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/assist/uart_receive.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "typedef",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/typedef/attribute_typedef.h"
+                  },
+                  {
+                    "path": "StdRoboLib/application/typedef/custom_typedef.h"
+                  },
+                  {
+                    "path": "StdRoboLib/application/typedef/macro_typedef.h"
+                  },
+                  {
+                    "path": "StdRoboLib/application/typedef/robot_typedef.h"
+                  },
+                  {
+                    "path": "StdRoboLib/application/typedef/struct_typedef.h"
+                  },
+                  {
+                    "path": "StdRoboLib/application/typedef/usb_typdef.h"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "calibrate",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/calibrate/calibrate_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "classis",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/chassis/chassis.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/chassis/chassis_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "communication",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/communication/communication.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/communication/communication_task.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/communication/usb_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "custom_controller",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/custom_controller/custom_controller.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/custom_controller/custom_controller_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "gimbal",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/gimbal/gimbal.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/gimbal/gimbal_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "IMU",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/IMU/IMU_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "mechanical_arm",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/mechanical_arm/mechanical_arm_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "music",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/music/music.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_canon.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_castle_in_the_sky.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_deja_vu.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_error.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_gong_xi_fa_cai.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_hao_yun_lai.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_meow.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_referee.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_see_you_again.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_start.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_task.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_unity.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/music/music_you.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "other",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/other/led_flow_task.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/other/oled_task.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/other/remote_control.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/other/test_task.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/other/voltage_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "referee",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/referee/referee.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/referee/referee_usart_task.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "robot_cmd",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/CAN_cmd_cybergear.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/CAN_cmd_damiao.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/CAN_cmd_dji.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/CAN_cmd_lingkong.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/CAN_cmd_SupCap.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/CAN_communication.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/CAN_receive.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/motor.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/PWM_cmd_pump.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/PWM_cmd_servo.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/robot_cmd/SupCap.c"
+                  }
+                ],
+                "folders": []
+              },
+              {
+                "name": "shoot",
+                "files": [
+                  {
+                    "path": "StdRoboLib/application/shoot/shoot.c"
+                  },
+                  {
+                    "path": "StdRoboLib/application/shoot/shoot_task.c"
+                  }
+                ],
+                "folders": []
+              }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -887,16 +877,34 @@
           "application/calibrate",
           "application/typedef",
           "application/typedef_robot",
-          "bsp/boards",
-          "application",
-          "components/devices",
-          "components/algorithm/Include",
-          "components/algorithm",
-          "components/support",
           "application/protocol",
-          "components/controller",
+          "application",
+          "StdRoboLib/bsp/boards",
+          "StdRoboLib/components/devices",
+          "StdRoboLib/components/algorithm/Include",
+          "StdRoboLib/components/algorithm",
+          "StdRoboLib/components/support",
+          "StdRoboLib/components/controller",
+          "StdRoboLib/application/assist",
+          "StdRoboLib/application/chassis",
+          "StdRoboLib/application/gimbal",
+          "StdRoboLib/application/other",
+          "StdRoboLib/application/referee",
+          "StdRoboLib/application/robot_cmd",
+          "StdRoboLib/application/shoot",
+          "StdRoboLib/application/IMU",
+          "StdRoboLib/application/mechanical_arm",
+          "StdRoboLib/application/music",
+          "StdRoboLib/application/custom_controller",
+          "StdRoboLib/application/communication",
+          "StdRoboLib/application/calibrate",
+          "StdRoboLib/application/typedef",
+          "StdRoboLib/application/typedef_robot",
+          "StdRoboLib/application/protocol",
+          "StdRoboLib",
           ".cmsis/include",
-          "MDK-ARM/RTE/_Keil"
+          "MDK-ARM/RTE/_Keil",
+          "StdRoboLib/application"
         ],
         "libList": [],
         "defineList": [

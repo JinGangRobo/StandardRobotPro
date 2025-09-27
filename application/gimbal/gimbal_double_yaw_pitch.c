@@ -204,7 +204,7 @@ void GimbalDualYawAllocation(float target_yaw_total)
  * @param[in]      none
  * @retval         float
  */
-inline float GetGimbalDeltaYawMid(void)
+float GetGimbalDeltaYawMid(void)
 {
     return loop_fp32_constrain(gimbal_direct.yaw_ba.fdb.pos - GIMBAL_DIRECT_YAW_BA_MID, -M_PI, M_PI);
 }
@@ -216,7 +216,7 @@ inline float GetGimbalDeltaYawMid(void)
  * @param[in]      none
  * @retval         bool 解释是否需要继续初始化
  */
-inline bool GetGimbalInitJudgeReturn(void)
+bool GetGimbalInitJudgeReturn(void)
 {
     return gimbal_direct.init_continue;
 }
@@ -228,7 +228,7 @@ inline bool GetGimbalInitJudgeReturn(void)
  * @param[in]      uint8_t 轴id
  * @retval         云台的基准值返回 （float)
  */
-inline float CmdGimbalJointState(uint8_t axis)
+float CmdGimbalJointState(uint8_t axis)
 {
     if (axis == AX_PITCH)
     {

@@ -1,0 +1,3 @@
+[submodule "StdRoboLib"]
+	path = StdRoboLib
+	url = https://github.com/JinGangRobo/StdRoboLib.git

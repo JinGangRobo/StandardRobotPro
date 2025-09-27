@@ -1,16 +1,16 @@
 /**
- * @file       robot_param_omni_sentry_two.h
- * @brief      这里是全向轮双yaw哨兵机器人参数配置文件，包括物理参数、PID参数等
+ * @file       robot_param_custom.h
+ * @brief      这里是机器人参数配置文件，包括物理参数、PID参数等
  */
 
-#ifndef INCLUDED_ROBOT_PARAM_H
-#define INCLUDED_ROBOT_PARAM_H
+#ifndef INCLUDED_ROBOT_CUSTOM_H
+#define INCLUDED_ROBOT_CUSTOM_H
 #include "robot_typedef.h"
 
 //快速选择对应的板子
 // #define BOARD_CURRENT C_BOARD_DEFAULT
-#define BOARD_CURRENT C_BOARD_DOWN
-// #define BOARD_CURRENT C_BOARD_UP
+// #define BOARD_CURRENT C_BOARD_DOWN
+#define BOARD_CURRENT C_BOARD_UP
 
 // 快速设置双板的配置
 #if(BOARD_CURRENT == C_BOARD_DOWN)
@@ -316,4 +316,4 @@
 // 当未连接裁判系统设置负值方便调试
 #define SHOOT_HEAT_REMAIN_VALUE -80 // 89
 
-#endif /* INCLUDED_ROBOT_PARAM_H */
+#endif /* INCLUDED_ROBOT_CUSTOM_H */
